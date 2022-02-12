@@ -106,51 +106,6 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
 	return root
 
 
-def init_sensors(net):
-	print("Init Sensors")
-	#tipos de sensores no arquivo sensors.py, ex: temperatureSensor, soilmoistureSensor, solarradiationSensor, ledActuator
-	s=utils_hosts.return_hosts_per_type('sensor')
-	ass=utils_hosts.return_association()
-	for i in range(0,len(s)):
-		name = ass[i].name.split('h')		
-		net.get(s[i].name).cmdPrint('python main.py --name devsc'+name[1]+' --broker '+str(ass[i].gateway)+' &')
-		time.sleep(0.2)
-		
-
-
-def init_flow(net):
-	print ("Temp: Init Flow")
-	g=utils_hosts.return_hosts_per_type('gateway')
-	ass=utils_hosts.return_association()
-	#10seg
-	col=10000
-	pub=10000
-	#ind=0
-	valid_gatways = []
-	for i in range(0,len(g)):
-		valid_gatways.append(g[i].name)
-	for j in range(0,len(ass)):
-		if ass[j].name_gateway in valid_gatways:
-			print(ass[j].name_gateway+' com '+ass[j].name)
-			topic = 'blockchain/' if ass[j].type=='blockchain' else 'dev/'
-			#topic = 'dev/'
-			#print("mosquitto_pub -t '"+topic+ass[j].name+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
-			net.get(ass[j].name_gateway).cmd("mosquitto_pub -t '"+topic+ass[j].name+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
-			time.sleep(0.5)
-		
-				
-
-def set_subscribers(net):
-	valid_gatways = []
-	for i in range(0,len(g)):
-		valid_gatways.append(g[i].name)
-	for j in range(0,len(ass)):
-		if ass[j].name_gateway in valid_gatways:
-			print(ass[j].name_gateway+' com '+ass[j].name)
-		print("mosquitto_sub -t '#' -h '"+ass[j].gateway+"'")
-		net.get(g[i].name).cmd("mosquitto_sub -t '#' -h '"+ass[j].gateway+"'")
-		time.sleep(0.5)
-		ind+=1
 		
 def init_gateways(net):
 	print("Init Gateways")
@@ -179,11 +134,11 @@ def init_sensors(net):
 	#tipos de sensores no arquivo sensors.py, ex: temperatureSensor, soilmoistureSensor, solarradiationSensor, ledActuator
 	s=utils_hosts.return_hosts_per_type('sensor')
 	ass=utils_hosts.return_association()
-	for i in range(0,len(s)):
-		if((i+1)<10):
-			net.get(s[i].name).cmdPrint('python main.py --name devsc0'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
-		else:
-			net.get(s[i].name).cmdPrint('python main.py --name sc'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
+	for i in range(0,len(ass)):
+		name = 'sc0' if i+1<10 else 'sc'
+		name +=  str(i+1)
+		print('initting: ',name)
+		net.get(s[i].name).cmdPrint('python main.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
 		time.sleep(0.2)
 
 def init_flow(net):
@@ -199,26 +154,7 @@ def init_flow(net):
 		valid_gatways.append(g[i].name)
 	for j in range(0,len(ass)):
 		if ass[j].name_gateway in valid_gatways:
-			print(ass[j].name_gateway+' com '+ass[j].name)
-			#topic = 'dev/blockchain/' if ass[j].type=='blockchainSensor' else 'dev/'
-			#topic = topic+ass[j].name
 			topic = 'dev/'+ass[j].name
 			print("mosquitto_pub -t '"+topic+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
 			net.get(ass[j].name_gateway).cmd("mosquitto_pub -t '"+topic+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
 			time.sleep(0.5)
-			
-def set_subscribers(net):
-	print ("Temp: Init Subscribers")
-	g=utils_hosts.return_hosts_per_type('gateway')
-	ass=utils_hosts.return_blockchain_host()
-
-	valid_gatways = []
-	for i in range(0,len(g)):
-		valid_gatways.append(g[i].name)
-	for j in range(0,len(ass)):
-		if ass[j].name_gateway in valid_gatways:
-			print(ass[j].name_gateway+' com '+ass[j].name)
-		print("mosquitto_sub -t '#' -h '"+ass[j].gateway+"'")
-		net.get(g[i].name).cmd("mosquitto_sub -t '#' -h '"+ass[j].gateway+"'")
-		time.sleep(0.5)
-		ind+=1

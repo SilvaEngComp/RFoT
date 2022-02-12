@@ -63,31 +63,30 @@ def buildFlowAnwserDevice(deviceName, sensorName, topic, topicError, pub_client,
 	value = ""
 	t = 0
 	cont = 0
-	print(sensorName)
-	if sensorName != 'blockchainSensor':
-		try:
-			methodFLOW = getattr(sensors, sensorName)
-			listValues = []
-			
-			while True:
-				listValues.append(str(methodFLOW(cont)))
-				t = t + collectTime + 1000
-				#Request: {"method":"FLOW", "sensor":"sensorName", "time":{"collect":collectTime,"publish":publishTime}}
-				responseModel={"code":"post","post":topic,"method":"flow","header":{"sensor":sensorName,"device":deviceName,"time":{"collect":collectTime, "publish": publishTime}}, "data":listValues[0]}
-				response = json.dumps(responseModel)
-				#print('post topic: ',topic)
-				pub_client.publish(topic, response)
-				t = 0
-				cont+=1
-				listValues = []
-				sleep(int(publishTime/1000))
-		except:
-			print("erro")
-			errorMessage = "There is no " + sensorName + " sensor in device " + deviceName
-			errorNumber = 1
-			responseModel = {"code":"ERROR", "number":errorNumber, "message":errorMessage}
+	
+	try:
+		methodFLOW = getattr(sensors, sensorName)
+		listValues = []
+		
+		while True:
+			listValues.append(str(methodFLOW(cont)))
+			t = t + collectTime + 1000
+			#Request: {"method":"FLOW", "sensor":"sensorName", "time":{"collect":collectTime,"publish":publishTime}}
+			responseModel={"code":"post","post":topic,"method":"flow","header":{"sensor":sensorName,"device":deviceName,"time":{"collect":collectTime, "publish": publishTime}}, "data":listValues[0]}
 			response = json.dumps(responseModel)
-			pub_client.publish(topicError, response)
+			print('post topic: ',topic)
+			pub_client.publish(topic, response)
+			t = 0
+			cont+=1
+			listValues = []
+			sleep(int(publishTime/1000))
+	except:
+		print("erro")
+		errorMessage = "There is no " + sensorName + " sensor in device " + deviceName
+		errorNumber = 1
+		responseModel = {"code":"ERROR", "number":errorNumber, "message":errorMessage}
+		response = json.dumps(responseModel)
+		pub_client.publish(topicError, response)
 
 
 def buildEventAnwserDevice(deviceName, sensorName, topic, topicError, pub_client, collectTime, publishTime):
@@ -230,5 +229,4 @@ def main(data, msg):
 		proc = sensorProcess(idP, deviceName, sensorName, met, topic, topicError, pub_client, collectTime, publishTime)
 		procs.append(proc)
 		proc.start()
-
 

@@ -10,33 +10,27 @@
 import random
 import pandas as pd
 
-def blockchainSensor(value):
-    return value
 
+
+def getByDataset(pos, sensorName):
+	#return random.randint(300, 3000)
+	try:
+		dataset  = pd.read_csv('intel_lab.csv', usecols=[sensorName], delimiter=",")
+		return dataset[sensorName].iloc[pos]
+	except:
+		return 'error to try read csv'
+		
 def lightSensor(pos):
-    dataset  = pd.read_csv('intel_lab.csv', delimiter=",")
-    if pos>=0 and pos<dataset.shape[0]:
-        return dataset.light[pos]
-    return False
-    
+	return getByDataset(pos, 'light')    
     
 def voltageSensor(pos):
-    dataset  = pd.read_csv('intel_lab.csv', delimiter=",")
-    if pos>=0 and pos<dataset.shape[0]:
-        return dataset.voltage[pos]
-    return False
+    return getByDataset(pos, 'voltage')
 
 def humiditySensor(pos):
-    dataset  = pd.read_csv('intel_lab.csv', delimiter=",")
-    if pos>=0 and pos<dataset.shape[0]:
-        return dataset.humidity[pos]
-    return False
+    return getByDataset(pos, 'humidity')
 
 def temperatureSensor(pos):
-    dataset  = pd.read_csv('intel_lab.csv', delimiter=",")
-    if pos>=0 and pos<dataset.shape[0]:
-        return dataset.temperature[pos]
-    return False
+    return getByDataset(pos, 'temperature')
 
 def soilmoistureSensor(pos):
     return random.randint(0,1023)
