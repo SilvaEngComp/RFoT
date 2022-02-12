@@ -55,11 +55,11 @@ def is_valid():
 
 def add_transaction(msgJson):
 	
-	transaction_keys = ['sender','receiver','amount']
+	transaction_keys = ['sender','sensor', 'receiver','amount']
 	if not all(key in msgJson for key in transaction_keys):
 		return 'Elementos da transação faltando', 400
 
-	index = blockchain.add_transaction(msgJson['sender'],msgJson['receiver'],msgJson['amount'])
+	index = blockchain.add_transaction(msgJson['sender'],msgJson['sensor'],msgJson['receiver'],msgJson['amount'])
 	response = {'message':f'Esta transação será adicionada ao bloco {index}'}
 	return json.dumps(response), 201 
 

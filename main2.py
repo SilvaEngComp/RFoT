@@ -57,7 +57,7 @@ def on_message(mqttc, obj, msg):
 	msgJson = json.loads(msg.payload)
 
 	if 'data' in msgJson:
-		responseModel={'sender':sub_device,'receiver':'h28','amount': msgJson['data']}
+		responseModel={'sender':msgJson['header']['device'],'sensor':msgJson['header']['sensor'],'receiver':'h28','amount': msgJson['data']}
 		response = json.dumps(responseModel)
 		blockchain = iotcoin.mine_block(response)	
 		if blockchain:
@@ -75,14 +75,7 @@ def set_blockchain_publication(blockchain):
 	pub_client.loop_start()
 	
 	pub_client.publish(blocktopic, resp)
-	#pub_client.on_disconnect()
-	
-	
-	
-	
-	#tatu.main(data,resp)
-	#mqttc.publish(blocktopic, resp)
-	#print(resp)
+
 	print('chain published in: ',blocktopic,'\n\n')
         
 def on_subscribe(client: mqtt, topic): 
@@ -112,4 +105,3 @@ if __name__ == '__main__':
 		
 
 	
-

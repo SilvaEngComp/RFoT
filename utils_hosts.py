@@ -32,18 +32,6 @@ def return_association():
 	return devices
 
 
-def return_blockchain_host():
-	f=open('/home/mininet/sim/association_hosts.json','r')
-	st=[]
-	st=f.readlines()
-	f.close()
-	lines = len(st)
-	devices=[]
-	for i in range(0,(lines)):
-		obj = to_object(st[i])		
-		if(obj.name_gateway=='h28'):
-				devices.append(obj)
-	return devices
 	
 def return_hosts_per_type(type_host):
 	hosts=return_hosts()

@@ -31,10 +31,12 @@ class Blockchain:
         self.chain.append(block)
         return block 
     
-    def add_transaction(self, sender, receiver, amount):
+    def add_transaction(self, sender,sensor, receiver, amount):
         self.transactions.append({'sender':sender,
+                                  'sensor':sensor,
                                   'receiver':receiver,
-                                  'amount':amount})
+                                  'amount':amount
+                                  })
         previous_block = self.get_previous_block()
         return previous_block['index']+1
     
@@ -100,7 +102,6 @@ class Blockchain:
             self.chain = longest_chain
             return True
         return False
-
 
 
 
