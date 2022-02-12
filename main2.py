@@ -1,0 +1,115 @@
+import paho.mqtt.client as mqtt
+import json
+import tatu
+import argparse
+import iotcoin
+
+from time import sleep
+
+"""parser = argparse.ArgumentParser(description = 'Params sensors')
+parser.add_argument('--name', action = 'store', dest = 'name', required = True)
+parser.add_argument('--broker', action = 'store', dest = 'broker', required = True)
+parser.add_argument('--topic', action = 'store', dest = 'topic', required = False)
+args = parser.parse_args()
+"""
+data = None
+
+sub_client = None
+sub_broker = '10.0.0.6'
+sub_device = 'sc27'
+topic = 'dev/+/RES'
+
+pub_client = None
+pub_broker = '10.0.0.28'
+pub_device = 'sc27'
+blocktopic = 'dev/sc28'
+#You don't need to change this file. Just change sensors.py and config.json
+
+def on_connect(client, userdata, flags, rc):
+	if rc == 0:
+		print("Connection returned result: ",str(rc))
+	else:
+		print("Failed to connect, return code %d\n", rc)
+             
+def connect_mqtt(data, mqttBroker, deviceName) -> mqtt: 
+	try:
+		data["deviceName"]=deviceName
+		data["mqttBroker"]=mqttBroker
+		mqttPort = data["mqttPort"]
+		mqttUsername = data["mqttUsername"]
+		mqttPassword = data["mqttPassword"]
+
+		sub_client = mqtt.Client(deviceName + "_block", protocol=mqtt.MQTTv31)
+		sub_client.username_pw_set(mqttUsername, mqttPassword)
+		sub_client.on_connect = on_connect
+		sub_client.connect(mqttBroker, int(mqttPort),60)
+		return sub_client
+	except :
+		print ("Broker unreachable on " + mqttBroker + " URL!")
+		sleep(5)
+
+def on_disconnect(mqttc, obj, msg):
+	#print(str(obj))
+	print("disconnected!")
+	exit()
+	
+def on_message(mqttc, obj, msg):	
+	msgJson = json.loads(msg.payload)
+
+	if 'data' in msgJson:
+		responseModel={'sender':sub_device,'receiver':'h28','amount': msgJson['data']}
+		response = json.dumps(responseModel)
+		blockchain = iotcoin.mine_block(response)	
+		if blockchain:
+			set_blockchain_publication(blockchain)
+
+			
+		
+	
+def set_blockchain_publication(blockchain):
+	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":blockchain}	
+	resp = json.dumps(responseModel)
+
+	pub_client = connect_mqtt(data, pub_broker, pub_device)
+	pub_client = on_subscribe(pub_client, blocktopic)
+	pub_client.loop_start()
+	
+	pub_client.publish(blocktopic, resp)
+	#pub_client.on_disconnect()
+	
+	
+	
+	
+	#tatu.main(data,resp)
+	#mqttc.publish(blocktopic, resp)
+	#print(resp)
+	print('chain published in: ',blocktopic,'\n\n')
+        
+def on_subscribe(client: mqtt, topic): 
+	print('subscribing in topic: ', topic) 
+	try:
+		client.subscribe(topic,1)
+		client.on_message = on_message
+		client.on_disconnect = on_disconnect
+		return client
+	except:
+		print('subscribing error')
+
+
+
+if __name__ == '__main__':
+	with open('config.json') as f:
+		data = json.load(f)
+		
+	
+	sub_client = connect_mqtt(data, sub_broker, sub_device)
+	sub_client = on_subscribe(sub_client, topic)
+	sub_client.loop_forever()
+
+	
+		
+		
+		
+
+	
+

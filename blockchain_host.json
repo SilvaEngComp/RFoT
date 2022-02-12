@@ -1,0 +1,3 @@
+
+{"name":"bc01","ip":"10.0.0.28","type":"blockchain","gateway":"10.0.0.6","name_gateway":"h6","collect":"15000","publish":"15000"}
+{"name":"bc02","ip":"10.0.0.29","type":"blockchain","gateway":"10.0.0.7","name_gateway":"h7","collect":"15000","publish":"15000"}
