@@ -13,7 +13,7 @@ import pandas as pd
 
 
 def getByDataset(pos, sensorName):
-	#return random.randint(300, 3000)
+	return random.randint(300, 3000)
 	try:
 		dataset  = pd.read_csv('intel_lab.csv', usecols=[sensorName], delimiter=",")
 		return dataset[sensorName].iloc[pos]

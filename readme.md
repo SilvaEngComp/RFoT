@@ -55,4 +55,7 @@ sudo pip3 install pandas
 #numpy
 sudo pip3 install numpy
 
+#moquitto
+sudo apt-get install mosquitto
+sudo apt-get install mosquitto-clients
 

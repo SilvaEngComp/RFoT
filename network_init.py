@@ -113,7 +113,7 @@ def init_gateways(net):
 	for i in range(0,len(g)):
 		print(g[i].name)
 		net.get(g[i].name).cmdPrint('mosquitto &')
-		#net.get('h6').cmd('python servico.py &')
+		#net.get('h6').cmd('python3 servico.py &')
 	time.sleep(5)
 			
 	
@@ -138,7 +138,7 @@ def init_sensors(net):
 		name = 'sc0' if i+1<10 else 'sc'
 		name +=  str(i+1)
 		print('initting: ',name)
-		net.get(s[i].name).cmdPrint('python main.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
+		net.get(s[i].name).cmdPrint('python3 main.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
 		time.sleep(0.2)
 
 def init_flow(net):

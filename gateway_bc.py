@@ -13,21 +13,21 @@ parser.add_argument('--topic', action = 'store', dest = 'topic', required = Fals
 args = parser.parse_args()
 """
 data = None
-
+separator = '-------'
 sub_client = None
 sub_broker = '10.0.0.6'
-sub_device = 'sc27'
+sub_device = 'sc01'
 topic = 'dev/+/RES'
 
 pub_client = None
 pub_broker = '10.0.0.28'
-pub_device = 'sc27'
+pub_device = 'sc01'
 blocktopic = 'dev/sc28'
 #You don't need to change this file. Just change sensors.py and config.json
 
 def on_connect(client, userdata, flags, rc):
 	if rc == 0:
-		print("Connection returned result: ",str(rc))
+		print(separator,"Connection returned successful!",separator)
 	else:
 		print("Failed to connect, return code %d\n", rc)
              
@@ -79,11 +79,12 @@ def set_blockchain_publication(blockchain):
 	print('chain published in: ',blocktopic,'\n\n')
         
 def on_subscribe(client: mqtt, topic): 
-	print('subscribing in topic: ', topic) 
+	print('subscribing: ',sub_broker,' in topic: ', topic) 
 	try:
 		client.subscribe(topic,1)
 		client.on_message = on_message
 		client.on_disconnect = on_disconnect
+		print(separator,'subscription successfull!',separator)
 		return client
 	except:
 		print('subscribing error')
