@@ -1,14 +1,14 @@
-Informacoes sobre arquivos e execução de experimentos
+#Informacoes sobre arquivos e execução de experimentos
 
 Pasta de trabalho:
-/home/openflow/sim
+/home/<user of system >/mininet_blockchain_ml
 
-Iniciar experimentos:
-sudo python2 sim.py
+##Iniciar experimentos:
+> sudo python2 sim.py
 
-Descricao dos arquivos:
+##Descricao dos arquivos:
 
--data_hosts.json
+### data_hosts.json
 	-Arquivo com informações no formato json dos hosts que irão compor a rede
 -associantion_hosts.json
 	- Arquivo com informações sobre associações entre sensores e gateways, i.e, define o gateway que cada sensor irá se comunicar
@@ -43,19 +43,21 @@ Nome do browser: midori​
 
 Abaixo segue a lista de pacotes necesssários para funcionamento da aplicação
 
-#pip
-sudo apt install python3-pip
+##pip
+> sudo apt install python3-pip
 
-#paho-mqtt
-sudo pip3 install paho-mqtt
+##paho-mqtt
+> sudo pip3 install paho-mqtt
 
-#pandas
-sudo pip3 install pandas
+##pandas
+> sudo pip3 install pandas
 
 #numpy
-sudo pip3 install numpy
+> sudo pip3 install numpy
 
-#moquitto
-sudo apt-get install mosquitto
-sudo apt-get install mosquitto-clients
+##moquitto
+> sudo apt-get install mosquitto
+> sudo apt-get install mosquitto-clients
 
+##tensorflow
+> sudo pip install tensorflow 
