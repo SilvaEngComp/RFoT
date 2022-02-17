@@ -34,8 +34,10 @@ protocolo TATU
 > OBS: sensor "soilmoistureSensor" gerou erro no Storage.
 
 ## Sobre o service-mix e fuseki
-| user  | password |
-| karaf | wiser2014 |
+
+ | user  | password |
+ | -- | -- |
+ | `karaf` | `wiser2014` |
 
 
 ## Abrir terminal do host no CLI
