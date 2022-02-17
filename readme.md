@@ -38,3 +38,21 @@ senha:wiser2014
 
 Abrir terminal do host no CLI: xterm h1
 Nome do browser: midori​
+
+#Bibliotecas requeridas para fucionamento da aplicação
+
+Abaixo segue a lista de pacotes necesssários para funcionamento da aplicação
+
+#pip
+sudo apt install python3-pip
+
+#paho-mqtt
+sudo pip3 install paho-mqtt
+
+#pandas
+sudo pip3 install pandas
+
+#numpy
+sudo pip3 install numpy
+
+

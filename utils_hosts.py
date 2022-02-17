@@ -8,7 +8,7 @@ class to_object(object):
 			
 
 def return_hosts():
-	f=open('/home/mininet/sim/data_hosts.json','r')
+	f=open('data_hosts.json','r')
 	st=[]
 	st=f.readlines()
 	f.close()
@@ -19,7 +19,7 @@ def return_hosts():
 	return hosts
 
 def return_association():
-	f=open('/home/mininet/sim/association_hosts.json','r')
+	f=open('association_hosts.json','r')
 	st=[]
 	st=f.readlines()
 	f.close()
@@ -43,7 +43,7 @@ def return_hosts_per_type(type_host):
 
 	
 def write_host(st):
-	x=open('/home/mininet/sim/data_hosts.json','a')
+	x=open('data hosts.json','a')
 	x.write(st+"\n")
 	x.close()
 
