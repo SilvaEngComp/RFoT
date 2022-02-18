@@ -69,3 +69,8 @@ Pra abrir um terminal no host use a sintax:
 
 ## tensorflow
 > sudo pip install tensorflow 
+### se o processador não suportar awx dê uma olhada nesse link
+> https://github.com/lakshayg/tensorflow-build
+
+## scikit-learn
+> sudo pip install -U scikit-learn

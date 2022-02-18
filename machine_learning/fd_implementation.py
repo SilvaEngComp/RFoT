@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 import random
-import cv2
-import os
-from imutils import paths
+
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
@@ -85,14 +84,13 @@ def batch_data(data_shard, bs=32):
     dataset = tf.data.Dataset.from_tensor_slices(list([list(data), list(label)]))
     return dataset.shuffle(len(label)).batch(bs)
     
-    def batch_data_dict(data_shard):
-
-    #seperate shard into data and labels lists
+def batch_data_dict(data_shard):
+	#seperate shard into data and labels lists
     data, label = zip(*data_shard)
     return {'data':np.array(data), 'label':np.array(label)}
     
     
-    def weight_scalling_factor(clients_trn_data, client_name):
+def weight_scalling_factor(clients_trn_data, client_name):
     client_names = list(clients_trn_data.keys())
     #get the bs
     bs = list(clients_trn_data[client_name])[0][0].shape[0]
@@ -135,7 +133,7 @@ def test_model(X_test, Y_test,  model, comm_round):
     return acc, loss
     
     
-    from tensorflow.python.ops.gen_array_ops import tensor_scatter_sub_eager_fallback
+from tensorflow.python.ops.gen_array_ops import tensor_scatter_sub_eager_fallback
 
 #process and batch the training data for each client
 clients_batched = dict()
