@@ -68,9 +68,11 @@ Pra abrir um terminal no host use a sintax:
 > sudo apt-get install mosquitto-clients
 
 ## tensorflow
-> sudo pip install tensorflow 
-### se o processador não suportar awx dê uma olhada nesse link
-> https://github.com/lakshayg/tensorflow-build
+> sudo pip install tensorflow (se sua CPU suportar awx)
+> https://www.tensorflow.org/install/pip?hl=pt-br
+
+> pip install --ignore-installed --upgrade /path/to/binary.whl --user (se não suportar awx)
+> https://linuxize.com/post/how-to-install-gcc-compiler-on-ubuntu-18-04/
 
 ## scikit-learn
 > sudo pip install -U scikit-learn
