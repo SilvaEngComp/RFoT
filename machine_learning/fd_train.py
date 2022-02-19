@@ -7,24 +7,19 @@ import argparse
 
 from time import sleep
 
-
-"""parser = argparse.ArgumentParser(description = 'Params sensors')
+#Params to run file
+parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
-parser.add_argument('--broker', action = 'store', dest = 'broker', required = True)
-parser.add_argument('--topic', action = 'store', dest = 'topic', required = False)
 args = parser.parse_args()
-"""
+
+#variable to main scope
 data = None
-
-sub_client = None
-sub_broker = '10.0.0.28'
-sub_device = 'sc25'
-topic = 'dev/sc28'
-
+topic = 'sc'+args.name.replace('h','')
+sub_broker = '10.0.0.29'
 pub_client = None
 pub_broker = '10.0.0.8'
 pub_device = 'sc25'
-blocktopic = 'dev/sc27'
+pub_topic = 'dev/sc28'
 
 #You don't need to change this file. Just change sensors.py and config.json
 
@@ -106,16 +101,21 @@ def set_blockchain_publication(blockchain):
 
 	print('chain published in: ',blocktopic,'\n\n')
         
-def on_subscribe(client: mqtt, topic): 
-	print('subscribing in topic: ', topic) 
+def on_subscribe(client: mqtt): 
+	print('subscribing in topic: ', args.topic) 
 	try:
-		client.subscribe(topic,1)
+		client.subscribe(args.topic,1)
 		client.on_message = on_message
 		client.on_disconnect = on_disconnect
 		return client
 	except:
 		print('subscribing error')
 
+def registerMySelf():
+	host_formated = "{name: "+args.name+", topic: "+args.topic+"}"
+	host_file=open('hosts_training.json','a')
+	host_file.write(host_formated+"\n")
+	host_file.close()
 
 
 if __name__ == '__main__':

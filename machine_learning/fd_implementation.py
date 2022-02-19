@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 import random
 
-
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
@@ -11,22 +9,12 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D
-from keras.layers import Activation
-from keras.layers import Flatten
-from keras.layers import Dense
-from tensorflow.keras.optimizers import SGD
-from keras import backend as K
 
-#from fl_mnist_implementation_tutorial_utils import *
 
 
 def preprocessiing():
    
-    prep_dataset = pd.read_csv('/content/drive/MyDrive/dissertação/codigos/FL/datasets/dataset_test_02_07.csv', delimiter=",")
+    prep_dataset = pd.read_csv('dataset_test_02_07.csv', delimiter=",")
     prep_dataset = prep_dataset[(prep_dataset["temperature"] >=15)]
     prep_dataset = prep_dataset[(prep_dataset["temperature"] <=40)]
     df = prep_dataset.iloc[:,1:4]
@@ -70,7 +58,7 @@ def create_clients(mensurement_list, label_list, num_clients=10, initial='client
     
     #create clients
 clients = create_clients(X_train, y_train, num_clients=10, initial='client')
-len(clients)
+
 
 def batch_data(data_shard, bs=32):
     '''Takes in a clients data shard and create a tfds object off it
@@ -145,31 +133,6 @@ for (client_name, data) in clients.items():
 #process and batch the test set  
 test_batched = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(len(y_test))
 
-
-from numpy.lib import shape_base
-class SimpleMLP:
-    @staticmethod
-    def build(shape, classes):
-        model = Sequential([
-            Dense(32, activation='relu', input_shape=(shape,)),
-            Dense(372, activation='sigmoid')   
-        ])
-        
-
-        return model
-        
-        
-        learning_rate = 0.01 
-comms_round = 100
-loss ="categorical_crossentropy"
-# optimizer = tf.keras.optimizers.Adam(
-# learning_rate)
-metrics = ['accuracy']
-optimizer = SGD(learning_rate, 
-                decay= learning_rate / comms_round, 
-                momentum=0.9
-               )      
-               
                
 #initialize global model
 shape = clients_batched['client_1']['data'].shape[0]
