@@ -50,29 +50,23 @@ Pra abrir um terminal no host use a sintax:
 # Bibliotecas requeridas para fucionamento da aplicação
 
 - Abaixo segue a lista de pacotes necesssários para funcionamento da aplicação
+- é recomendado o uso do anaconda, instando as ferramentas dentro de um ambiente virtual,
+pois seu gerenciamento de pacotes tende a ser mais eficiente e prático do que o pip
 
-## pip
-> sudo apt install python3-pip
+## Anaconda
+- guia de instalação: https://www.digitalocean.com/community/tutorials/how-to-install-the-anaconda-python-distribution-on-ubuntu-20-04-pt
 
 ## paho-mqtt
 > sudo pip3 install paho-mqtt
 
-## pandas
-> sudo pip3 install pandas
-
-# numpy
-> sudo pip3 install numpy
 
 ## moquitto
 > sudo apt-get install mosquitto
 > sudo apt-get install mosquitto-clients
 
 ## tensorflow
-> sudo pip install tensorflow (se sua CPU suportar awx)
-> https://www.tensorflow.org/install/pip?hl=pt-br
-
-> pip install --ignore-installed --upgrade /path/to/binary.whl --user (se não suportar awx)
-> https://linuxize.com/post/how-to-install-gcc-compiler-on-ubuntu-18-04/
+- guia de instalação: 
+https://ichi.pro/pt/configurando-seu-pc-workstation-para-deep-learning-tensorflow-e-pytorch-windows-158989914486219
 
 ## scikit-learn
 > sudo pip install -U scikit-learn
