@@ -13,6 +13,57 @@ import json
 from urllib.parse import urlparse
 import requests
 
+
+class Transaction:
+	def __init__(self, sender, sensor,receiver, data):
+		self.sender = sender
+		self.sensor = sensor
+		self.receiver = receiver
+		self.data = data
+
+		
+	def __str__(self):
+		return str({
+		'sender': self.sender,
+        'sensor': self.sensor,
+		'receiver':self.receiver,
+		'data': self.data ,
+		})
+		
+	def __repr__(self):
+		return str({
+		'sender': self.sender,
+        'sensor': self.sensor,
+		'receiver':self.receiver,
+		'data': self.data ,
+		})
+
+class Block:
+	def __init__(self, index, proof, previus_hash, transactions):
+		self.index = index
+		self.timestamp = str(datetime.datetime.now())
+		self.proof = proof
+		self.previous_hash = previus_hash
+		self.transactions = transactions
+		
+	def __str__(self):
+		return str({
+		'index': self.index,
+        'timestamp': self.timestamp,
+		'proof':self.proof,
+		'previus_hash': self.previous_hash ,
+		'transactions': self.transactions
+		})
+		
+	def __repr__(self):
+		return str({
+		'index': self.index,
+        'timestamp': self.timestamp,
+		'proof':self.proof,
+		'previus_hash': self.previous_hash ,
+		'transactions': self.transactions
+		})
+
 class Blockchain:
     def __init__(self):
         self.chain = []
@@ -20,25 +71,35 @@ class Blockchain:
         self.create_block(proof=1, previus_hash='0')
         self.nodes = set()
         self.pool = []
-    
+        
+    def __str__(self):
+        return str({
+		'chain': self.chain,
+        'transactions': self.transactions,
+		'nodes':self.nodes,
+		'previus_hash': self.previous_hash ,
+		'pool': self.pool
+		})
+		
+    def __repr__(self):
+        return str({
+		'chain': self.chain,
+        'transactions': self.transactions,
+		'nodes':self.nodes,
+		'previus_hash': self.previous_hash ,
+		'pool': self.pool
+		})
+        
     def create_block(self, proof, previus_hash):
-        block = {'index': len(self.chain)+1,
-                 'timestamp':str(datetime.datetime.now()),
-                 'proof':proof,
-                 'previous_hash':previus_hash,
-                 'transactions':self.transactions}
+        block = Block(len(self.chain)+1,proof,previus_hash,self.transactions)
         self.transactions = []
         self.chain.append(block)
         return block 
     
-    def add_transaction(self, sender,sensor, receiver, amount):
-        self.transactions.append({'sender':sender,
-                                  'sensor':sensor,
-                                  'receiver':receiver,
-                                  'amount':amount
-                                  })
+    def add_transaction(self, transaction):
+        self.transactions.append(transaction)
         previous_block = self.get_previous_block()
-        return previous_block['index']+1
+        return previous_block.index + 1
     
     def get_previous_block(self):
         return self.chain[-1]
@@ -60,7 +121,7 @@ class Blockchain:
         return new_proof
     
     def hash(self, block):
-        encoded_block = json.dumps(block,sort_keys=True).encode()
+        encoded_block = json.dumps(str(block),sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
     
     def is_chain_valid(self, chain):
@@ -68,10 +129,10 @@ class Blockchain:
         block_index=1
         while block_index < len(chain):
             block = chain[block_index]
-            if block['previous_hash'] != self.hash(previous_block):
+            if block.previous_hash != self.hash(previous_block):
                 return False
-            previous_proof = previous_block['proof']
-            proof = block['proof']
+            previous_proof = previous_block.proof
+            proof = block.proof
             
             hash_operation = hashlib.sha256(str(proof**2-previous_proof**2).encode()).hexdigest()
             if self.check_puzzle(hash_operation) is False:

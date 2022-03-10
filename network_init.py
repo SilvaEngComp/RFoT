@@ -138,7 +138,7 @@ def init_sensors(net):
 		name = 'sc0' if i+1<10 else 'sc'
 		name +=  str(i+1)
 		print('initting: ',name)
-		net.get(s[i].name).cmdPrint('python3 main.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
+		net.get(s[i].name).cmdPrint('python3 paho_init.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
 		time.sleep(0.2)
 
 def init_flow(net):

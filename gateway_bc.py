@@ -3,7 +3,7 @@ import json
 import tatu
 import argparse
 import iotcoin
-
+from blockchain import Transaction
 from time import sleep
 
 """parser = argparse.ArgumentParser(description = 'Params sensors')
@@ -57,9 +57,8 @@ def on_message(mqttc, obj, msg):
 	msgJson = json.loads(msg.payload)
 
 	if 'data' in msgJson:
-		responseModel={'sender':msgJson['header']['device'],'sensor':msgJson['header']['sensor'],'receiver':'h28','amount': msgJson['data']}
-		response = json.dumps(responseModel)
-		blockchain = iotcoin.mine_block(response)	
+		transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
+		blockchain = iotcoin.mine_block(transaction)	
 		if blockchain:
 			set_blockchain_publication(blockchain)
 
@@ -67,7 +66,7 @@ def on_message(mqttc, obj, msg):
 		
 	
 def set_blockchain_publication(blockchain):
-	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":blockchain}	
+	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":str(blockchain)}	
 	resp = json.dumps(responseModel)
 
 	pub_client = connect_mqtt(data, pub_broker, pub_device)

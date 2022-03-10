@@ -53,6 +53,11 @@ Pra abrir um terminal no host use a sintax:
 - é recomendado o uso do anaconda, instando as ferramentas dentro de um ambiente virtual,
 pois seu gerenciamento de pacotes tende a ser mais eficiente e prático do que o pip
 
+
+## Mininet
+> Para instalar o mininet siga o passo a passo no link abaixo:
+http://mininet.org/download/
+
 ## Anaconda
 - guia de instalação: https://www.digitalocean.com/community/tutorials/how-to-install-the-anaconda-python-distribution-on-ubuntu-20-04-pt
 

@@ -14,34 +14,24 @@ node_address = str(uuid4()).replace('-', '')
 
 blockchain = Blockchain()
 
-def mine_block(data):
-	msgJson = json.loads(data)
-
+def mine_block(transaction):
 	previous_block = blockchain.get_previous_block()    
 
-	previous_proof = previous_block['proof']
+	previous_proof = previous_block.proof
 
 	proof = blockchain.proof_of_work(previous_proof)
 
 	previous_hash = blockchain.hash(previous_block)
-	add_transaction(msgJson)
+	blockchain.add_transaction(transaction)
 	if len(blockchain.transactions)>=10:
 		block = blockchain.create_block(proof,previous_hash)
-
-		response = {'message':'Congratulations! blockchain minered',
-					'index':block['index'],
-					'timestamp':block['timestamp'],
-					'proof':block['proof'],
-					'previous_hash':block['previous_hash'],
-					'transaction':block['transactions']}
-
 		return get_chain()
-	print( len(blockchain.transactions),' - ',blockchain.transactions)
+	print( len(blockchain.transactions),' - ',str(blockchain.transactions))
 	return None
 
 
 def get_chain():
-    response = {'chain':blockchain.chain,
+    response = {'chain':str(blockchain.chain),
                 'length': len(blockchain.chain)}
     
     return response
@@ -52,16 +42,6 @@ def is_valid():
     
     return json.dumps(response), 200
     
-
-def add_transaction(msgJson):
-	
-	transaction_keys = ['sender','sensor', 'receiver','amount']
-	if not all(key in msgJson for key in transaction_keys):
-		return 'Elementos da transação faltando', 400
-
-	index = blockchain.add_transaction(msgJson['sender'],msgJson['sensor'],msgJson['receiver'],msgJson['amount'])
-	response = {'message':f'Esta transação será adicionada ao bloco {index}'}
-	return json.dumps(response), 201 
 
 def connect_node():
     json = request.get_json()
