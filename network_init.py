@@ -107,7 +107,7 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
 
 
 		
-def init_gateways(net):
+def initGateways(net):
 	print("Init Gateways")
 	g=utils_hosts.return_hosts_per_type('gateway')
 	for i in range(0,len(g)):
@@ -129,7 +129,7 @@ def stop_gateways(net):
 
 	
 
-def init_sensors(net):
+def initSensors(net):
 	print("\n\n......Init Sensors....\n")
 	#tipos de sensores no arquivo sensors.py, ex: temperatureSensor, soilmoistureSensor, solarradiationSensor, ledActuator
 	s=utils_hosts.return_hosts_per_type('sensor')
@@ -141,7 +141,7 @@ def init_sensors(net):
 		net.get(s[i].name).cmdPrint('python3 paho_init.py --name '+name+' --broker '+str(ass[i].gateway)+' &')
 		time.sleep(0.2)
 
-def init_flow(net):
+def initFlow(net):
 	print ("Temp: Init Flow")
 	g=utils_hosts.return_hosts_per_type('gateway')
 	ass=utils_hosts.return_association()

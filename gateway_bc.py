@@ -6,12 +6,10 @@ import iotcoin
 from blockchain import Transaction
 from time import sleep
 
-"""parser = argparse.ArgumentParser(description = 'Params sensors')
+parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
-parser.add_argument('--broker', action = 'store', dest = 'broker', required = True)
-parser.add_argument('--topic', action = 'store', dest = 'topic', required = False)
 args = parser.parse_args()
-"""
+
 data = None
 separator = '-------'
 sub_client = None
@@ -58,14 +56,15 @@ def on_message(mqttc, obj, msg):
 
 	if 'data' in msgJson:
 		transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
-		blockchain = iotcoin.mine_block(transaction)	
+		blockchain = iotcoin.mineBlock(transaction, args.name)	
 		if blockchain:
-			set_blockchain_publication(blockchain)
+			iotcoin.register()
+			setBlockchainPublication(blockchain)
 
 			
 		
 	
-def set_blockchain_publication(blockchain):
+def setBlockchainPublication(blockchain):
 	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":str(blockchain)}	
 	resp = json.dumps(responseModel)
 

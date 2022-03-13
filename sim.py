@@ -18,13 +18,13 @@ if __name__ == '__main__':
 	# Configurar e iniciar comunicacao externa
 	rootnode = ni.connectToInternet( net )
 	
-	ni.init_gateways(net)
+	ni.initGateways(net)
 	
 	#Iniciar sensores virtuais
-	ni.init_sensors(net)
+	ni.initSensors(net)
 	
 	#Iniciar fluxo de comunicacao
-	ni.init_flow(net)
+	ni.initFlow(net)
 
 	CLI( net )
 	
