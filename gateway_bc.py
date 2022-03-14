@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 import tatu
 import argparse
-import iotcoin
+from iotcoin import Iotcoin
 from blockchain import Transaction
 from time import sleep
 
@@ -21,6 +21,7 @@ pub_client = None
 pub_broker = '10.0.0.28'
 pub_device = 'sc01'
 blocktopic = 'dev/sc28'
+iotcoin = Iotcoin(args.name)
 #You don't need to change this file. Just change sensors.py and config.json
 
 def on_connect(client, userdata, flags, rc):
@@ -56,9 +57,8 @@ def on_message(mqttc, obj, msg):
 
 	if 'data' in msgJson:
 		transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
-		blockchain = iotcoin.mineBlock(transaction, args.name)	
+		blockchain = iotcoin.mineBlock(transaction)	
 		if blockchain:
-			iotcoin.register()
 			setBlockchainPublication(blockchain)
 
 			

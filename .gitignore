@@ -1,5 +1,5 @@
 .pyc
 *.pyc
-blockchain.json
+*blockchain_h29.json
 nodes.json
 
