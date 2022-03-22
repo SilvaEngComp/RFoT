@@ -8,20 +8,12 @@ from time import sleep
 
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
-args = parser.parse_args()
+args = parser.parse_args()  
 
-data = None
-separator = '-------'
-sub_client = None
-sub_broker = '10.0.0.6'
-sub_device = 'sc01'
-topic = 'dev/+/RES'
 
-pub_client = None
-pub_broker = '10.0.0.28'
-pub_device = 'sc01'
-blocktopic = 'dev/sc28'
-iotcoin = Iotcoin(args.name)
+
+
+
 #You don't need to change this file. Just change sensors.py and config.json
 
 def on_connect(client, userdata, flags, rc):
@@ -48,18 +40,21 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
 		sleep(5)
 
 def on_disconnect(mqttc, obj, msg):
-	#print(str(obj))
-	print("disconnected!")
-	exit()
+    try:
+        devices.remove(args.name)
+    except:
+        print(devices)
+    print("disconnected!")
+    exit()
 	
 def on_message(mqttc, obj, msg):	
-	msgJson = json.loads(msg.payload)
-
-	if 'data' in msgJson:
-		transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
-		blockchain = iotcoin.mineBlock(transaction)	
-		if blockchain:
-			setBlockchainPublication(blockchain)
+    msgJson = json.loads(msg.payload)
+    if 'data' in msgJson:
+        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
+        blockchain = iotcoin.mineBlock(transaction)	
+        if blockchain:
+            setBlockchainPublication(len(blockchain.chain))
+            iotcoin.blockchainRestart() 
 
 			
 		
@@ -87,16 +82,55 @@ def on_subscribe(client: mqtt, topic):
 	except:
 		print('subscribing error')
 
+def deviceRunning():
+    devices = set()
+    flag = 0
+    try:
+        with open('devices_running.json') as devicesFile:
+            data = json.load(devicesFile)
+            devices = set(data['devices'])
+            if(args.name in data['devices']):
+                flag = -1
+            devices.add(args.name)
+            registerDevice(devices)
+    except:
+        devices.add(args.name)
+        registerDevice(devices)
+    
+    return devices
+    
+def registerDevice(devices):
+    with open('devices_running.json','w+') as devicesFile:
+        devices = {"devices": list(devices)}
+        json.dump(devices, devicesFile)
 
-
+devices = deviceRunning()
 if __name__ == '__main__':
-	with open('config.json') as f:
-		data = json.load(f)
-		
-	
-	sub_client = connect_mqtt(data, sub_broker, sub_device)
-	sub_client = on_subscribe(sub_client, topic)
-	sub_client.loop_forever()
+    
+    data = None
+    separator = '-------'
+    sub_client = None
+    sub_broker = '10.0.0.6'
+    sub_device = args.name
+    topic = 'dev/+/RES'
+    
+    pub_client = None
+    pub_broker = '10.0.0.28'
+    pub_device = 'sc01'
+    blocktopic = 'dev/sc28'
+    iotcoin = Iotcoin(args.name)
+    
+    with open('config.json') as f:
+        data = json.load(f)
+    
+    deviceRunning()
+        
+    
+    print('name: ',args.name)
+    print('sub_device: ',sub_device)
+    sub_client = connect_mqtt(data, sub_broker, sub_device)
+    sub_client = on_subscribe(sub_client, topic)
+    sub_client.loop_forever()
 
 	
 		

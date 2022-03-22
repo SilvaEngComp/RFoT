@@ -1,5 +1,6 @@
 .pyc
 *.pyc
-*blockchain_h29.json
+*blockchain_h*.json
+devices_running.json
 nodes.json
 

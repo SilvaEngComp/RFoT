@@ -1,7 +1,6 @@
 
 from mininet.net import Mininet
-from mininet.link import TCLink
-from mininet.cli import CLI
+
 from mininet.log import lg
 from mininet.node import Node, RemoteController, Controller, OVSKernelSwitch
 from mininet.topolib import TreeNet

@@ -4,9 +4,11 @@ from mininet.net import Mininet
 from mininet.link import TCLink
 from mininet.cli import CLI
 from mininet.log import lg
+import os
 
 if __name__ == '__main__':
 	lg.setLogLevel( 'info')
+	os.remove('devices_running.json')
 	#root = Node('root', inNamespace=False)
 	#root.cmd('sudo mn -c')
 	import network_init as ni

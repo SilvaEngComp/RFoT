@@ -26,11 +26,10 @@ class Iotcoin:
         return None
     
     def getChain(self):
-        self.replaceFileChain()
-        response =  {'chain':str(self.blockchain.chain),
-        'length': len(self.blockchain.chain)}
-        self.blockchainRestart()   
-        return response
+        self.replaceFileChain()        
+        return self.blockchain
+          
+    
     
     def blockchainRestart(self):
         self.blockchain.replaceChain()
@@ -61,8 +60,13 @@ class Iotcoin:
                 data = json.load(nodeFile)
                 nodes = set(data['nodes'])
                 nodes.add(self.blockchain.node)
+                self.registerNodeInFile(nodes)
+                
+            
         except:
             nodes.add(self.blockchain.node)
-            with open(self.nodesFileName,'w+') as nodeFile:
+            self.registerNodeInFile(nodes)
+    def registerNodeInFile(self, nodes):
+        with open(self.nodesFileName,'w+') as nodeFile:
                 nodes = {"nodes": list(nodes)}
                 json.dump(nodes, nodeFile)
