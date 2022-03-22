@@ -91,7 +91,11 @@ class Blockchain:
                 return new_proof                            
 
     def hash(self, block):
-        encoded_block = json.dumps(str(block),sort_keys=True).encode()
+        pint('isinstance: ', isinstance(bloc, Block))
+        if isinstance(bloc, Block):
+            block = str(block)
+        encoded_block = json.dumps(block,sort_keys=True).encode()
+        print('encoded_block: ', encoded_block)
         return hashlib.sha256(encoded_block).hexdigest()
 
     def isChainValid(self, chain):
@@ -100,21 +104,26 @@ class Blockchain:
         block_index=1
         while block_index < len(chain):
             block = chain[block_index]
+            print('pass...')
             if block.previous_hash != self.hash(previous_block):
+                print('pass...1')
                 return False
-            previous_proof = previous_block.proof
-            proof = block.proof
+            print('pass...1')
+            previous_proof = previous_block['proof']
+            proof = block['roof']
             hash_operation = hashlib.sha256(str(proof**2-previous_proof**2).encode()).hexdigest()
             if self.check_puzzle(hash_operation) is False:
                 return False
             previous_block = block
-            block_index +=1
+            block_index += 1
         return True
 
-    def getLocalBLockchainFile(self, node = None):
+    def getLocalBLockchainFile(self, node = None, training=False):
         if node is None:
             node = self.node
-        fileName = str('blockchain_'+node+'.json')
+        fileName = str('../blockchain_'+node+'.json') if training else  str('blockchain_'+node+'.json') 
+        print(fileName)
+        
         if os.path.exists(fileName) is False:
             block = Block()
             self.chain.append(block)
@@ -123,29 +132,33 @@ class Blockchain:
             chain = None
             with open(fileName) as blockchainFile:
                 if os.path.getsize(fileName) > 0:
-                    data = json.load(blockchainFile)
-                    chain = self.fromJson(data['chain'])
+                    chain = json.load(blockchainFile)['chain']
             return chain
         except:
             print('not found local blockchain file: blockchain_'+self.node+'.json')
+            return None
     
     
-    def replaceChain(self):
-        with open('nodes.json') as nodeFile:
-            data = json.load(nodeFile)
-            nodes = data['nodes']
-            longest_chain = None
-            max_length = len(self.chain)
-            for node in nodes:
-                print('checking node: ',node)
-                chain = self.getLocalBLockchainFile()
-                if(chain is None):
-                    return None;
-                length = len(chain)
-                if length>max_length and self.isChainValid(chain):
-                    max_length = length
-                    longest_chain = chain
-            if longest_chain:
-                chain = longest_chain
-                return True
-            return False
+    def replaceChain(self, fileName='nodes.json', training=False):
+        try:
+            with open(fileName) as nodeFile:
+                data = json.load(nodeFile)
+                nodes = data['nodes']
+                longest_chain = None
+                
+                max_length = len(self.chain)
+                for node in nodes:
+                    print('checking node: ',node)
+                    chain = self.getLocalBLockchainFile(node,training)
+                    if(chain is None):
+                        return None;
+                    length = len(chain)
+                    isValide = self.isChainValid(chain)
+                    print(isValide)
+                    if length>max_length and self.isChainValid(chain):
+                        max_length = length
+                        longest_chain = chain
+                    
+                return longest_chain
+        except:
+            print('No file ',fileName,' found')

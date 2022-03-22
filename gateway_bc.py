@@ -11,9 +11,6 @@ parser.add_argument('--name', action = 'store', dest = 'name', required = True)
 args = parser.parse_args()  
 
 
-
-
-
 #You don't need to change this file. Just change sensors.py and config.json
 
 def on_connect(client, userdata, flags, rc):

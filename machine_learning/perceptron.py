@@ -9,10 +9,9 @@ from keras.layers import Activation
 from keras.layers import Dense
 
 class SimpleMLP:
-	
-	def __init__():
-		self.metrics = ['accuracy']
-		self.optimizer = SGD(learning_rate, 
+    def __init__():
+        self.metrics = ['accuracy']
+        self.optimizer = SGD(learning_rate, 
 						decay= learning_rate / comms_round, 
 						momentum=0.9
 					   )  
