@@ -50,7 +50,7 @@ def on_disconnect(mqttc, obj, msg):
 	
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
-    chain = blockchain.replaceChain('../nodes.json', True)
+    chain = blockchain.replaceChain(prefix, True)
     #calcDeltaTemperature(blockchain)
 
 	
@@ -147,14 +147,14 @@ if __name__ == '__main__':
     sub_broker = '10.0.0.28'
     sub_device = args.name
     topic = 'dev/sc28'
-    
     pub_client = None
     pub_broker = '10.0.0.29'
     pub_device = 'sc01'
     blocktopic = 'dev/sc29'
+    prefix = '../'
     blockchain = Blockchain(sub_device)
-    blockchain.chain = blockchain.replaceChain('../nodes.json', True)
-    print(blockchain)
+    blockchain.chain = blockchain.replaceChain(prefix, True)
+    #print(blockchain)
     with open('../config.json') as f:
         data = json.load(f)
     
