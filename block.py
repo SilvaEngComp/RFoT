@@ -47,6 +47,6 @@ class Block:
             pool = []
             for transaction in block['transactions']:
                 pool.append(Transaction.fromJson(transaction))
-            return Block(pool, block['index'],block['proof'],block['previousHash'])
+            return Block(pool, block['index'],block['proof'],block['previousHash'], block['timestamp'])
             
         return block

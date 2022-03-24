@@ -21,21 +21,16 @@ class Blockchain:
         self.fileName = str('blockchain_'+str(self.node)+'.json')
         self.chain = []
         self.nodes = set()
-        self.pool = []
 
 
     def __str__(self):
 
         return str({
         "chain": self.chain,
-        "node":self.node,
-        "pool": self.pool
         })
     def __repr__(self):
         return str({
         "chain": self.chain,
-        "node":self.node,
-        "pool": self.pool
         })
     
     def toJson(self):
@@ -61,28 +56,31 @@ class Blockchain:
 
     def register(self):
         with open(self.fileName,"w") as blockchainFile:
+            print('registring: ',self.fileName)
             json.dump(self.toJson(), blockchainFile)
 
 
-    def createBlock(self):
+    def createBlock(self, pool):
         previousBlock = self.getPreviousBlock()
         
         if previousBlock is None:
-            block = Block(self.pool)
+            block = Block(pool)
         else:
             proof = self.proofOfWork(previousBlock.proof)
             previousHash = self.hash(previousBlock)
-            block = Block(self.pool,(previousBlock.index+1),proof,previousHash)
+            block = Block(pool,(previousBlock.index+1),proof,previousHash)
         
         self.chain.append(block)
-        self.register()
-        return block
+        if(self.isChainValid(self.chain)):
+            self.register()
+        else:
+            self.chain = []
+            
+        
 
 
     def getPreviousBlock(self):
-        print('getting previous block')
         chain = self.solveBizzantineProblem()
-        
         if chain is None:
             return None
         elif len(chain)>0:            
@@ -90,40 +88,49 @@ class Blockchain:
             return self.chain[-1]
         return None
 
-    def check_puzzle(self, hash_test):
+    def checkPuzzle(self, hash_test):
         if hash_test[0:4]=='0000':
             return True
             return False                                
 
-    def proofOfWork(self, previous_proof):
-        new_proof = 1
-        previous_proof = int(previous_proof)
+    def getHashOperation(self,previous_proof, new_proof):
+        return hashlib.sha256(str(new_proof**2-previous_proof**2).encode()).hexdigest()
+        
+    def proofOfWork(self, previous_proof, new_proof = 1):
+        if isinstance(previous_proof,str):
+            previous_proof = int(previous_proof)
+        if isinstance(new_proof,str):
+            new_proof = int(new_proof)
+        
         while True:
-            hash_operation = hashlib.sha256(str(new_proof**2-previous_proof**2).encode()).hexdigest()
-            if self.check_puzzle(hash_operation) is True:
+            hashOperation = self.getHashOperation(previous_proof, new_proof)
+            if self.checkPuzzle(hashOperation) is True:
                 break
             else:
                 new_proof +=1
-                return new_proof                            
+        return new_proof                            
 
-    def hash(self, block):
-        if isinstance(block, Block):
-            block = str(block)
-        encoded_block = json.dumps(block,sort_keys=True).encode()
-        return hashlib.sha256(encoded_block).hexdigest()
+    def hash(self, value):
+        try:
+            if isinstance(value, Block):
+                value = str(value)
+                encoded = json.dumps(value).encode()
+                return hashlib.sha256(encoded).hexdigest()
+        except:
+            print('It can not get the hash of not Block: ',type(value))
+            return None
 
     def isChainValid(self, chain):
-        print('validating chain...')
-        previousBlock =Block.fromJson(chain[0])
-        print('pass..')
+        previousBlock = chain[0]
         blockIndex=1
         while blockIndex < len(chain):
-            block = Block.fromJson(chain[blockIndex])
-            if block.previousHash != self.hash(previousBlock):
+            block = chain[blockIndex]
+            previousBlockHash = self.hash(previousBlock)
+            if block.previousHash != previousBlockHash:
                 return False
             previousProof = previousBlock.proof
             proof = block.proof
-            hashOperation = hashlib.sha256(str(proof**2-previousProof**2).encode()).hexdigest()
+            hashOperation = self.getHashOperation(previousProof, proof)
             if self.checkPuzzle(hashOperation) is False:
                 return False
             previousBlock = block
@@ -140,12 +147,12 @@ class Blockchain:
         
         if os.path.exists(fileName) is False:
             return self.chain
+        
         try:
             with open(fileName) as blockchainFile:
                 if os.path.getsize(fileName) > 0:
                     data = json.load(blockchainFile)['chain']
                     return Blockchain.fromJson(data)
-                    
         except:
             print('not found local blockchain file: blockchain_'+self.node+'.json')
             return self.chain
@@ -153,22 +160,19 @@ class Blockchain:
     
     def solveBizzantineProblem(self, prefix='', training=False):
         try:
-            print('solving Bizzantine Problem')
             nodes = Node.get(prefix)
             longest_chain = None
             
             max_length = 0
+            nameNode=None
             for node in nodes:
-                print('checking node: ',node)
                 chain = self.getLocalBLockchainFile(node,prefix,training)
                 length = len(chain)
                 isValide = self.isChainValid(chain)
-                print('length: ', length, 'max_length: ',max_length)
-                print('isValid: ', isValide )
-                print(length>max_length and isValide)
-                if length>max_length and self.isChainValid(chain):
+                if length>max_length and isValide:
                     max_length = length
                     longest_chain = chain
+                    nameNode = node
             return longest_chain
         except:
             print('Something wrong happen in replaceChain...')

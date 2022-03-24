@@ -14,21 +14,21 @@ class Iotcoin:
     def __init__(self, node):
         self.blockchain = Blockchain(node)
         self.blockchain.node = node
-        self.blockWidth = 2
+        self.blockWidth = 5
+        self.pool = []
         Node.add(node)
     
     def mineBlock(self, transaction):
-        self.blockchain.pool.append(transaction)
-        if len(self.blockchain.pool)>=self.blockWidth:
-            self.blockchain.createBlock()
+        self.pool.append(transaction)
+        if len(self.pool)>=self.blockWidth:
+            self.blockchain.createBlock(self.pool)
             return self.blockchain
-        print( len(self.blockchain.pool),'/10')
+        print( len(self.pool),'/10')
         return None
      
     
     def blockchainRestart(self):
-        print('restarting pool', len(self.blockchain.pool))
-        self.blockchain.pool = []
-        self.blockchain.chain = []
-        print('pool restarted', len(self.blockchain.pool))
+        self.pool = []
+        #node = self.blockchain.node
+        #self.blockchain = Blockchain(node)
   

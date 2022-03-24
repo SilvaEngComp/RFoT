@@ -123,8 +123,6 @@ if __name__ == '__main__':
     deviceRunning()
         
     
-    print('name: ',args.name)
-    print('sub_device: ',sub_device)
     sub_client = connect_mqtt(data, sub_broker, sub_device)
     sub_client = on_subscribe(sub_client, topic)
     sub_client.loop_forever()
