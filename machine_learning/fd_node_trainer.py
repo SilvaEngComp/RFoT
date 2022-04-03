@@ -1,13 +1,12 @@
 import paho.mqtt.client as mqtt
 import json
-import numpy as np
-import pandas as pd
-import statistics as st
 import argparse
 import sys
+
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
 
 from blockchain import Blockchain
+from fd_model import FdModel
 
 from time import sleep
 
@@ -50,52 +49,11 @@ def on_disconnect(mqttc, obj, msg):
 	
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
-    chain = blockchain.replaceChain(prefix, True)
-    #calcDeltaTemperature(blockchain)
+    blockchain.chain = blockchain.solveBizzantineProblem(prefix, True)
+    fdMdodel.preprocessing(blockchain)
 
-	
-def calcDeltaTemperature(blockchain, trashoulder=0.2):
-    datasetRows = []
-    datasetCols = []	
-    for currencyBlock in blockchain.chain:	
-        print ('\n block_number: ',currencyBlock.index,' | timestamp: ', currencyBlock.timestamp)
-        meanTemperature, temperatures = calcMean(currencyBlock['transactions'])
-        print('currency temperatures: ', currencyTemperatures)
-        print('currency média: ',currentyMeanTemperature)
-        
-        standard_desviation = st.pvariance(temperatures)
-        print('standard desviation: ',standard_desviation)
-        if(standard_desviation > trashoulder):
-            datasetCols.append([standard_desviation,1])
-        else:
-            datasetCols.append([standard_desviation,0])
-        datasetRows.append(datasetCols)
-    
-    
-    saveDataset(datasetRows)
-        
-def saveDataset(datasetRows):
-    cols = ['delta','class']
-    pd.DataFrame(datasetRows, columns = cols)
-    
-    
-
-def calcMean(transactions):
-	temperatures = []
-	for j in filter_by_sensor(transactions):
-		temperatures.append(float(j.amount))
-
-	return [round(st.mean(temperatures), 2), temperatures]
-
-def filter_by_sensor(transactions,sensor='temperatureSensor'):
-	filtredTransactions = []
-	for j in transactions:
-		if(j.sensor == sensor):
-			filtredTransactions.append(j)
-	return filtredTransactions
-	
-def set_blockchain_publication(blockchain):
-	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":blockchain}	
+def onPublish():
+	responseModel = {"code":"POST","method":"POST", "fdHost":args.name, "model":str(fdModel)}	
 	resp = json.dumps(responseModel)
 
 	pub_client = connect_mqtt(data, pub_broker, pub_device)
@@ -152,8 +110,12 @@ if __name__ == '__main__':
     pub_device = 'sc01'
     blocktopic = 'dev/sc29'
     prefix = '../'
+    
+    
     blockchain = Blockchain(sub_device)
-    blockchain.chain = blockchain.replaceChain(prefix, True)
+    blockchain.chain = blockchain.solveBizzantineProblem(prefix, True)
+    fdModel = FdModel(args.name,blockchain.chain)
+    fdModel.preprocessing(0.5)
     #print(blockchain)
     with open('../config.json') as f:
         data = json.load(f)
