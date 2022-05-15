@@ -25,7 +25,5 @@
 {"type":"sensor","name":"h25","name_iot":"sc23","ip":"10.0.0.25","state":"active"}
 {"type":"sensor","name":"h26","name_iot":"sc24","ip":"10.0.0.26","state":"active"}
 {"type":"sensor","name":"h27","name_iot":"sc25","ip":"10.0.0.27","state":"active"}
-{"type":"gateway","name":"h28","name_iot":"h03","ip":"10.0.0.28","state":"active"}
-{"type":"sensor","name":"h29","name_iot":"sc26","ip":"10.0.0.29","state":"active"}
-{"type":"sensor","name":"h30","name_iot":"sc27","ip":"10.0.0.30","state":"active"}
-{"type":"sensor","name":"h31","name_iot":"sc28","ip":"10.0.0.31","state":"active"}
+{"type":"gateway","name":"h28","name_iot":"g03","ip":"10.0.0.28","state":"active"}
+{"type":"gateway","name":"h29","name_iot":"g04","ip":"10.0.0.29","state":"active"}

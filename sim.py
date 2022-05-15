@@ -5,35 +5,26 @@ from mininet.link import TCLink
 from mininet.cli import CLI
 from mininet.log import lg
 import os
+import create_topo
+import network_init as ni
 
 if __name__ == '__main__':
-	lg.setLogLevel( 'info')
-	os.remove('devices_running.json')
-	#root = Node('root', inNamespace=False)
-	#root.cmd('sudo mn -c')
-	import network_init as ni
-	net = Mininet(link=TCLink)
-	#criar switches, hosts e topologia
-	import create_topo
-	create_topo.create(net)
-	
-	# Configurar e iniciar comunicacao externa
-	rootnode = ni.connectToInternet( net )
-	
-	ni.initGateways(net)
-	
-	#Iniciar sensores virtuais
-	ni.initSensors(net)
-	
-	#Iniciar fluxo de comunicacao
-	ni.initFlow(net)
-
-	CLI( net )
-	
-	# Iniciar inscricao dos subscribers
-	#set_subscribers(net)
-	# Shut down NAT
-	ni.stopNAT( rootnode )
-	#stop_gateways(net)
-	#time.sleep(15)
-	net.stop()
+    lg.setLogLevel( 'info')
+    if os.path.exists('devices_running.json') is True:
+        os.remove('devices_running.json')
+    
+    net = Mininet(link=TCLink)
+    #criar switches, hosts e topologia
+    
+    create_topo.create(net)
+    # Configurar e iniciar comunicacao externa
+    rootnode = ni.connectToInternet( net )
+    ni.initGateways(net)
+    #Iniciar sensores virtuais
+    ni.initSensors(net)
+    #Iniciar fluxo de comunicacao
+    ni.initFlow(net)
+    CLI( net )
+    # Shut down NAT
+    ni.stopNAT( rootnode )
+    net.stop()

@@ -71,7 +71,7 @@ http://mininet.org/download/
 
 ## tensorflow
 - guia de instalação: 
-https://ichi.pro/pt/configurando-seu-pc-workstation-para-deep-learning-tensorflow-e-pytorch-windows-158989914486219
+> https://www.tensorflow.org/install/pip?hl=pt-br
 
 ## scikit-learn
 > sudo pip install -U scikit-learn
