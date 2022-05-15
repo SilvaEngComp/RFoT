@@ -75,3 +75,6 @@ http://mininet.org/download/
 
 ## scikit-learn
 > sudo pip install -U scikit-learn
+
+## keras model reference
+> https://faroit.com/keras-docs/1.2.2/models/about-keras-models/
