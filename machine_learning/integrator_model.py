@@ -4,6 +4,8 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
+from time import sleep
+
 class IntegratorModel:
     def __init__(self, fdModel, qtd_clients = 1):
         self._clients = set()
@@ -29,19 +31,16 @@ class IntegratorModel:
         return self._clients
     
     def isCompleted(self):
-        if len(self_clients) == self._qtd_clients:
+        if len(self._clients) == self._qtd_clients:
             return True
         return False
     def weight_scalling_factor(self, client):
         #get the bs
         bs = self._qtd_clients
-        print("cardinality: ",client.getFdModel().getCardinality())
         #first calculate the total training data points across clinets
         global_count = sum([client.getFdModel().getCardinality() for client in self._clients])*bs
-        print("global_count: ", global_count)
         # get the total number of data points held by a client
         local_count = client.getFdModel().getCardinality()*bs
-        print("local_count: ", local_count)
         return local_count/global_count
 
 
@@ -72,15 +71,15 @@ class IntegratorModel:
         logits = model.predict(X_test, batch_size=100)
         #logits = model.predict(np.array([X_test]))
         Y_test = np.array(Y_test).reshape(len(Y_test),1)
-        print('logits: ',logits)
-        print('Y_test: ',Y_test)
         loss = cce(Y_test, logits)
         acc = accuracy_score(tf.argmax(logits, axis=1), tf.argmax(Y_test, axis=1))
         print('comm_round: {} | global_acc: {:.3%} | global_loss: {}'.format(self._comm_round, acc, loss))
         return acc, loss
 
-    def preprocessing(self, client):     
+    def preprocessing(self, client):   
+        sleep(2)  
         datasetFileName = 'dataset_'+client.getName()+'.csv'  
+        print('...... readding {} ......'.format(datasetFileName))
         dataset = pd.read_csv(datasetFileName, delimiter=",")
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
@@ -92,7 +91,9 @@ class IntegratorModel:
 
         #split data into training and test set
         return  train_test_split(df.iloc[:,0],df.iloc[:,1],test_size=0.1, random_state=42)
-    
+    def resetClients(self):
+        self._clients.clear()
+        
     def globalModelTrain(self):
         #initial list to collect local model weights after scalling
         scaled_local_weight_list = list()
@@ -123,5 +124,6 @@ class IntegratorModel:
         for(X_test, Y_test) in test_batched:
             global_acc, global_loss = self.test_model(X_test,
                                                  Y_test,
-                                                 self._globalModel.getModel())      
+                                                 self._globalModel.getModel())
+        self.resetClients()  
     

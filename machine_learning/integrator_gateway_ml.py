@@ -74,7 +74,8 @@ def on_message(mqttc, obj, msg):
     fdClient = FdClient(local_host_name, fdModel)
     print('receiving a new model by {} at {}'.format(local_host_name, datetime.datetime.now()))
     integragorModel.addClients(fdClient)
-    if (integragorModel.isCompleted):
+    print('{} local clients sent own model. It is ready: {}'.format(len(integragorModel.getClients()),integragorModel.isCompleted()))
+    if (integragorModel.isCompleted is True):
         integragorModel.globalModelTrain()
         onPublish()
     
@@ -138,7 +139,7 @@ if __name__ == '__main__':
         fdModel = FdModel(sub_device,blockchain.chain)
         fdModel.preprocessing(treshould)
         if fdModel. hasValidModel():
-            integragorModel = IntegratorModel(fdModel)
+            integragorModel = IntegratorModel(fdModel, 3)
             onPublish()
             sleep(2)
             onSubscribe()   
