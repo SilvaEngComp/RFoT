@@ -78,3 +78,7 @@ http://mininet.org/download/
 
 ## keras model reference
 > https://faroit.com/keras-docs/1.2.2/models/about-keras-models/
+
+## Important notations
+- Publish pahoo mqtt
+    - publish(topic, message, qos, retain)
