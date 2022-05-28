@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score
 class IntegratorModel:
     def __init__(self, fdModel, qtd_clients = 1):
         self._clients = set()
@@ -68,9 +69,11 @@ class IntegratorModel:
     def test_model(self,X_test, Y_test,  model):
         self._comm_round += 1
         cce = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-        #logits = model.predict(X_test, batch_size=100)
-        logits = model.predict(np.array([X_test]))
-        Y_test = np.array(Y_test).reshape(1,-1)
+        logits = model.predict(X_test, batch_size=100)
+        #logits = model.predict(np.array([X_test]))
+        Y_test = np.array(Y_test).reshape(len(Y_test),1)
+        print('logits: ',logits)
+        print('Y_test: ',Y_test)
         loss = cce(Y_test, logits)
         acc = accuracy_score(tf.argmax(logits, axis=1), tf.argmax(Y_test, axis=1))
         print('comm_round: {} | global_acc: {:.3%} | global_loss: {}'.format(self._comm_round, acc, loss))
@@ -79,7 +82,6 @@ class IntegratorModel:
     def preprocessing(self, client):     
         datasetFileName = 'dataset_'+client.getName()+'.csv'  
         dataset = pd.read_csv(datasetFileName, delimiter=",")
-        print(dataset.head())
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
