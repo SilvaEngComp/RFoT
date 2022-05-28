@@ -13,6 +13,7 @@ import ast
 from block import Block
 from transaction import Transaction
 from node import Node
+import re
 
 
 class Blockchain:
@@ -143,8 +144,11 @@ class Blockchain:
         if node is None:
             node = self.node
         
-        fileName = str(prefix + 'blockchain_'+node+'.json')   
-        
+        x = re.search("^blockchain.*json$", node)
+        if(x is False):
+            fileName = str(prefix + 'blockchain_'+node+'.json')   
+        else:
+            fileName = str(prefix + node) 
         if os.path.exists(fileName) is False:
             return self.chain
         
@@ -157,22 +161,34 @@ class Blockchain:
             print('not found local blockchain file: blockchain_'+self.node+'.json')
             return self.chain
     
-    
-    def solveBizzantineProblem(self, prefix='', training=False):
+    def getBlockchainFileNames(self, prefix):
+        fileNames = []
+        for file in os.listdir(prefix):
+            if file.endswith(".json"):
+                x = re.search("^blockchain.*json$", file)
+                if(x):
+                    fileNames.append(file)
+        return fileNames
+                    
+                    
+    def solveBizzantineProblem(self, prefix='..', training=False):
         try:
-            nodes = Node.get(prefix)
-            longest_chain = None
             
+            nodes = self.getBlockchainFileNames(prefix)
+            longest_chain = None
             max_length = 0
             nameNode=None
-            for node in nodes:
-                chain = self.getLocalBLockchainFile(node,prefix,training)
-                length = len(chain)
-                isValide = self.isChainValid(chain)
-                if length>max_length and isValide:
-                    max_length = length
-                    longest_chain = chain
-                    nameNode = node
+            if(nodes):
+                for node in nodes:
+                    chain = self.getLocalBLockchainFile(node,prefix,training)
+                    length = len(chain)
+                    isValide = self.isChainValid(chain)
+                    if length>max_length and isValide:
+                        max_length = length
+                        longest_chain = chain
+                        nameNode = node
+            else:
+                longest_chain = self.getLocalBLockchainFile(None,prefix,training)
             return longest_chain
         except:
             print('Something wrong happen in replaceChain...')

@@ -7,7 +7,13 @@ class Transaction:
         self.sensor = sensor
         self.receiver = receiver
         self.data = data
-
+        
+    def __getitem__(self, i):
+        if i == 'sensor':
+            return self.sensor
+        elif i == 'data':
+            return self.data
+        
     def __str__(self):
         return str({
             'sender': self.sender,

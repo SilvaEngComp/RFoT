@@ -20,10 +20,12 @@ class Iotcoin:
     
     def mineBlock(self, transaction):
         self.pool.append(transaction)
+        print("{}/{}".format(len(self.pool),self.blockWidth))
+       
         if len(self.pool)>=self.blockWidth:
             self.blockchain.createBlock(self.pool)
             return self.blockchain
-        print( len(self.pool),'/10')
+        
         return None
      
     

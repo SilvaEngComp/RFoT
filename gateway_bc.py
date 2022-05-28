@@ -37,12 +37,13 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
 		sleep(5)
 
 def on_disconnect(mqttc, obj, msg):
-    try:
-        devices.remove(args.name)
-    except:
-        print(devices)
     print("disconnected!")
     exit()
+""" try:
+        devices.remove(args.name)
+    except:
+        print(devices)"""
+    
 	
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
@@ -50,7 +51,7 @@ def on_message(mqttc, obj, msg):
         transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
         blockchain = iotcoin.mineBlock(transaction)	
         if blockchain:
-            setBlockchainPublication(len(blockchain.chain))
+            #setBlockchainPublication(len(blockchain.chain))
             iotcoin.blockchainRestart() 
 
 			
@@ -101,7 +102,7 @@ def registerDevice(devices):
         devices = {"devices": list(devices)}
         json.dump(devices, devicesFile)
 
-devices = deviceRunning()
+#devices = deviceRunning()
 if __name__ == '__main__':
     
     data = None
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     with open('config.json') as f:
         data = json.load(f)
     
-    deviceRunning()
+    #deviceRunning()
         
     
     sub_client = connect_mqtt(data, sub_broker, sub_device)

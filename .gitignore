@@ -4,3 +4,7 @@
 devices_running.json
 nodes.json
 
+*.csv
+*env
+*__pycache__
+venv

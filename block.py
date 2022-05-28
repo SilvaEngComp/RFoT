@@ -11,7 +11,9 @@ class Block:
         self.previousHash = previousHash
         self.timestamp = timestamp
         
-        
+    def __getitem__(self, i):
+        if i == 'transactions':
+            return self.transactions
     
     def __str__(self):
         return str({

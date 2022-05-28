@@ -7,34 +7,25 @@ from simple_MLP import SimpleMLP
 from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
+import tensorflow as tf
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
+from block import Block
+from transaction import Transaction
+from collections import namedtuple
+from keras.models import model_from_json
+
 class FdModel:
     def __init__(self, name, data=None):
         self.name = name
         if data is None:
-            print('setting default data...')
-            
-            self.data = [
-                {'transactions': [
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"}
-                ]},
-                {'transactions': [
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"},
-                {"sender": "sc05", "sensor": "temperatureSensor", "data": "26"}
-                ]},
-                ]
+            self.data = []
+            transaction = Transaction("c05", "temperatureSensor","h28", "26")
+            block = []
+            for i in range(5):
+                block.append(Block(transaction))
+            for i in range(5):
+                self.data.append(block)                
             
         else:
             self.data = data
@@ -50,6 +41,7 @@ class FdModel:
                 momentum=0.9
                ) 
         self._model = None
+        self._cardinality = np.array([]);
     
     def getAsDict(self):
         return {self.name: self.data}
@@ -58,19 +50,22 @@ class FdModel:
         return str(self.name)
     
     def toJson(self):
-        return self.model.to_json()
+        return {
+            "model":self._model.to_json(),
+            "cardinality": str(self.getCardinality()),
+        }
     
     def preprocessing(self, trashoulder=0.2):
         datasetRows = self.getStatistics(trashoulder)
         dataset = self.generateDataset(datasetRows)
-        #self.saveDataset(dataset)
+        self.saveDataset(dataset)
         self._model =self.train(dataset)
     
     
     def getStatistics(self,trashoulder=0.2):
         datasetRows = []
         
-        for currencyBlock in self.data:	
+        for currencyBlock in self.data:
             dataMean, transactionValues = self.getMean(currencyBlock['transactions'])
             
             variance = math.sqrt(st.pvariance(transactionValues))
@@ -84,13 +79,14 @@ class FdModel:
     def generateDataset(self,datasetRows):
         
         cols = ['{}_{}'.format('data', i+1) for i in range(datasetRows.shape[1]-4)]
-        cols += ['mean','variance','standardVariation','classe']
+        cols += ['mean','variance','standardVariation','label']
         dataset = pd.DataFrame(datasetRows, columns = cols)
         return dataset
     
     def saveDataset(self,dataset):
         with open(self.fileName,'w') as datasetFile:
             writer = csv.writer(datasetFile)
+            writer.writerow(dataset.columns)
             for i in np.arange(int(dataset.shape[0])):
                 writer.writerow(dataset.iloc[i,])
     
@@ -107,21 +103,32 @@ class FdModel:
                 filtredTransactions.append(transaction)
         return filtredTransactions
     
-    def train(self, dataset):
-        classe = dataset.classe
-        dataset = dataset.drop(columns=['classe'])
-        
-        X_train,X_test,y_train,y_test = train_test_split(dataset, classe, test_size=0.1, random_state=42, 
-                                                 stratify=classe, shuffle=True)
-        smlp_local = SimpleMLP()
-        local_model = smlp_local.build(X_train.shape[1], 10)
+    def batch_data(self,dataset, bs=32):
+        label = dataset.label
+        dataset = dataset.drop(columns=['label'])
+        dataset2 = tf.data.Dataset.from_tensor_slices((dataset.values, label))
+        return dataset2.shuffle(len(label)).batch(bs)
 
-        local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
-                            metrics=self.getMetrics())
-        local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)
+    def train(self, dataset):
+        self.generateCardinality(dataset)
+        label = dataset.label
+        dataset = dataset.drop(columns=['label'])
+        local_model = None
+        if(dataset.shape[0]>1):
+            X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.1, random_state=42, 
+                                                    stratify=label, shuffle=True)
+            smlp_local = SimpleMLP()
+            local_model = smlp_local.build(X_train.shape[1], 10)
+            
+            local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
+                                metrics=self.getMetrics())
+            local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)
         return local_model
     
-
+    def hasValidModel(self):
+        if self._model is None:
+            return False
+        return True
     def getLoss(self):
         return self._loss
     def getOptimizer(self):
@@ -144,6 +151,17 @@ class FdModel:
     def setLearningRate(self, learningRate):
         self._learningRate = learningRate
     def setModel(self, model):
-        self._model = json.loads(model)
+        if isinstance(model, str):
+            self._model = model_from_json(model)
+        else:
+            self._model = model
     def getModel(self):
-        return self._model.to_json()
+        return self._model
+    def getModelWeights(self):
+        return np.array(self._model.get_weights())
+    def setCardinality(self, cardinality):
+        self._cardinality = int(cardinality)
+    def generateCardinality(self, dataset):
+        self._cardinality = tf.data.experimental.cardinality(self.batch_data(dataset)).numpy()
+    def getCardinality(self):
+        return self._cardinality
