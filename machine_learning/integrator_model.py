@@ -8,6 +8,9 @@ from time import sleep
 
 class IntegratorModel:
     def __init__(self, fdModel, qtd_clients = 1):
+        if isinstance(qtd_clients, str):
+            qtd_clients = int(qtd_clients)
+            
         self._clients = set()
         self._qtd_clients = qtd_clients
         self._globalModel = fdModel
@@ -31,7 +34,7 @@ class IntegratorModel:
         return self._clients
     
     def isCompleted(self):
-        if len(self._clients) == self._qtd_clients:
+        if len(self._clients) >= self._qtd_clients:
             return True
         return False
     def weight_scalling_factor(self, client):

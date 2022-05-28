@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 import argparse
 import sys
+import os
 
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
 
@@ -16,6 +17,7 @@ import datetime
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
+parser.add_argument('--clients', action = 'store', dest = 'clients', required = True)
 args = parser.parse_args()
 
 #You don't need to change this file. Just change sensors.py and config.json
@@ -64,20 +66,25 @@ def on_subscribe(client: mqtt, topic):
         print('subscribing error')
 
 def on_message(mqttc, obj, msg):	
+    
     msgJson = json.loads(msg.payload)
-    cardinality = msgJson['fdModel']['cardinality']
-    model = msgJson['fdModel']["model"]
-    local_host_name = msgJson['fdHost']
-    fdModel = FdModel(local_host_name)
-    fdModel.setModel(model)
-    fdModel.setCardinality(cardinality)
-    fdClient = FdClient(local_host_name, fdModel)
-    print('receiving a new model by {} at {}'.format(local_host_name, datetime.datetime.now()))
-    integragorModel.addClients(fdClient)
-    print('{} local clients sent own model. It is ready: {}'.format(len(integragorModel.getClients()),integragorModel.isCompleted()))
-    if (integragorModel.isCompleted is True):
-        integragorModel.globalModelTrain()
-        onPublish()
+    if 'fdModel' in msgJson:
+        cardinality = msgJson['fdModel']['cardinality']
+        model = msgJson['fdModel']["model"]
+        local_host_name = msgJson['fdHost']
+        fdModel = FdModel(local_host_name)
+        fdModel.setModel(model)
+        fdModel.setCardinality(cardinality)
+        fdClient = FdClient(local_host_name, fdModel)
+        integragorModel.addClients(fdClient)
+        print('{} clients - receiving by {} at {} \n It is ready: {}'.
+            format(len(integragorModel.getClients()), local_host_name,
+                    datetime.datetime.now(), integragorModel.isCompleted()))
+        
+        if (integragorModel.isCompleted() is True):
+            os.system('clear')
+            integragorModel.globalModelTrain()
+            onPublish()
     
 
 
@@ -101,7 +108,7 @@ def onPublish():
         pub_client = connect_mqtt(data, pub_broker, pub_device)
         pub_client = on_subscribe(pub_client, pub_topic)
         pub_client.loop_start()
-        pub_client.publish(pub_topic, resp)
+        pub_client.publish(pub_topic, resp, 2, True)
         pub_client.loop_stop()
         
         print('\n \n Model {} published in: {} on topic: {} at {}' .format(getLocalHostName(), pub_broker,pub_topic, datetime.datetime.now()))
@@ -131,7 +138,7 @@ if __name__ == '__main__':
     pub_device = 'sc02'
     pub_topic = 'dev/g04'
     prefix = '../'
-    treshould = 0.5
+    treshould = 0.02
     print('waitting for a valid blockchain data...')
     while(True):
         blockchain = Blockchain(sub_device)
@@ -139,7 +146,7 @@ if __name__ == '__main__':
         fdModel = FdModel(sub_device,blockchain.chain)
         fdModel.preprocessing(treshould)
         if fdModel. hasValidModel():
-            integragorModel = IntegratorModel(fdModel, 3)
+            integragorModel = IntegratorModel(fdModel, args.clients)
             onPublish()
             sleep(2)
             onSubscribe()   
