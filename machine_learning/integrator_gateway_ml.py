@@ -147,6 +147,7 @@ if __name__ == '__main__':
         fdModel.preprocessing(treshould)
         if fdModel. hasValidModel():
             integragorModel = IntegratorModel(fdModel, args.clients)
+            os.system('clear')
             onPublish()
             sleep(2)
             onSubscribe()   

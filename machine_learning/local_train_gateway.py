@@ -8,8 +8,10 @@ sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
 
 from blockchain import Blockchain
 from fd_model import FdModel
-
+import numpy as np
 from time import sleep
+import time
+
 
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
@@ -48,7 +50,7 @@ def on_disconnect(mqttc, obj, msg):
 	print("disconnected!")
 	exit()
 	
-def on_message(mqttc, obj, msg):	
+def on_message(mqttc, obj, msg):
     os.system('clear')
     msgJson = json.loads(msg.payload)
     global_host_name = msgJson['fdHost']
@@ -66,8 +68,18 @@ def on_message(mqttc, obj, msg):
         fdModel.preprocessing(0.002)
         sleep(5)
         onPublish(fdModel)
+# define the countdown func.
+def countdown(t=5):    
+    while t:
+        timer = 'New Publication in {}s ...'.format(t)
+        print(timer, end="\r")
+        time.sleep(1)
+        if(isWaiting is True):
+            t -= 1
+    onPublish(fdModel)
 
 def onPublish(fdModel, isStarting=False):
+    sleep(np.random.randint(5))
     resp = None
     if fdModel is not None:
         responseModel = {"fdHost":sub_device,"fdModel":fdModel.toJson()}	
@@ -78,10 +90,12 @@ def onPublish(fdModel, isStarting=False):
         pub_client = connect_mqtt(data, pub_broker, pub_device)
         pub_client = on_subscribe(pub_client, pub_topic)
         pub_client.loop_start()
-        pub_client.publish(pub_topic, resp, 2)
+        
+        pub_client.publish(pub_topic, resp,0)
         pub_client.loop_stop()
         print('\n \n Model {} published in: {} on topic: {} at {}' .format(fdModel, pub_broker,pub_topic, datetime.datetime.now()))
-    
+        countdown()
+        
 def on_subscribe(client: mqtt, topic): 
 	print('subscribing in topic: ', topic) 
 	try:
@@ -136,8 +150,9 @@ if __name__ == '__main__':
     pub_device = 'g03'
     pub_topic = 'dev/g03'
     prefix = '../'
-    #onPublish(None,True)
-    #sleep(1)
+    os.system('clear')
+    isWaiting=True
+    fdModel = None
     onSubscribe()
 
 	

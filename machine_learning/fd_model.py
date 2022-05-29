@@ -30,7 +30,7 @@ class FdModel:
         else:
             self.data = data
         self.fileName = 'dataset_'+name+'.csv'
-        self._loss = 'categorical_crossentropy'        
+        self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)        
         self._learningRate = 0.01 
         self._metrics = ['accuracy']
         self._epochs = 1

@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from time import sleep
+from sklearn.metrics import zero_one_loss
+import csv
+import matplotlib.pyplot as plt
 
 class IntegratorModel:
     def __init__(self, fdModel, qtd_clients = 1):
@@ -15,9 +18,15 @@ class IntegratorModel:
         self._qtd_clients = qtd_clients
         self._globalModel = fdModel
         self._comm_round = 0
+        self._results = []
+        self.fileName = 'global_train_results.csv'
+        self.dataset = None
         
     def getGlobalModel(self):
         return self._globalModel.toJson()
+        
+    def getResults(self):
+        return self._results
         
     def setGlobalModel(self,fdModel):
         self._globalModel = fdModel
@@ -68,16 +77,7 @@ class IntegratorModel:
         return avg_grad
 
 
-    def test_model(self,X_test, Y_test,  model):
-        self._comm_round += 1
-        cce = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-        logits = model.predict(X_test, batch_size=100)
-        #logits = model.predict(np.array([X_test]))
-        Y_test = np.array(Y_test).reshape(len(Y_test),1)
-        loss = cce(Y_test, logits)
-        acc = accuracy_score(tf.argmax(logits, axis=1), tf.argmax(Y_test, axis=1))
-        print('comm_round: {} | global_acc: {:.3%} | global_loss: {}'.format(self._comm_round, acc, loss))
-        return acc, loss
+ 
 
     def preprocessing(self, client):   
         sleep(2)  
@@ -125,8 +125,52 @@ class IntegratorModel:
         #process and batch the test set  
         test_batched = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(len(y_test))
         for(X_test, Y_test) in test_batched:
-            global_acc, global_loss = self.test_model(X_test,
+            self.test_model(X_test,
                                                  Y_test,
                                                  self._globalModel.getModel())
         self.resetClients()  
+        
+    def test_model(self,X_test, Y_test,  model):
+        self._comm_round += 1
+        #BinaryCrossentropy: Computes the crossentropy loss between the labels and predictions.
+        bce = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+        Y_pred = model.predict(X_test, batch_size=100)
+        Y_test = np.array(Y_test).reshape(len(Y_test),1)
+        loss = bce(Y_test, Y_pred).numpy()
+        #accuracy_score: In multilabel classification, the function returns the 
+        # subset accuracy. If the entire set of predicted labels for a sample 
+        # strictly match with the true set of labels, then the subset accuracy 
+        # is 1.0; otherwise it is 0.0.
+        acc = accuracy_score(tf.argmax(Y_pred, axis=1), tf.argmax(Y_test, axis=1))
+        #zero_one_loss: If normalize is True, return the fraction of misclassifications (float), 
+        # else it returns the number of misclassifications (int). The best performance is 0.
+        zol = zero_one_loss(tf.argmax(Y_pred, axis=1), tf.argmax(Y_test, axis=1))
+        evolution = self.getEvolution(loss)
+        self._results.append([self._comm_round, acc,zol, loss, evolution])
+        print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
+        self.saveDataset()
+        self.graphicGenarete(Y_test,Y_pred)
+        
+    def graphicGenarete(self,Y_test,Y_pred):
+        fig1 = plt.figure()
+        a1 = fig1.add_subplot(1,1,1)
+        a1.plot(Y_test.flatten(), marker='.', label='true')
+        a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
+        a1.legend();   
+        plt.show()
+    def getEvolution(self, loss):
+        evolution = 0
+        
+        if self.dataset is not None:
+            min_last_loss = min(self.dataset.global_loss)
+            evolution = (min_last_loss - loss)/min_last_loss
+        return evolution
     
+    def saveDataset(self):
+        cols = ['comm_round','global_acc','global_zol','global_loss', 'evolution']
+        self.dataset = pd.DataFrame(self._results, columns = cols)
+        with open(self.fileName,'w') as datasetFile:
+            writer = csv.writer(datasetFile)
+            writer.writerow(self.dataset.columns)
+            for i in np.arange(int(self.dataset.shape[0])):
+                writer.writerow(self.dataset.iloc[i,])

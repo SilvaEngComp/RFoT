@@ -82,3 +82,8 @@ http://mininet.org/download/
 ## Important notations
 - Publish pahoo mqtt
     - publish(topic, message, qos, retain)
+- Keras
+    - > (https://keras.io/api/losses/probabilistic_losses/#categorical_crossentropy-function)
+    - > (https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html)
+    - > (https://scikit-learn.org/stable/modules/model_evaluation.html#accuracy-score)
+    - > (https://scikit-learn.org/stable/modules/generated/sklearn.metrics.zero_one_loss.html#sklearn.metrics.zero_one_loss)
