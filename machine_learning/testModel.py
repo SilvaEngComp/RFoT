@@ -10,15 +10,25 @@ from time import sleep
 from sklearn.metrics import zero_one_loss
 import csv
 import matplotlib.pyplot as plt
+import os
+import re
+import time
+from threading import Thread
+import matplotlib.animation as animation
 
+
+#import seaborn as sns
 class TestModel:
-    def __init__(self, fdModel):
-        self._globalModel = fdModel
+    def __init__(self):
+        self._globalModel = None
         self._comm_round = 0
         self._results = []
         self.fileName = 'global_train_results.csv'
         self.dataset = None
-        
+        self.fig = plt.figure()
+        self.a1 = self.fig.add_subplot(1,1,1)
+    def setGlobalModel(self, fdModel):
+        self._globalModel = fdModel
     def runTest(self):
         #test global model and print out metrics after each communications round
         X_train,X_test,y_train,y_test = self.preprocessing()
@@ -46,9 +56,14 @@ class TestModel:
             self._results.append([self._comm_round, acc,zol, loss, evolution])
             print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
             self.saveDataset()
-            self.graphicGenarete(Y_test,Y_pred)
-
-    def getDatasetsFileNames(self, prefix='..'):
+            animation.FuncAnimation(self.fig, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
+            plt.show(block=False)
+            plt.pause(3)
+            plt.close()
+            
+            
+            
+    def getDatasetsFileNames(self, prefix='.'):
             fileNames = []
             for file in os.listdir(prefix):
                 if file.endswith(".csv"):
@@ -77,11 +92,22 @@ class TestModel:
         a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
         a1.legend();   
         plt.show()
+        
+
+
+    def graphicGenarete2(self,Y_test,Y_pred):
+        self.a1.clear()
+        self.a1.plot(Y_test.flatten(), marker='.', label='true')
+        self.a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
+        self.a1.legend();   
+        
     def getEvolution(self, loss):
         evolution = 0
-        
-        if self.dataset is not None:
+        if self.dataset is None:
+            pass
+        else:
             min_last_loss = min(self.dataset.global_loss)
+            print('min_last_loss: ',min_last_loss)
             evolution = (min_last_loss - loss)/min_last_loss
         return evolution
 

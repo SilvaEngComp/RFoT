@@ -48,13 +48,15 @@ def on_disconnect(mqttc, obj, msg):
 	exit()
 	
 def on_message(mqttc, obj, msg):
-    os.system('clear')
+    #os.system('clear')
+    print("...preparing to test.....")
     msgJson = json.loads(msg.payload)
     model = msgJson['globalModel']["model"]
     local_host_name = msgJson['fdHost']
     fdModel = FdModel(local_host_name)
     fdModel.setModel(model)
-    testModel = TestModel(fdModel)
+    testModel.setGlobalModel(fdModel)
+    testModel.runTest()
 
     
 def on_subscribe(client: mqtt, topic): 
@@ -92,6 +94,7 @@ if __name__ == '__main__':
     os.system('clear')
     isWaiting=True
     fdModel = None
+    testModel = TestModel()
     onSubscribe()
 
 	
