@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
 import paho.mqtt.client as mqtt
 import json
 import tatu
@@ -6,8 +8,10 @@ from iotcoin import Iotcoin
 from blockchain import Transaction
 from time import sleep
 
+
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
+parser.add_argument('--size', action = 'store', dest = 'blockWidth', required = False)
 args = parser.parse_args()  
 
 
@@ -51,7 +55,6 @@ def on_message(mqttc, obj, msg):
         transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
         blockchain = iotcoin.mineBlock(transaction)	
         if blockchain:
-            #setBlockchainPublication(len(blockchain.chain))
             iotcoin.blockchainRestart() 
 
 			
@@ -116,9 +119,9 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'sc01'
     blocktopic = 'dev/sc28'
-    iotcoin = Iotcoin(args.name)
+    iotcoin = Iotcoin(args.name, args.blockWidth)
     
-    with open('config.json') as f:
+    with open('../../config.json') as f:
         data = json.load(f)
     
     #deviceRunning()

@@ -1,10 +1,11 @@
 import paho.mqtt.client as mqtt
 import json
 import argparse
-import sys
+
 import os
 import datetime
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
 from blockchain import Blockchain
 from fd_model import FdModel
@@ -60,7 +61,7 @@ def on_message(mqttc, obj, msg):
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
     blockchain = Blockchain(sub_device)
    #print('prefix: ',prefix)
-    blockchain.chain = blockchain.solveBizzantineProblem(prefix, True)
+    blockchain.dataDisturb()
     #print('blockchain : {}'.format(blockchain.chain))
     if(blockchain.chain):
         fdModel = FdModel(sub_device,blockchain.chain)
@@ -85,7 +86,7 @@ def onPublish(fdModel, isStarting=False):
         responseModel = {"fdHost":sub_device,"fdModel":fdModel.toJson()}	
         resp = json.dumps(responseModel)
     if resp is not None:
-        with open('../config.json') as f:
+        with open('../../config.json') as f:
             data = json.load(f)
         pub_client = connect_mqtt(data, pub_broker, pub_device)
         pub_client = on_subscribe(pub_client, pub_topic)
@@ -130,7 +131,7 @@ def registerDevice(devices):
         json.dump(devices, devicesFile)
 
 def onSubscribe():
-    with open('../config.json') as f:
+    with open('../../config.json') as f:
         data = json.load(f)
     
     sub_client = connect_mqtt(data, sub_broker, sub_device)
@@ -149,7 +150,7 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'g03'
     pub_topic = 'dev/g03'
-    prefix = '../'
+    prefix = '../data_collector'
     os.system('clear')
     isWaiting=True
     fdModel = None

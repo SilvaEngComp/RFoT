@@ -4,6 +4,9 @@ Created on Wed Sep 29 09:22:31 2021
 
 @author: silva
 """
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
+
 import time
 import datetime
 import hashlib
@@ -57,7 +60,7 @@ class Blockchain:
 
     def register(self):
         with open(self.fileName,"w") as blockchainFile:
-            print('registring: ',self.fileName)
+            print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
             json.dump(self.toJson(), blockchainFile)
 
 
@@ -85,7 +88,7 @@ class Blockchain:
         if chain is None:
             return None
         elif len(chain)>0:            
-            self.chain = chain            
+            self.chain = chain          
             return self.chain[-1]
         return None
 
@@ -140,10 +143,9 @@ class Blockchain:
 
 
         
-    def getLocalBLockchainFile(self, node = None, prefix = '',  training=False):
+    def getLocalBLockchainFile(self, node = None, prefix='../data_collector/'):
         if node is None:
             node = self.node
-        
         x = re.search("^blockchain.*json$", node)
         if(x is False):
             fileName = str(prefix + 'blockchain_'+node+'.json')   
@@ -161,7 +163,7 @@ class Blockchain:
             print('not found local blockchain file: blockchain_'+self.node+'.json')
             return self.chain
     
-    def getBlockchainFileNames(self, prefix):
+    def getBlockchainFileNames(self, prefix='../data_collector/'):
         fileNames = []
         for file in os.listdir(prefix):
             if file.endswith(".json"):
@@ -171,16 +173,17 @@ class Blockchain:
         return fileNames
                     
                     
-    def solveBizzantineProblem(self, prefix='..', training=False):
+    def solveBizzantineProblem(self):
         try:
             
-            nodes = self.getBlockchainFileNames(prefix)
+            nodes = self.getBlockchainFileNames()
             longest_chain = None
             max_length = 0
             nameNode=None
+            print(nodes)
             if(nodes):
                 for node in nodes:
-                    chain = self.getLocalBLockchainFile(node,prefix,training)
+                    chain = self.getLocalBLockchainFile(node)
                     length = len(chain)
                     isValide = self.isChainValid(chain)
                     if length>max_length and isValide:
@@ -188,7 +191,8 @@ class Blockchain:
                         longest_chain = chain
                         nameNode = node
             else:
-                longest_chain = self.getLocalBLockchainFile(None,prefix,training)
+                longest_chain = self.getLocalBLockchainFile(None)
+            print('The current biggest chain is {} with {} blocks'.format(nameNode, len(longest_chain)))
             return longest_chain
         except:
             print('Something wrong happen in replaceChain...')

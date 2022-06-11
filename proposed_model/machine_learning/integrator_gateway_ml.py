@@ -4,7 +4,7 @@ import argparse
 import sys
 import os
 
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
 from blockchain import Blockchain
 from fd_model import FdModel
@@ -100,7 +100,7 @@ def getLocalHostName():
             
 def onPublish():
     if fdModel.hasValidModel():
-        with open('../config.json') as f:
+        with open('../../config.json') as f:
             data = json.load(f)
         responseModel = {"code":"POST","method":"POST", "fdHost":'integrator',
                         "globalModel":integragorModel.getGlobalModel()}	
@@ -114,7 +114,7 @@ def onPublish():
         print('\n \n Model {} published in: {} on topic: {} at {}' .format(getLocalHostName(), pub_broker,pub_topic, datetime.datetime.now()))
         
 def onSubscribe():
-    with open('../config.json') as f:
+    with open('../../config.json') as f:
         data = json.load(f)
     
     sub_client = connect_mqtt(data, sub_broker, sub_device)
@@ -137,12 +137,12 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.29'
     pub_device = 'sc02'
     pub_topic = 'dev/g04'
-    prefix = '../'
+    prefix = '../data_collector'
     treshould = 0.02
     print('waitting for a valid blockchain data...')
     while(True):
         blockchain = Blockchain(sub_device)
-        blockchain.chain = blockchain.solveBizzantineProblem(prefix, True)
+        blockchain.chain = blockchain.solveBizzantineProblem()
         fdModel = FdModel(sub_device,blockchain.chain)
         fdModel.preprocessing(treshould)
         if fdModel. hasValidModel():

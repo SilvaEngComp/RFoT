@@ -4,7 +4,7 @@ from keras.layers import Dense
 
 class SimpleMLP:
     @staticmethod
-    def build(shape, classes):
+    def build(shape):
         return Sequential([
             Dense(32, activation='relu', input_shape=(shape,)),
             Dense(1, activation='sigmoid')   

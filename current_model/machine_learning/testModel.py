@@ -16,6 +16,12 @@ import time
 from threading import Thread
 import matplotlib.animation as animation
 
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import median_absolute_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_log_error
+from sklearn.metrics import explained_variance_score
+##https://matplotlib.org/stable/gallery/lines_bars_and_markers/psd_demo.html#sphx-glr-gallery-lines-bars-and-markers-psd-demo-py
 
 #import seaborn as sns
 class TestModel:
@@ -25,8 +31,10 @@ class TestModel:
         self._results = []
         self.fileName = 'global_train_results.csv'
         self.dataset = None
-        self.fig = plt.figure()
-        self.a1 = self.fig.add_subplot(1,1,1)
+        self.fig1 = plt.figure()
+        self.fig2 = plt.figure()
+        self.a1 = self.fig1.add_subplot(1,1,1)
+        self.a2 = self.fig2.add_subplot(1,1,1)
     def setGlobalModel(self, fdModel):
         self._globalModel = fdModel
     def runTest(self):
@@ -56,13 +64,36 @@ class TestModel:
             self._results.append([self._comm_round, acc,zol, loss, evolution])
             print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
             self.saveDataset()
-            animation.FuncAnimation(self.fig, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig1, self.graphicGenarete1(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig2, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
             plt.show(block=False)
             plt.pause(3)
-            plt.close()
+            ##plt.close()
+            print('graphic printed...')
             
-            
-            
+    def graphicGenarete1(self,Y_test,Y_pred):
+        print('preparing graphic...')
+        self.a1.clear()
+        self.a1.plot(Y_test.flatten(), marker='.', label='true')
+        self.a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
+        self.a1.legend();   
+        # print('graphic prepered...')
+        
+    def graphicGenarete2(self,Y_test,Y_pred):
+        size = np.min([Y_pred.shape[0],Y_test.shape[0] ])
+        rmse =  mean_squared_error(Y_test.flatten()[0:size], Y_pred.flatten()[0:size], squared=False)
+        mae =  mean_absolute_error(Y_test.flatten()[0:size], Y_pred.flatten()[0:size])
+        median_mae = median_absolute_error(Y_test.flatten()[0:size], Y_pred.flatten()[0:size])
+        evs = explained_variance_score(Y_test.flatten()[0:size], Y_pred.flatten()[0:size])
+        
+        objects = ['rmse', 'mae', 
+                   'median-mae']
+        y_pos = np.arange(3)
+        performance = [rmse,mae,median_mae]
+
+        self.a2.clear()
+        self.a2.bar(objects, performance, align='center')
+        self.a2.legend(); 
     def getDatasetsFileNames(self, prefix='.'):
             fileNames = []
             for file in os.listdir(prefix):
@@ -84,22 +115,10 @@ class TestModel:
         if(dataset.shape[0]>1):
             return train_test_split(dataset, label, test_size=0.1, random_state=42, 
                                                     stratify=label, shuffle=True)
-        return None, None, None, None    
-    def graphicGenarete(self,Y_test,Y_pred):
-        fig1 = plt.figure()
-        a1 = fig1.add_subplot(1,1,1)
-        a1.plot(Y_test.flatten(), marker='.', label='true')
-        a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
-        a1.legend();   
-        plt.show()
-        
+        return None, None, None, None          
 
 
-    def graphicGenarete2(self,Y_test,Y_pred):
-        self.a1.clear()
-        self.a1.plot(Y_test.flatten(), marker='.', label='true')
-        self.a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
-        self.a1.legend();   
+   
         
     def getEvolution(self, loss):
         evolution = 0

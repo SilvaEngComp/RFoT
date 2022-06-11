@@ -71,7 +71,7 @@ def on_subscribe(client: mqtt, topic):
 
 
 def onSubscribe():
-    with open('../config.json') as f:
+    with open('../../config.json') as f:
         data = json.load(f)
     
     sub_client = connect_mqtt(data, sub_broker, sub_device)

@@ -11,12 +11,17 @@ import os
 from node import Node
 
 class Iotcoin:
-    def __init__(self, node):
+    def __init__(self, node, blockWidth=10):
         self.blockchain = Blockchain(node)
         self.blockchain.node = node
-        self.blockWidth = 5
+        if(blockWidth is None):
+            blockWidth=10
+        elif isinstance(blockWidth, str):
+            blockWidth = int(blockWidth)
+        self.blockWidth = blockWidth
         self.pool = []
         Node.add(node)
+        print(self.blockWidth)
     
     def mineBlock(self, transaction):
         self.pool.append(transaction)
@@ -31,6 +36,5 @@ class Iotcoin:
     
     def blockchainRestart(self):
         self.pool = []
-        #node = self.blockchain.node
-        #self.blockchain = Blockchain(node)
+
   

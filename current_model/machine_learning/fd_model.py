@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
 import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml')
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 from block import Block
 from transaction import Transaction
 from collections import namedtuple
@@ -77,7 +77,7 @@ class FdModel:
         return np.array(datasetRows)
     
     def generateDataset(self,datasetRows):
-        
+        print('shape: ', datasetRows)
         cols = ['{}_{}'.format('data', i+1) for i in range(datasetRows.shape[1]-4)]
         cols += ['mean','variance','standardVariation','label']
         dataset = pd.DataFrame(datasetRows, columns = cols)
@@ -112,19 +112,21 @@ class FdModel:
     def train(self, dataset):
         self.generateCardinality(dataset)
         label = dataset.label
+        print(self.getCardinality())
+        print('label: ', label)
         dataset = dataset.drop(columns=['label'])
         local_model = None
         if(dataset.shape[0]>1):
-            X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.1, random_state=42, 
+            X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.1, random_state=50, 
                                                     stratify=label, shuffle=True)
             smlp_local = SimpleMLP()
-            local_model = smlp_local.build(X_train.shape[1], 10)
+            local_model = smlp_local.build(X_train.shape[1])
             
             local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
                                 metrics=self.getMetrics())
             local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)
         return local_model
-    
+
     def hasValidModel(self):
         if self._model is None:
             return False
