@@ -141,17 +141,17 @@ if __name__ == '__main__':
     treshould = 0.02
     print('waitting for a valid blockchain data...')
     while(True):
-        blockchain = Blockchain(sub_device)
-        blockchain.chain = blockchain.solveBizzantineProblem()
-        fdModel = FdModel(sub_device,blockchain.chain)
-        fdModel.preprocessing(treshould)
-        if fdModel. hasValidModel():
-            integragorModel = IntegratorModel(fdModel, args.clients)
-            os.system('clear')
-            onPublish()
-            sleep(2)
-            onSubscribe()   
-            break 
+        block = Blockchain.getNotAssinedBlock(sub_device)
+        if block is not None:
+            fdModel = FdModel(sub_device,block)
+            fdModel.preprocessing(treshould)
+            if fdModel. hasValidModel():
+                integragorModel = IntegratorModel(fdModel, args.clients)
+                os.system('clear')
+                onPublish()
+                sleep(2)
+                onSubscribe()   
+                break 
 
 		
 		

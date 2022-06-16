@@ -59,12 +59,9 @@ def on_message(mqttc, obj, msg):
     
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
-    blockchain = Blockchain(sub_device)
-   #print('prefix: ',prefix)
-    blockchain.chain = blockchain.solveBizzantineProblem()
-    #print('blockchain : {}'.format(blockchain.chain))
-    if(blockchain.chain):
-        fdModel = FdModel(sub_device,blockchain.chain)
+    block = Blockchain.getNotAssinedBlock(sub_device)
+    if(block is not None):
+        fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.002)
         sleep(5)
@@ -108,27 +105,6 @@ def on_subscribe(client: mqtt, topic):
 		print('subscribing error')
 
 
-def deviceTraining():
-    devices = set()
-    flag = 0
-    try:
-        with open('devices_training.json') as devicesFile:
-            data = json.load(devicesFile)
-            devices = set(data['devices'])
-            if(args.name in data['devices']):
-                flag = -1
-            devices.add(args.name)
-            registerDevice(devices)
-    except:
-        devices.add(args.name)
-        registerDevice(devices)
-    
-    return devices
-    
-def registerDevice(devices):
-    with open('devices_running.json','w+') as devicesFile:
-        devices = {"devices": list(devices)}
-        json.dump(devices, devicesFile)
 
 def onSubscribe():
     with open('../../config.json') as f:

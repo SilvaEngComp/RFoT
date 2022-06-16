@@ -4,12 +4,14 @@ import json
 from transaction import Transaction
 
 class Block:
-    def __init__(self, transactions=[], index=1, proof=1, previousHash='0', timestamp = str(datetime.datetime.now())):
+    def __init__(self, transactions=[],  hostTrainer=None, index=1, proof=1, previousHash='0', timestamp = str(datetime.datetime.now())):
         self.transactions = transactions
         self.index = index
         self.proof = proof
         self.previousHash = previousHash
         self.timestamp = timestamp
+        self.hostTrainer = hostTrainer
+    
         
     def __getitem__(self, i):
         if i == 'transactions':
@@ -21,6 +23,7 @@ class Block:
             'timestamp': self.timestamp,
             'proof':self.proof,
             'previousHash': self.previousHash,
+            'hostTrainer': self.hostTrainer,
             'transactions': self.transactions
             })
     def __repr__(self):
@@ -29,26 +32,33 @@ class Block:
             'timestamp': self.timestamp,
             'proof':self.proof,
             'previousHash': self.previousHash ,
+            'hostTrainer': self.hostTrainer,
             'transactions': self.transactions
             })
     
     def toJson(self):
         transactions = []
         for transaction in self.transactions:
-            transactions.append(transaction.toJson())
+            if isinstance(transaction, Transaction):
+                transactions.append(transaction.toJson())
+            else:
+                transactions.append(transaction)
         return {
             'index': self.index,
             'timestamp': self.timestamp,
             'proof':self.proof,
             'previousHash': self.previousHash, 
+            'hostTrainer': self.hostTrainer,
             'transactions': transactions
             }
     @classmethod
-    def fromJson(self, block):
-        if isinstance(block, dict):
+    def fromJson(self, jsonBlock):
+        if isinstance(jsonBlock, dict):
             pool = []
-            for transaction in block['transactions']:
+            for transaction in jsonBlock['transactions']:
                 pool.append(Transaction.fromJson(transaction))
-            return Block(pool, block['index'],block['proof'],block['previousHash'], block['timestamp'])
+            block = Block(pool,jsonBlock['hostTrainer'], jsonBlock['index'],jsonBlock['proof'],
+                          jsonBlock['previousHash'], jsonBlock['timestamp'] )
+            return block
             
-        return block
+        return jsonBlock

@@ -106,15 +106,14 @@ class TestModel:
             
     def preprocessing(self):   
         sleep(2)  
-        datasetFileNames = self.getDatasetsFileNames() 
-        fileName = datasetFileNames[np.random.randint(len(datasetFileNames))]
+        fileName = 'dataset.csv'
         print('...... readding {} ......'.format(fileName))
         dataset = pd.read_csv(fileName, delimiter=",")
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
         if(dataset.shape[0]>1):
-            return train_test_split(dataset, label, test_size=0.1, random_state=42, 
+            return train_test_split(dataset, label, test_size=1/3, random_state=10, 
                                                     stratify=label, shuffle=True)
         return None, None, None, None          
 

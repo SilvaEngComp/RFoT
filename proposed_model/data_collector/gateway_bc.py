@@ -53,10 +53,9 @@ def on_message(mqttc, obj, msg):
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
         transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
-        blockchain = iotcoin.mineBlock(transaction)	
-        if blockchain:
-            #setBlockchainPublication(len(blockchain.chain))
-            iotcoin.blockchainRestart() 
+        isCompleted = iotcoin.mineBlock(transaction)	
+        if isCompleted is True:
+            iotcoin.restart() 
 
 			
 		

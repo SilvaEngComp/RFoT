@@ -14,7 +14,7 @@ from block import Block
 from transaction import Transaction
 from collections import namedtuple
 from keras.models import model_from_json
-
+import os
 class FdModel:
     def __init__(self, name, data=None):
         self.name = name
@@ -29,7 +29,7 @@ class FdModel:
             
         else:
             self.data = data
-        self.fileName = 'dataset_'+name+'.csv'
+        self.fileName = 'dataset.csv'
         self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)        
         self._learningRate = 0.01 
         self._metrics = ['accuracy']
@@ -61,39 +61,67 @@ class FdModel:
         self.saveDataset(dataset)
         self._model =self.train(dataset)
     
-    
+        
+    def getMean(self,transactions):
+        transactionValues1 = []
+        transactionValues2 = []
+       
+        filtredTransactions = self.filter_by_sensor(transactions)
+        cont = 0
+        half = (len(filtredTransactions))/2
+        for transaction in filtredTransactions:
+            if cont< half:
+                transactionValues1.append(float(transaction['data']))
+            else:
+                transactionValues2.append(float(transaction['data']))
+            cont+=1
+        return [[round(st.mean(transactionValues1), 2), round(st.mean(transactionValues2), 2)],
+                        [transactionValues1,transactionValues2]]
+            
     def getStatistics(self,trashoulder=0.2):
         datasetRows = []
-        
-        for currencyBlock in self.data:
-            dataMean, transactionValues = self.getMean(currencyBlock['transactions'])
-            
-            variance = math.sqrt(st.pvariance(transactionValues))
-            standardVariation = np.std(transactionValues)
-            validatedClass = 1 if(standardVariation > trashoulder) else 0
-            values = transactionValues + [dataMean,variance,standardVariation,validatedClass]
-            datasetRows.append(values)
-        
+        if isinstance(self.data, Block):
+            dataMean, transactionValues = self.getMean(self.data['transactions'])
+            datasetRows = self.getDatasetRows(dataMean, transactionValues)
+        else:
+            for currencyBlock in self.data:
+                dataMean, transactionValues = self.getMean(currencyBlock['transactions'])
+                datasetRows += self.getDatasetRows(dataMean, transactionValues)
         return np.array(datasetRows)
     
+    def getDatasetRows(self,dataMean,transactionValues, trashoulder=0.2):
+        variance = []
+        standardVariation = []
+        i = 0;
+        datasetRows = []
+        for t in transactionValues:
+            varianceValue = math.sqrt(st.pvariance(t))
+            standardVariationValue = np.std(t)
+            validatedClass = 1 if(standardVariationValue > trashoulder) else 0
+            variance.append(varianceValue)
+            standardVariation.append(standardVariationValue)
+            datasetRows.append(t + [dataMean[i],varianceValue,standardVariationValue,validatedClass])
+            i+=1
+        
+        return datasetRows
+    
     def generateDataset(self,datasetRows):
-        cols = ['{}_{}'.format('data', i+1) for i in range(datasetRows.shape[1]-4)]
+        cols = ['{}_{}'.format('data', i+1) for i in range((datasetRows.shape[1]-4))]
         cols += ['mean','variance','standardVariation','label']
         dataset = pd.DataFrame(datasetRows, columns = cols)
         return dataset
     
     def saveDataset(self,dataset):
-        with open(self.fileName,'w') as datasetFile:
+        exists = os.path.exists(self.fileName)
+
+        with open(self.fileName,'a') as datasetFile:
             writer = csv.writer(datasetFile)
-            writer.writerow(dataset.columns)
+            if exists is False:
+                writer.writerow(dataset.columns)
             for i in np.arange(int(dataset.shape[0])):
                 writer.writerow(dataset.iloc[i,])
     
-    def getMean(self,transactions):
-        transactionValues = []
-        for transaction in self.filter_by_sensor(transactions):
-            transactionValues.append(float(transaction['data']))
-        return [round(st.mean(transactionValues), 2), transactionValues]
+    
     
     def filter_by_sensor(self,transactions,sensor='temperatureSensor'):
         filtredTransactions = []
@@ -114,8 +142,8 @@ class FdModel:
         dataset = dataset.drop(columns=['label'])
         local_model = None
         if(dataset.shape[0]>1):
-            X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.1, random_state=42, 
-                                                    stratify=label, shuffle=True)
+            X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.5, random_state=42, 
+                                                    stratify=None, shuffle=False)
             smlp_local = SimpleMLP()
             local_model = smlp_local.build(X_train.shape[1])
             
