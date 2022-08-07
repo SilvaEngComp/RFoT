@@ -52,7 +52,7 @@ def on_disconnect(mqttc, obj, msg):
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
-        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
+        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
         isCompleted = iotcoin.mineBlock(transaction)	
         if isCompleted is True:
             iotcoin.restart() 

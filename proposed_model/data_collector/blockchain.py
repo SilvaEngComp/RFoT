@@ -66,14 +66,14 @@ class Blockchain:
             json.dump(self.toJson(), blockchainFile)
 
 
-    def createBlock(self, pool):
+    def createBlock(self, pool, typeBlock="data"):
         previousBlock = self.getPreviousBlock()
         if previousBlock is None:
-            block = Block(pool, self.node)
+            block = Block(pool, self.node,typeBlock)
         else:
             proof = self.proofOfWork(previousBlock.proof)
             previousHash = self.hash(previousBlock)
-            block = Block(pool,self.node,(previousBlock.index+1),proof,previousHash)
+            block = Block(pool,self.node,typeBlock,(previousBlock.index+1),proof,previousHash)
         
         self.chain.append(block)
         if(self.isChainValid(self.chain)):
@@ -203,7 +203,19 @@ class Blockchain:
             
     @staticmethod
     def getNotAssinedBlock(node):
-        transaction = Pool.getNotAssinedTransactions()      
+        transactions = Pool.getNotAssinedTransactions()      
         
         blockchain = Blockchain(node)
-        return  blockchain.createBlock(transaction)
+        blockchain.createBlock(transactions)
+        return blockchain.chain[-1]
+            
+    @staticmethod
+    def setAssinedBlockModel(node, typeBlock, model):   
+        transactions = [Transaction(node, null, node, model)]      
+        blockchain = Blockchain(node)
+        try:
+            blockchain.createBlock(transactions, typeBlock)
+            return True
+        except:
+            print("Sorry! the model could not be saved in the blockchain")
+            return False

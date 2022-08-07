@@ -11,8 +11,12 @@ class Pool:
     def getNotAssinedTransactions():
         pool = Pool()
         transactions = pool.get()
+        
         if(len(transactions)>0):
-            return transactions[0]
+            notAssigned = transactions[0]
+            pool.setPool(transactions[1:])
+            return notAssigned;
+             
         return None
        
     def toJson(self):
@@ -36,13 +40,14 @@ class Pool:
                 return transactions
         except:
             print('That is not a list object. Try it again!')
-            
-    def add(self,transactions):
+    
+    def setPool(self,transactions):
+        self.pool = transactions
+        self.register()
         
+    def add(self,transactions):
         self.pool = self.get()
         self.pool.append(transactions)
-        
-        
         self.register()
     
     
@@ -54,6 +59,10 @@ class Pool:
             except:
                 print('erro in registration')
             
+    def getPoolStatus(self):
+        pool = self.get()
+        print("Existem {} blocos de {} transações não assinadas".format(len(pool), len(pool[0])))
+    
     
     def get(self, prefix='../data_collector/'):
         fileName = str(prefix + self.fileName) 

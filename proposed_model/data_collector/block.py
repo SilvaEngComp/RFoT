@@ -4,13 +4,14 @@ import json
 from transaction import Transaction
 
 class Block:
-    def __init__(self, transactions=[],  hostTrainer=None, index=1, proof=1, previousHash='0', timestamp = str(datetime.datetime.now())):
+    def __init__(self, transactions=[],  hostTrainer=None,typeBlock="data", index=1, proof=1, previousHash='0', timestamp = str(datetime.datetime.now())):
         self.transactions = transactions
         self.index = index
         self.proof = proof
         self.previousHash = previousHash
         self.timestamp = timestamp
         self.hostTrainer = hostTrainer
+        self.typeBlock = typeBlock
     
         
     def __getitem__(self, i):
@@ -22,6 +23,7 @@ class Block:
             'index': self.index,
             'timestamp': self.timestamp,
             'proof':self.proof,
+            'typeBlock':self.typeBlock,
             'previousHash': self.previousHash,
             'hostTrainer': self.hostTrainer,
             'transactions': self.transactions
@@ -31,6 +33,7 @@ class Block:
             'index': self.index,
             'timestamp': self.timestamp,
             'proof':self.proof,
+            'typeBlock':self.typeBlock,
             'previousHash': self.previousHash ,
             'hostTrainer': self.hostTrainer,
             'transactions': self.transactions
@@ -47,6 +50,7 @@ class Block:
             'index': self.index,
             'timestamp': self.timestamp,
             'proof':self.proof,
+            'typeBlock':self.typeBlock,
             'previousHash': self.previousHash, 
             'hostTrainer': self.hostTrainer,
             'transactions': transactions
@@ -57,7 +61,7 @@ class Block:
             pool = []
             for transaction in jsonBlock['transactions']:
                 pool.append(Transaction.fromJson(transaction))
-            block = Block(pool,jsonBlock['hostTrainer'], jsonBlock['index'],jsonBlock['proof'],
+            block = Block(pool,jsonBlock['hostTrainer'],jsonBlock['typeBlock'], jsonBlock['index'],jsonBlock['proof'],
                           jsonBlock['previousHash'], jsonBlock['timestamp'] )
             return block
             

@@ -64,6 +64,7 @@ def on_message(mqttc, obj, msg):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.002)
+        Blockchain.setAssinedBlockModel(sub_device,"localModel",fdModel.toJson())
         sleep(5)
         onPublish(fdModel)
 # define the countdown func.
