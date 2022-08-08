@@ -202,7 +202,7 @@ class Blockchain:
             print('Something wrong happen in replaceChain...')
             
     @staticmethod
-    def getNotAssinedBlock(node):
+    def getNotAssinedBlock(node)->Block:
         transactions = Pool.getNotAssinedTransactions()      
         
         blockchain = Blockchain(node)
@@ -211,7 +211,7 @@ class Blockchain:
             
     @staticmethod
     def setAssinedBlockModel(node, typeBlock, model):   
-        transactions = [Transaction(node, null, node, model)]      
+        transactions = [Transaction(node, node, node, model)]      
         blockchain = Blockchain(node)
         try:
             blockchain.createBlock(transactions, typeBlock)

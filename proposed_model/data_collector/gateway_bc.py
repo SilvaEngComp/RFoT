@@ -52,13 +52,17 @@ def on_disconnect(mqttc, obj, msg):
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
-        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
-        isCompleted = iotcoin.mineBlock(transaction)	
-        if isCompleted is True:
-            iotcoin.restart() 
+        if validTemp(msgJson['data']) is True:
+            transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
+            isCompleted = iotcoin.mineBlock(transaction)	
+            if isCompleted is True:
+                iotcoin.restart() 
 
 			
-		
+def validTemp(temp):
+    if float(temp)>16 and float(temp)<40:
+        return True
+    return False
 	
 def setBlockchainPublication(blockchain):
 	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":str(blockchain)}	

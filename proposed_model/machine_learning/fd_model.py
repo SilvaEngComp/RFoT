@@ -21,11 +21,11 @@ class FdModel:
         if data is None:
             self.data = []
             transaction = Transaction("c05", "temperatureSensor","h28", "26")
-            block = []
-            for i in range(5):
-                block.append(Block(transaction))
-            for i in range(5):
-                self.data.append(block)                
+            transactions = []
+            for i in range(50):
+                transactions.append(transaction)
+            
+            self.data = Block(transactions)                
             
         else:
             self.data = data
@@ -57,53 +57,53 @@ class FdModel:
     
     def preprocessing(self, trashoulder=0.2):
         datasetRows = self.getStatistics(trashoulder)
+        if(datasetRows is None):
+            return None
         dataset = self.generateDataset(datasetRows)
         self.saveDataset(dataset)
         self._model =self.train(dataset)
     
-        
-    def getMean(self,transactions):
-        transactionValues1 = []
-        transactionValues2 = []
-       
-        filtredTransactions = self.filter_by_sensor(transactions)
-        cont = 0
-        half = (len(filtredTransactions))/2
-        for transaction in filtredTransactions:
-            if cont< half:
-                transactionValues1.append(float(transaction['data']))
-            else:
-                transactionValues2.append(float(transaction['data']))
-            cont+=1
-        return [[round(st.mean(transactionValues1), 2), round(st.mean(transactionValues2), 2)],
-                        [transactionValues1,transactionValues2]]
-            
     def getStatistics(self,trashoulder=0.2):
         datasetRows = []
-        if isinstance(self.data, Block):
-            dataMean, transactionValues = self.getMean(self.data['transactions'])
-            datasetRows = self.getDatasetRows(dataMean, transactionValues)
-        else:
-            for currencyBlock in self.data:
-                dataMean, transactionValues = self.getMean(currencyBlock['transactions'])
-                datasetRows += self.getDatasetRows(dataMean, transactionValues)
-        return np.array(datasetRows)
+        try:
+            transactionValues = self.dataPartition(self.data.transactions)
+            datasetRows = self.getDatasetRows(transactionValues)
+            return np.array(datasetRows)
+        except:
+            print('The transmited data across is not a Block')
+            return None
+        
+    def filter_by_sensor(self,transactions,sensor='temperatureSensor'):
+        filtredTransactions = []
+        for transaction in transactions:
+            if(transaction['sensor'] == sensor):
+                filtredTransactions.append(transaction)
+        return filtredTransactions
     
-    def getDatasetRows(self,dataMean,transactionValues, trashoulder=0.2):
-        variance = []
-        standardVariation = []
+    def dataPartition(self,transactions):
+        transactionValues2 = []
+        filtredTransactions = self.filter_by_sensor(transactions)
+        for p in range(0,len(filtredTransactions),10):
+            j = p+10
+            transactionValues1= [float(temp['data']) for temp in filtredTransactions[p:j]]
+            transactionValues2.append(transactionValues1)
+
+        return transactionValues2
+            
+   
+    
+    def getDatasetRows(self,transactionValues, trashoulder=0.2):
         i = 0;
         datasetRows = []
         for t in transactionValues:
-            varianceValue = math.sqrt(st.pvariance(t))
             standardVariationValue = np.std(t)
             validatedClass = 1 if(standardVariationValue > trashoulder) else 0
-            variance.append(varianceValue)
-            standardVariation.append(standardVariationValue)
-            datasetRows.append(t + [dataMean[i],varianceValue,standardVariationValue,validatedClass])
+            varianceValue = math.sqrt(st.pvariance(t))
+            meanValue = st.mean(t)
+            datasetRows.append(t + [meanValue,varianceValue,standardVariationValue,validatedClass])
             i+=1
         
-        return datasetRows
+        return np.array(datasetRows)
     
     def generateDataset(self,datasetRows):
         cols = ['{}_{}'.format('data', i+1) for i in range((datasetRows.shape[1]-4))]
@@ -123,12 +123,7 @@ class FdModel:
     
     
     
-    def filter_by_sensor(self,transactions,sensor='temperatureSensor'):
-        filtredTransactions = []
-        for transaction in transactions:
-            if(transaction['sensor'] == sensor):
-                filtredTransactions.append(transaction)
-        return filtredTransactions
+   
     
     def batch_data(self,dataset, bs=32):
         label = dataset.label

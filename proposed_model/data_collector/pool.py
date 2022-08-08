@@ -54,7 +54,7 @@ class Pool:
     def register(self):
         with open(self.fileName,"w") as file:
             try:
-                print('registring new transaction pool ')
+                print('registring new transaction pool | nº: {} '.format(len(self.pool)))
                 json.dump(self.toJson(), file)
             except:
                 print('erro in registration')
