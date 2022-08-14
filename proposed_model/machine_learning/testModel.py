@@ -21,6 +21,7 @@ from sklearn.metrics import median_absolute_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_log_error
 from sklearn.metrics import explained_variance_score
+from sklearn.metrics import roc_curve
 ##https://matplotlib.org/stable/gallery/lines_bars_and_markers/psd_demo.html#sphx-glr-gallery-lines-bars-and-markers-psd-demo-py
 
 #import seaborn as sns
@@ -32,9 +33,11 @@ class TestModel:
         self.fileName = 'global_train_results.csv'
         self.dataset = None
         self.fig1 = plt.figure()
-        self.fig2 = plt.figure()
-        self.a1 = self.fig1.add_subplot(1,1,1)
-        self.a2 = self.fig2.add_subplot(1,1,1)
+        self.fig1.set_size_inches(10.5,8.5)
+
+        self.a1 = self.fig1.add_subplot(513)
+        self.a2 = self.fig1.add_subplot(515)
+        self.a3 = self.fig1.add_subplot(511)
     def setGlobalModel(self, fdModel):
         self.evolution = 0
         self._globalModel = fdModel
@@ -66,7 +69,8 @@ class TestModel:
             print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
             self.saveDataset()
             animation.FuncAnimation(self.fig1, self.graphicGenarete1(Y_test,Y_pred), interval=1000)
-            animation.FuncAnimation(self.fig2, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig1, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig1, self.graphicGenarete3(Y_test,Y_pred), interval=1000)
             plt.show(block=False)
             plt.pause(3)
             ##plt.close()
@@ -75,6 +79,7 @@ class TestModel:
     def graphicGenarete1(self,Y_test,Y_pred):
         print('preparing graphic...')
         self.a1.clear()
+        self.a1.set_title("Predito Vs Real")
         self.a1.plot(Y_test.flatten(), marker='.', label='true')
         self.a1.plot(Y_pred.flatten(),'r',marker='.', label='predicted')
         self.a1.legend();   
@@ -93,8 +98,17 @@ class TestModel:
         performance = [rmse,mae,median_mae]
 
         self.a2.clear()
+        self.a2.set_title("Métricas")
         self.a2.bar(objects, performance, align='center')
         self.a2.legend(); 
+        
+    def graphicGenarete3(self,Y_test,Y_pred):
+        fper, tper, tresholds = roc_curve(Y_test.flatten(),Y_pred.flatten())
+        self.a3.clear()
+        self.a3.set_title("ROC")
+        self.a3.plot(fper, marker='.', label='False Positive Rate')
+        self.a3.plot(tper,'r',marker='.', label='True Positive Rate')
+        self.a3.legend(); 
     def getDatasetsFileNames(self, prefix='.'):
             fileNames = []
             for file in os.listdir(prefix):

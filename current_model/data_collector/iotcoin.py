@@ -5,36 +5,29 @@ Created on Wed Sep 29 12:07:56 2021
 @author: silva
 """
 
-from blockchain import Blockchain
-import json
-import os
-from node import Node
+from pool import Pool
 
 class Iotcoin:
-    def __init__(self, node, blockWidth=10):
-        self.blockchain = Blockchain(node)
-        self.blockchain.node = node
-        if(blockWidth is None):
-            blockWidth=10
-        elif isinstance(blockWidth, str):
-            blockWidth = int(blockWidth)
-        self.blockWidth = blockWidth
-        self.pool = []
-        Node.add(node)
-        print(self.blockWidth)
+    def __init__(self, node, blockWidth=20):
+        self._node = node
+        self._blockWidth = self.checkBlockWidth(blockWidth)
+        self._transactions = []
     
     def mineBlock(self, transaction):
-        self.pool.append(transaction)
-        print("{}/{}".format(len(self.pool),self.blockWidth))
+        self._transactions.append(transaction)
+        print("{}/{}".format(len(self._transactions),self._blockWidth))
        
-        if len(self.pool)>=self.blockWidth:
-            self.blockchain.createBlock(self.pool)
-            return self.blockchain
-        
-        return None
-     
+        if len(self._transactions)>=self._blockWidth:
+            pool = Pool()
+            pool.add(self._transactions)
+            return True
+        return False
     
-    def blockchainRestart(self):
-        self.pool = []
-
-  
+    def checkBlockWidth(self, blockWidth):
+        if(blockWidth is None):
+                blockWidth=20
+        elif isinstance(blockWidth, str):
+            blockWidth = int(blockWidth)
+        return blockWidth
+    def restart(self):
+        self._transactions = []        

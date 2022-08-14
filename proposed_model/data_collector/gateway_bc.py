@@ -5,7 +5,7 @@ import json
 import tatu
 import argparse
 from iotcoin import Iotcoin
-from blockchain import Transaction
+from transaction import Transaction
 from time import sleep
 
 

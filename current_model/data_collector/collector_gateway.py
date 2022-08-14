@@ -5,11 +5,11 @@ import json
 import tatu
 import argparse
 from iotcoin import Iotcoin
-from blockchain import Transaction
+from transaction import Transaction
 from time import sleep
 
 
-parser = argparse.ArgumentParser(description = 'Blockchain node params')
+parser = argparse.ArgumentParser(description = 'NoBlockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
 parser.add_argument('--size', action = 'store', dest = 'blockWidth', required = False)
 args = parser.parse_args()  
@@ -52,26 +52,19 @@ def on_disconnect(mqttc, obj, msg):
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
-        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', msgJson['data'])
-        blockchain = iotcoin.mineBlock(transaction)	
-        if blockchain:
-            iotcoin.blockchainRestart() 
+        if validTemp(msgJson['data']) is True:
+            transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
+            isCompleted = iotcoin.mineBlock(transaction)	
+            if isCompleted is True:
+                iotcoin.restart() 
 
 			
-		
+def validTemp(temp):
+    if float(temp)>16 and float(temp)<40:
+        return True
+    return False
 	
-def setBlockchainPublication(blockchain):
-	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":str(blockchain)}	
-	resp = json.dumps(responseModel)
-
-	pub_client = connect_mqtt(data, pub_broker, pub_device)
-	pub_client = on_subscribe(pub_client, blocktopic)
-	pub_client.loop_start()
-	
-	pub_client.publish(blocktopic, resp)
-
-	print('chain published in: ',blocktopic,'\n\n')
-        
+  
 def on_subscribe(client: mqtt, topic): 
 	print('subscribing: ',sub_broker,' in topic: ', topic) 
 	try:

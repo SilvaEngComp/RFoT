@@ -63,7 +63,7 @@ def on_message(mqttc, obj, msg):
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
-        fdModel.preprocessing(0.002)
+        fdModel.preprocessing(0.1)
         Blockchain.setAssinedBlockModel(sub_device,"localModel",fdModel.toJson())
         sleep(5)
         onPublish(fdModel)

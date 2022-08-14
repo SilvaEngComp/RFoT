@@ -5,7 +5,8 @@ import json
 import tatu
 import argparse
 from iotcoin import Iotcoin
-from blockchain import Transaction
+from transaction import Transaction
+from pool import Pool
 from time import sleep
 import numpy as np
 
@@ -52,12 +53,13 @@ def on_disconnect(mqttc, obj, msg):
 def on_message(mqttc, obj, msg):	
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
-        corrupted_data = float(msgJson['data'])*np.random.randint(1000)
+        #corrupted_data = float(msgJson['data'])*np.random.randint(1000)
             
-        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],'h28', corrupted_data)
-        blockchain = iotcoin.mineBlock(transaction)	
-        if blockchain:
-            iotcoin.blockchainRestart() 
+        transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
+        isCompleted = iotcoin.mineBlock(transaction)	
+        if isCompleted is True:
+            Pool.setCorruptTransactions()
+            iotcoin.restart() 
 
 			
 		

@@ -7,7 +7,7 @@ import datetime
 import sys
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
-from blockchain import Blockchain
+from no_blockchain import NoBlockchain
 from fd_model import FdModel
 import numpy as np
 from time import sleep
@@ -59,14 +59,11 @@ def on_message(mqttc, obj, msg):
     
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
-    blockchain = Blockchain(sub_device)
-   #print('prefix: ',prefix)
-    blockchain.dataDisturb()
-    #print('blockchain : {}'.format(blockchain.chain))
-    if(blockchain.chain):
-        fdModel = FdModel(sub_device,blockchain.chain)
+    block = NoBlockchain.getNotAssinedBlock()
+    if(block is not None):
+        fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
-        fdModel.preprocessing(0.002)
+        fdModel.preprocessing(0.1)
         sleep(5)
         onPublish(fdModel)
 # define the countdown func.

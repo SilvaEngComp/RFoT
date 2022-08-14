@@ -6,7 +6,7 @@ import os
 
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
-from blockchain import Blockchain
+from no_blockchain import NoBlockchain
 from fd_model import FdModel
 from fd_client import FdClient
 from integrator_model import IntegratorModel
@@ -141,18 +141,17 @@ if __name__ == '__main__':
     treshould = 0.02
     print('waitting for a valid blockchain data...')
     while(True):
-        blockchain = Blockchain(sub_device)
-        blockchain.chain = blockchain.getLocalBLockchainFile()
-        print(blockchain.chain)
-        fdModel = FdModel(sub_device,blockchain.chain)
-        fdModel.preprocessing(treshould)
-        if fdModel. hasValidModel():
-            integragorModel = IntegratorModel(fdModel, args.clients)
-            os.system('clear')
-            onPublish()
-            sleep(2)
-            onSubscribe()   
-            break 
+        block = NoBlockchain.getNotAssinedBlock()
+        if block is not None:
+            fdModel = FdModel(sub_device,block)
+            fdModel.preprocessing(treshould)
+            if fdModel. hasValidModel():
+                integragorModel = IntegratorModel(fdModel, args.clients)
+                os.system('clear')
+                onPublish()
+                sleep(2)
+                onSubscribe()   
+                break 
 
 		
 		
