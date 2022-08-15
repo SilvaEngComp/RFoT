@@ -108,6 +108,7 @@ class TestModel:
         self.a3.set_title("ROC")
         self.a3.plot(fper, marker='.', label='False Positive Rate')
         self.a3.plot(tper,'r',marker='.', label='True Positive Rate')
+        self.a3.plot(tresholds,'g',marker='.', label='treshold')
         self.a3.legend(); 
     def getDatasetsFileNames(self, prefix='.'):
             fileNames = []

@@ -9,3 +9,4 @@ nodes.json
 *env
 *__pycache__
 venv
+*pool.json
