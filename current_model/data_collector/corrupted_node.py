@@ -56,10 +56,10 @@ def on_message(mqttc, obj, msg):
         #corrupted_data = float(msgJson['data'])*np.random.randint(1000)
             
         transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
-        isCompleted = iotcoin.mineBlock(transaction)	
+        isCompleted = iotcoin.corruptData(transaction)	
         if isCompleted is True:
-            Pool.setCorruptTransactions()
-            iotcoin.restart() 
+            iotcoin.restart()
+           
 
 			
 		
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     pub_device = 'sc01'
     blocktopic = 'dev/sc28'
     iotcoin = Iotcoin(args.name, args.blockWidth)
-    
+    timeToCorrupt=5;
     with open('../../config.json') as f:
         data = json.load(f)
     

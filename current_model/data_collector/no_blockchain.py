@@ -5,7 +5,7 @@ Created on Wed Sep 29 09:22:31 2021
 @author: silva
 """
 import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
 from pool import Pool
 

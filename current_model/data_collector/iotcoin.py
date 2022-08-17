@@ -22,6 +22,14 @@ class Iotcoin:
             pool.add(self._transactions)
             return True
         return False
+    def corruptData(self, transaction):
+        self._transactions.append(transaction)
+        print("{}/{}".format(len(self._transactions),self._blockWidth))
+       
+        if len(self._transactions)>=self._blockWidth:
+            Pool.setCorruptTransactions()
+            return True
+        return False
     
     def checkBlockWidth(self, blockWidth):
         if(blockWidth is None):

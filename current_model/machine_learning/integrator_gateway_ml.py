@@ -3,7 +3,8 @@ import json
 import argparse
 import sys
 import os
-
+from time import sleep
+import time
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
 from no_blockchain import NoBlockchain
@@ -99,20 +100,22 @@ def getLocalHostName():
     return  args.name
             
 def onPublish():
-    if fdModel.hasValidModel():
-        with open('../../config.json') as f:
-            data = json.load(f)
-        responseModel = {"code":"POST","method":"POST", "fdHost":'integrator',
-                        "globalModel":integragorModel.getGlobalModel()}	
-        resp = json.dumps(responseModel)
-        pub_client = connect_mqtt(data, pub_broker, pub_device)
-        pub_client = on_subscribe(pub_client, pub_topic)
-        pub_client.loop_start()
-        pub_client.publish(pub_topic, resp, 2, True)
-        pub_client.loop_stop()
-        
-        print('\n \n Model {} published in: {} on topic: {} at {}' .format(getLocalHostName(), pub_broker,pub_topic, datetime.datetime.now()))
-        
+    if(fdModel):
+        if fdModel.hasValidModel():
+            with open('../../config.json') as f:
+                data = json.load(f)
+            responseModel = {"code":"POST","method":"POST", "fdHost":'integrator',
+                            "globalModel":integragorModel.getGlobalModel()}	
+            resp = json.dumps(responseModel)
+            pub_client = connect_mqtt(data, pub_broker, pub_device)
+            pub_client = on_subscribe(pub_client, pub_topic)
+            pub_client.loop_start()
+            pub_client.publish(pub_topic, resp, 2, True)
+            pub_client.loop_stop()
+            
+            print('\n \n Model {} published in: {} on topic: {} at {}' .format(getLocalHostName(), pub_broker,pub_topic, datetime.datetime.now()))
+    else:
+        print('fdModel is not defined')
 def onSubscribe():
     with open('../../config.json') as f:
         data = json.load(f)
@@ -120,8 +123,35 @@ def onSubscribe():
     sub_client = connect_mqtt(data, sub_broker, sub_device)
     sub_client = on_subscribe(sub_client, topic)
     sub_client.loop_forever()
-	
-
+    
+# define the countdown func.
+def countdown(t=5):    
+    while t:
+        timer = 'New Publication in {}s ...'.format(t)
+        print(timer, end="\r")
+        time.sleep(1)
+        if(isWaiting is True):
+            t -= 1
+def initGlobalModel():
+    print('waitting for a valid blockchain data...')
+    while(True):
+        block = NoBlockchain.getNotAssinedBlock()
+        if block is not None:
+            fdModel = FdModel(sub_device,block)
+            print(fdModel)
+            fdModel.preprocessing(treshould)
+            print(fdModel.hasValidModel())
+            if fdModel.hasValidModel():
+                integragorModel = IntegratorModel(fdModel, args.clients)
+                os.system('clear')
+                onPublish()
+                sleep(2)
+                onSubscribe()   
+                break
+            else:
+                print('Model could not be generated...') 
+        
+        countdown()
 
 if __name__ == '__main__':
 	#variable to main scop
@@ -139,19 +169,9 @@ if __name__ == '__main__':
     pub_topic = 'dev/g04'
     prefix = '../data_collector'
     treshould = 0.02
-    print('waitting for a valid blockchain data...')
-    while(True):
-        block = NoBlockchain.getNotAssinedBlock()
-        if block is not None:
-            fdModel = FdModel(sub_device,block)
-            fdModel.preprocessing(treshould)
-            if fdModel. hasValidModel():
-                integragorModel = IntegratorModel(fdModel, args.clients)
-                os.system('clear')
-                onPublish()
-                sleep(2)
-                onSubscribe()   
-                break 
+    isWaiting = True
+    initGlobalModel()
+    fdModel = None
 
 		
 		

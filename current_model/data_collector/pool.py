@@ -1,6 +1,9 @@
 import os
 from transaction import Transaction
 import json
+import random
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
 class Pool:
     def __init__(self):
@@ -21,19 +24,18 @@ class Pool:
     @staticmethod
     def setCorruptTransactions():
         pool = Pool()
-        transactions = pool.get()
+        allTransactions = pool.get()
         
-        if(len(transactions)>0):
-            corrupted_transactions=[]
+        if(len(allTransactions)>0):
+            allCorrupted_transactions=[]
             cont=0;
-            for i in transactions:
-                if cont%2==0:
-                    data = i*10
-                else:
-                    data = i/10
-                corrupted_transactions.append(data)
-                
-            pool.setPool(corrupted_transactions)
+            for transactions in allTransactions:
+                corrupted=[]
+                for transaction in transactions:
+                    transaction['data'] = random.randint(1,1000)
+                    corrupted.append(transaction)
+                allCorrupted_transactions.append(corrupted)
+            pool.setPool(allCorrupted_transactions)
              
        
     def toJson(self):
@@ -68,7 +70,8 @@ class Pool:
         self.register()
     
     
-    def register(self):
+    def register(self, prefix='../data_collector/'):
+        fileName = str(prefix + self.fileName) 
         with open(self.fileName,"w") as file:
             try:
                 print('registring new transaction pool | nº: {} '.format(len(self.pool)))
