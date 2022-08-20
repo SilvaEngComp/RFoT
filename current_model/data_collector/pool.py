@@ -8,7 +8,7 @@ sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collec
 class Pool:
     def __init__(self):
         self.pool = []
-        self.fileName = 'pool.json'
+        self.fileName = 'noBlockchain.json'
     
     @staticmethod
     def getNotAssinedTransactions():

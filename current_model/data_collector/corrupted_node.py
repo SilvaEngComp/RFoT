@@ -12,6 +12,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
+parser.add_argument('--time', action = 'store', dest = 'time', required = True)
 args = parser.parse_args()  
 
 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'sc01'
     blocktopic = 'dev/sc28'
-    iotcoin = Iotcoin(args.name)
+    iotcoin = Iotcoin(args.name, args.time)
     timeToCorrupt=5;
     with open('../../config.json') as f:
         data = json.load(f)
