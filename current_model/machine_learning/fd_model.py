@@ -136,17 +136,15 @@ class FdModel:
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
-        print(dataset)
         if(dataset.shape[0]>1):
             X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.5, random_state=42, 
                                                     stratify=None, shuffle=False)
             smlp_local = SimpleMLP()
             local_model = smlp_local.build(X_train.shape[1])
-            print(local_model)
+            
             local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
                                 metrics=self.getMetrics())
             local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)
-        
         return local_model
     
     def hasValidModel(self):

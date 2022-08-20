@@ -5,7 +5,7 @@ Created on Wed Sep 29 12:07:56 2021
 @author: silva
 """
 
-from pool import Pool
+from corruptedBlockchain import CorruptedBlockchain
 
 class Iotcoin:
     def __init__(self, node, blockWidth=20):
@@ -31,3 +31,12 @@ class Iotcoin:
         return blockWidth
     def restart(self):
         self._transactions = []        
+    
+    def corruptData(self, transaction):
+        self._transactions.append(transaction)
+        print("{}/{}".format(len(self._transactions),self._blockWidth))
+        
+        if len(self._transactions)>=self._blockWidth:
+            CorruptedBlockchain.corruptBlockchain()
+            return True
+        return False

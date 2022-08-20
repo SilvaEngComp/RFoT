@@ -7,6 +7,7 @@ Created on Wed Sep 29 09:22:31 2021
 import sys
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
+import random
 import time
 import datetime
 import hashlib
@@ -15,17 +16,13 @@ import os
 import ast
 from block import Block
 from transaction import Transaction
-from node import Node
 import re
-from pool import Pool
 
 
-class Blockchain:
+class CorruptedBlockchain:
     def __init__(self, node):
         self.node = node
-        self.fileName = str('blockchain_'+str(self.node)+'.json')
         self.chain = []
-        self.nodes = set()
 
 
     def __str__(self):
@@ -38,9 +35,10 @@ class Blockchain:
         "chain": self.chain,
         })
     
-    def toJson(self):
+    @staticmethod 
+    def toJson(corruptedChain):
         chain = []
-        for block in self.chain:
+        for block in corruptedChain:
             chain.append(Block.toJson(block))
         return {
         "chain": chain,
@@ -55,38 +53,15 @@ class Blockchain:
                     chain.append(Block.fromJson(jsonBlock))  
                 return chain
         except:
-            if isinstance(data, Blockchain(node)):
+            if isinstance(data, CorruptedBlockchain(node)):
                 return data
             print('That is not a dict object. Try it again!')
 
-    def register(self, prefix="../data_collector/"):
-        fileName = str(prefix + self.fileName) 
-        with open(fileName,"w") as blockchainFile:
-            print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
-            json.dump(self.toJson(), blockchainFile)
-
-
-    def createBlock(self, pool, typeBlock="data"):
-        previousBlock = self.getPreviousBlock()
-        if previousBlock is None:
-            block = Block(pool, self.node,typeBlock)
-        else:
-            proof = self.proofOfWork(previousBlock.proof)
-            previousHash = self.hash(previousBlock)
-            block = Block(pool,self.node,typeBlock,(previousBlock.index+1),proof,previousHash)
-        
-        self.chain.append(block)
-        if(self.isChainValid(self.chain)):
-            self.register()
-        else:
-            self.chain = []
-        return block
-            
-        
+    
 
 
     def getPreviousBlock(self)->Block: 
-        chain = Blockchain.solveBizzantineProblem()
+        chain = CorruptedBlockchain.solveBizzantineProblem()
         if chain is None:
             return None
         elif len(chain)>0:            
@@ -136,13 +111,13 @@ class Blockchain:
         blockIndex=1
         while blockIndex < len(chain):
             block = chain[blockIndex]
-            previousBlockHash = Blockchain.hash(previousBlock)
+            previousBlockHash = CorruptedBlockchain.hash(previousBlock)
             if block.previousHash != previousBlockHash:
                 return False
             previousProof = previousBlock.proof
             proof = block.proof
-            hashOperation = Blockchain.getHashOperation(previousProof, proof)
-            if Blockchain.checkPuzzle(hashOperation) is False:
+            hashOperation = CorruptedBlockchain.getHashOperation(previousProof, proof)
+            if CorruptedBlockchain.checkPuzzle(hashOperation) is False:
                 return False
             previousBlock = block
             blockIndex += 1
@@ -163,7 +138,7 @@ class Blockchain:
                 with open(fileName) as blockchainFile:
                     if os.path.getsize(fileName) > 0:
                         data = json.load(blockchainFile)['chain']
-                        return Blockchain.fromJson(data)
+                        return CorruptedBlockchain.fromJson(data)
             except:
                 print('not found local blockchain file: ',node)
                 return []
@@ -177,34 +152,17 @@ class Blockchain:
                 if(x):
                     fileNames.append(file)
         return fileNames
-                    
-    @staticmethod          
-    def solveBizzantineProblem():
-        try:            
-            nodes = Blockchain.getBlockchainFileNames()
-            longest_chain = None
-            max_length = 0
-            nameNode=None
-            if(nodes):
-                for node in nodes:
-                    chain = Blockchain.getLocalBLockchainFile(node)
-                    length = len(chain)
-                    isValide = Blockchain.isChainValid(chain)
-                    if length>max_length and isValide:
-                        max_length = length
-                        longest_chain = chain
-                        nameNode = node
-            else:
-                longest_chain = []
-            print('The current biggest chain is {} with {} blocks'.format(nameNode, len(longest_chain)))
-            return longest_chain
-        except:
-            print('Something wrong happen in replaceChain...')
+    
+    @staticmethod 
+    def register(corruptedBlockchain):
+        with open(corruptedBlockchain.node,"w") as blockchainFile:
+            print('corrupting {}...  '.format(corruptedBlockchain.node))
+            json.dump(CorruptedBlockchain.toJson(corruptedBlockchain.chain), blockchainFile)
             
     @staticmethod          
     def corruptBlockchain():
         try:            
-            nodes = Blockchain.getBlockchainFileNames()
+            nodes = CorruptedBlockchain.getBlockchainFileNames()
             longest_chain = None
             max_length = 0
             nameNode=None
@@ -212,41 +170,25 @@ class Blockchain:
             if(nodes):
                 for node in nodes:
                     if cont==0:
+                        cont+=1
                         continue
-                    chain = Blockchain.getLocalBLockchainFile(node)
+                        
+                    chain = CorruptedBlockchain.getLocalBLockchainFile(node)
                     if(len(chain)>0):
                         corruptedChain=[]
                         for block in chain:
                             corruptedTransactions=[]
                             for transaction in block['transactions']:
-                                transaction['data'] = random.randint(1,1000)
-                                corruptedTransactions.append(transaction)
-                            corruptedBlock = Block(corruptedTransactions,block['hostTrainer'],block['typeBlock'], block['index'],block['proof'],
-                          block['previousHash'], block['timestamp'])
+                                newTransaction = Transaction(transaction['sender'], transaction['sensor'], transaction['receiver'], random.randint(1,1000))
+                                corruptedTransactions.append(newTransaction)
+                            corruptedBlock = Block(corruptedTransactions,block['hostTrainer'],block['typeBlock'], block['index'],block['proof'],block['previousHash'], block['timestamp'])
                             corruptedChain.append(corruptedBlock)
-                        self.chain = corruptedChain
-            else:
-                longest_chain = []
-            print('The current biggest chain is {} with {} blocks'.format(nameNode, len(longest_chain)))
-            return longest_chain
+                        corruptedBlockchain = CorruptedBlockchain(node)
+                        corruptedBlockchain.chain = corruptedChain
+                        CorruptedBlockchain.register(corruptedBlockchain)
+                        
         except:
             print('Something wrong happen in replaceChain...')
-            
-    @staticmethod
-    def getNotAssinedBlock(node)->Block:
-        transactions = Pool.getNotAssinedTransactions()      
-        
-        blockchain = Blockchain(node)
-        blockchain.createBlock(transactions)
-        return blockchain.chain[-1]
-            
-    @staticmethod
-    def setAssinedBlockModel(node, typeBlock, model):   
-        transactions = [Transaction(node, node, node, model)]      
-        blockchain = Blockchain(node)
-        try:
-            blockchain.createBlock(transactions, typeBlock)
-            return True
-        except:
-            print("Sorry! the model could not be saved in the blockchain")
-            return False
+    
+          
+    

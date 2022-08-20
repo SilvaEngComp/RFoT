@@ -85,7 +85,7 @@ def on_message(mqttc, obj, msg):
         if (integragorModel.isCompleted() is True):
             os.system('clear')
             integragorModel.globalModelTrain()
-            onPublish()
+            onPublish(fdModel,integragorModel)
     
 
 
@@ -99,8 +99,9 @@ def add_client(client):
 def getLocalHostName():
     return  args.name
             
-def onPublish():
-    if(fdModel):
+def onPublish(fdModel, integragorModel):
+    print(fdModel)
+    if(fdModel is not None):
         if fdModel.hasValidModel():
             with open('../../config.json') as f:
                 data = json.load(f)
@@ -132,26 +133,6 @@ def countdown(t=5):
         time.sleep(1)
         if(isWaiting is True):
             t -= 1
-def initGlobalModel():
-    print('waitting for a valid blockchain data...')
-    while(True):
-        block = NoBlockchain.getNotAssinedBlock()
-        if block is not None:
-            fdModel = FdModel(sub_device,block)
-            print(fdModel)
-            fdModel.preprocessing(treshould)
-            print(fdModel.hasValidModel())
-            if fdModel.hasValidModel():
-                integragorModel = IntegratorModel(fdModel, args.clients)
-                os.system('clear')
-                onPublish()
-                sleep(2)
-                onSubscribe()   
-                break
-            else:
-                print('Model could not be generated...') 
-        
-        countdown()
 
 if __name__ == '__main__':
 	#variable to main scop
@@ -170,8 +151,24 @@ if __name__ == '__main__':
     prefix = '../data_collector'
     treshould = 0.02
     isWaiting = True
-    initGlobalModel()
-    fdModel = None
+    print('waitting for a valid blockchain data...')
+    while(True):
+        block = NoBlockchain.getNotAssinedBlock()
+        if block is not None:
+            fdModel = FdModel(sub_device,block)
+            fdModel.preprocessing(treshould)
+            if fdModel.hasValidModel():
+                integragorModel = IntegratorModel(fdModel, args.clients)
+                os.system('clear')
+                onPublish(fdModel,integragorModel)
+                sleep(2)
+                onSubscribe()   
+                break
+            else:
+                print('Model could not be generated...') 
+        
+        countdown()
+    
 
 		
 		
