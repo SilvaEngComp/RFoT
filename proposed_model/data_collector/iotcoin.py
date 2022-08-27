@@ -6,7 +6,7 @@ Created on Wed Sep 29 12:07:56 2021
 """
 
 from corruptedBlockchain import CorruptedBlockchain
-
+from pool import Pool
 class Iotcoin:
     def __init__(self, node, blockWidth=20):
         self._node = node

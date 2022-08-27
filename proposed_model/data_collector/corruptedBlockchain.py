@@ -169,8 +169,7 @@ class CorruptedBlockchain:
             cont=0
             if(nodes):
                 for node in nodes:
-                    if cont==0:
-                        cont+=1
+                    if("blockchain_h3.json" == node):
                         continue
                         
                     chain = CorruptedBlockchain.getLocalBLockchainFile(node)
@@ -179,9 +178,11 @@ class CorruptedBlockchain:
                         for block in chain:
                             corruptedTransactions=[]
                             for transaction in block['transactions']:
-                                newTransaction = Transaction(transaction['sender'], transaction['sensor'], transaction['receiver'], random.randint(1,1000))
+                                newTransaction = Transaction(transaction.sender, transaction.sensor, transaction.receiver, random.randint(1,1000))
                                 corruptedTransactions.append(newTransaction)
-                            corruptedBlock = Block(corruptedTransactions,block['hostTrainer'],block['typeBlock'], block['index'],block['proof'],block['previousHash'], block['timestamp'])
+                            
+                            
+                            corruptedBlock = Block(corruptedTransactions,block.hostTrainer,block.typeBlock, block.index,block.proof,block.previousHash, block.timestamp)
                             corruptedChain.append(corruptedBlock)
                         corruptedBlockchain = CorruptedBlockchain(node)
                         corruptedBlockchain.chain = corruptedChain

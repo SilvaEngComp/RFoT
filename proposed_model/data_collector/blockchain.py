@@ -211,7 +211,8 @@ class Blockchain:
             cont=0
             if(nodes):
                 for node in nodes:
-                    if cont==0:
+                    x = re.search("^_h1$", node)
+                    if(x is True):
                         continue
                     chain = Blockchain.getLocalBLockchainFile(node)
                     if(len(chain)>0):
