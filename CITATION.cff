@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Programa de Mestrado da Universidade Federal do Recôncavo da Bahia"
+authors:
+- family-names: " Silva "
+  given-names: "Eliabe Nascimento"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Prazeres"
+  given-names: "Cássio Vinicius Serafim"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "mininet_blockchain_ml"
+version: 1.0.0
+doi: 10.5281/zenodo.1234
+date-released: 2022-10-15
+url: "https://github.com/SilvaEngComp/mininet_blockchain_ml"
