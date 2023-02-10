@@ -18,7 +18,7 @@ from transaction import Transaction
 from node import Node
 import re
 from pool import Pool
-
+from cipher import Cipher
 
 class Blockchain:
     def __init__(self, node):
@@ -26,6 +26,7 @@ class Blockchain:
         self.fileName = str('blockchain_'+str(self.node)+'.json')
         self.chain = []
         self.nodes = set()
+        self.cipher = Cipher()
 
 
     def __str__(self):
@@ -46,8 +47,15 @@ class Blockchain:
         "chain": chain,
         }
         
+        
     @classmethod
     def fromJson(self, data):
+        if data is None:
+            return None
+        else:
+            cipher = Cipher()
+            data = cipher.decrypt(data)
+        
         try:
             if isinstance(data, list):
                 chain = []
@@ -61,9 +69,14 @@ class Blockchain:
 
     def register(self, prefix="../data_collector/"):
         fileName = str(prefix + self.fileName) 
-        with open(fileName,"w") as blockchainFile:
+        with open(fileName,'w') as blockchainFile:            
             print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
             json.dump(self.toJson(), blockchainFile)
+        with open(fileName,'rb') as blockchainEncFile:     
+            data = blockchainEncFile.read()
+        encrypted = self.cipher.encrypt(data)
+        with open(fileName,'wb') as f:              
+            f.write(encrypted)
 
 
     def createBlock(self, pool, typeBlock="data"):
@@ -159,11 +172,24 @@ class Blockchain:
                 fileName = str(prefix + node) 
             if os.path.exists(fileName) is False:
                 return []
-            try:
-                with open(fileName) as blockchainFile:
+            
+            with open(fileName, 'rb') as blockchainFile:
                     if os.path.getsize(fileName) > 0:
-                        data = json.load(blockchainFile)['chain']
-                        return Blockchain.fromJson(data)
+                        cipher = Cipher()
+                        data = blockchainFile.read()
+                        decripted = cipher.decrypt(data)
+                        print(decripted)
+                        print(isinstance(data,list) )
+            try:
+                with open(fileName, 'rb') as blockchainFile:
+                    if os.path.getsize(fileName) > 0:
+                        cipher = Cipher()
+                        data = blockchainFile.read()
+                        return cipher.decrypt(data)
+                        
+                        
+                        #data = json.load(blockchainFile)['chain']
+                        #return Blockchain.fromJson(data)
             except:
                 print('not found local blockchain file: ',node)
                 return []
@@ -188,6 +214,7 @@ class Blockchain:
             if(nodes):
                 for node in nodes:
                     chain = Blockchain.getLocalBLockchainFile(node)
+                    print(chain)
                     length = len(chain)
                     isValide = Blockchain.isChainValid(chain)
                     if length>max_length and isValide:
