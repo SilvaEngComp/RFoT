@@ -50,12 +50,6 @@ class Blockchain:
         
     @classmethod
     def fromJson(self, data):
-        if data is None:
-            return None
-        else:
-            cipher = Cipher()
-            data = cipher.decrypt(data)
-        
         try:
             if isinstance(data, list):
                 chain = []
@@ -173,23 +167,15 @@ class Blockchain:
             if os.path.exists(fileName) is False:
                 return []
             
-            with open(fileName, 'rb') as blockchainFile:
-                    if os.path.getsize(fileName) > 0:
-                        cipher = Cipher()
-                        data = blockchainFile.read()
-                        decripted = cipher.decrypt(data)
-                        print(decripted)
-                        print(isinstance(data,list) )
+            
             try:
                 with open(fileName, 'rb') as blockchainFile:
                     if os.path.getsize(fileName) > 0:
                         cipher = Cipher()
                         data = blockchainFile.read()
-                        return cipher.decrypt(data)
-                        
-                        
-                        #data = json.load(blockchainFile)['chain']
-                        #return Blockchain.fromJson(data)
+                        decripted = cipher.decrypt(data)
+                        dataJson = json.loads(decripted)
+                        return Blockchain.fromJson(dataJson['chain'])
             except:
                 print('not found local blockchain file: ',node)
                 return []
@@ -214,7 +200,6 @@ class Blockchain:
             if(nodes):
                 for node in nodes:
                     chain = Blockchain.getLocalBLockchainFile(node)
-                    print(chain)
                     length = len(chain)
                     isValide = Blockchain.isChainValid(chain)
                     if length>max_length and isValide:

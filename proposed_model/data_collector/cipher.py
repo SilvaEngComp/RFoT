@@ -8,7 +8,7 @@ class Cipher:
     def encrypt( self, data ):        
         return self.fernet.encrypt(data)
 
-    def decrypt( self, enc ):
+    def decrypt( self, data ):
         return self.fernet.decrypt(data)
     
     def getKey(self):
