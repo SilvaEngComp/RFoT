@@ -24,6 +24,7 @@ class Blockchain:
     def __init__(self, node):
         self.node = node
         self.fileName = str('blockchain_'+str(self.node)+'.json')
+        self.fileNameNotCript = str('blockchain_notCript_'+str(self.node)+'.json')
         self.chain = []
         self.nodes = set()
         self.cipher = Cipher()
@@ -54,23 +55,29 @@ class Blockchain:
             if isinstance(data, list):
                 chain = []
                 for jsonBlock in data:
-                    chain.append(Block.fromJson(jsonBlock))  
+                    chain.append(Block.fromJson(jsonBlock))
+                self.chain = chain  
                 return chain
         except:
             if isinstance(data, Blockchain(node)):
                 return data
             print('That is not a dict object. Try it again!')
 
-    def register(self, prefix="../data_collector/"):
+    def registerEncripted(self, prefix="../data_collector/"):
         fileName = str(prefix + self.fileName) 
-        with open(fileName,'w') as blockchainFile:            
-            print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
-            json.dump(self.toJson(), blockchainFile)
-        with open(fileName,'rb') as blockchainEncFile:     
+        fileNameNotCript = str(prefix +self.fileNameNotCript)
+        with open(fileNameNotCript,'rb') as blockchainEncFile:     
             data = blockchainEncFile.read()
         encrypted = self.cipher.encrypt(data)
         with open(fileName,'wb') as f:              
             f.write(encrypted)
+
+    def register(self, prefix="../data_collector/"):
+        fileNameNotCript = str(prefix +self.fileNameNotCript)
+        with open(fileNameNotCript,'w') as blockchainFile:            
+            print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
+            json.dump(self.toJson(), blockchainFile)
+
 
 
     def createBlock(self, pool, typeBlock="data"):
@@ -85,6 +92,7 @@ class Blockchain:
         self.chain.append(block)
         if(self.isChainValid(self.chain)):
             self.register()
+            self.registerEncripted()
         else:
             self.chain = []
         return block
