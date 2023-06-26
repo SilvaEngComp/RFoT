@@ -126,7 +126,7 @@ class Blockchain:
 
     @staticmethod
     def checkPuzzle(hash_test):
-        if hash_test[0:4]=='0000':
+        if hash_test[0:2]=='00':
             return True
             return False
     @staticmethod

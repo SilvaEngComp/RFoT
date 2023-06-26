@@ -1,7 +1,7 @@
 .pyc
 *.pyc
 *blockchain_h*.json
-*blockchain__notCript_*.json
+*blockchain_notCript_*.json
 *no_blockchain*.json
 devices_running.json
 nodes.json

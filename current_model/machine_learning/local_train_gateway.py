@@ -12,7 +12,7 @@ from fd_model import FdModel
 import numpy as np
 from time import sleep
 import time
-
+from time_register import TimeRegister
 
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
@@ -60,12 +60,15 @@ def on_message(mqttc, obj, msg):
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
     block = NoBlockchain.getNotAssinedBlock()
+    TimeRegister.addTime()
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.1)
+        TimeRegister.addTime()
         sleep(5)
         onPublish(fdModel)
+        TimeRegister.addTime()
 # define the countdown func.
 def countdown(t=5):    
     while t:
