@@ -22,7 +22,7 @@ class TimeRegister:
             TimeRegister.times.append(total)
             print('mounting dataset time')
             TimeRegister.dataset = pd.DataFrame([TimeRegister.times], columns = TimeRegister.cols)
-            TimeRegister.register('prof_2.csv')
+            TimeRegister.register('prof_7.csv')
 
     def restartTime():
         TimeRegister.lastTime = datetime.now()
