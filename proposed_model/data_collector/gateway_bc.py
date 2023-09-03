@@ -4,10 +4,9 @@ import paho.mqtt.client as mqtt
 import json
 import tatu
 import argparse
-from iotcoin import Iotcoin
-from transaction import Transaction
-from time import sleep
 
+from time import sleep
+from  smart_contract_1 import SC1
 
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
@@ -49,20 +48,14 @@ def on_disconnect(mqttc, obj, msg):
         print(devices)"""
     
 	
-def on_message(mqttc, obj, msg):	
-    msgJson = json.loads(msg.payload)
-    if 'data' in msgJson:
-        if validTemp(msgJson['data']) is True:
-            transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
-            isCompleted = iotcoin.mineBlock(transaction)	
-            if isCompleted is True:
-                iotcoin.restart() 
+def on_message(mqttc, obj, msg):
+    isCompleted = sc1.dataTreating(msg)	
+    # print("isCompleted: ",isCompleted)
+    if isCompleted is True:
+        sc1.restart() 
 
 			
-def validTemp(temp):
-    if float(temp)>16 and float(temp)<40:
-        return True
-    return False
+
 	
 def setBlockchainPublication(blockchain):
 	responseModel = {"code":"POST","method":"POST", "sensor":'sc28', "value":str(blockchain)}	
@@ -123,7 +116,7 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'sc01'
     blocktopic = 'dev/sc28'
-    iotcoin = Iotcoin(args.name, args.blockWidth)
+    sc1 = SC1(sub_device, args.blockWidth)
     
     with open('../../config.json') as f:
         data = json.load(f)

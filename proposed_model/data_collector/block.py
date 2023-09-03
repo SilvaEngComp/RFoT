@@ -46,6 +46,8 @@ class Block:
                 transactions.append(transaction.toJson())
             else:
                 transactions.append(transaction)
+        
+        # print('transactions: ',transactions)
         return {
             'index': self.index,
             'timestamp': self.timestamp,

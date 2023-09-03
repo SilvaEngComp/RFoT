@@ -92,14 +92,16 @@ class FdModel:
             
    
     
-    def getDatasetRows(self,transactionValues, trashoulder=0.2):
+    def getDatasetRows(self,transactionValues):
         i = 0;
         datasetRows = []
         for t in transactionValues:
-            standardVariationValue = np.std(t)
-            validatedClass = 1 if(standardVariationValue > trashoulder) else 0
-            varianceValue = math.sqrt(st.pvariance(t))
             meanValue = st.mean(t)
+            variationEvaluated = abs(meanValue-t)
+            standardVariationValue = np.std(t)
+            validatedClass = 1 if(variationEvaluated > standardVariationValue) else 0
+            varianceValue = math.sqrt(st.pvariance(t))
+            
             datasetRows.append(t + [meanValue,varianceValue,standardVariationValue,validatedClass])
             i+=1
         

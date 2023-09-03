@@ -9,6 +9,7 @@ class Pool:
     
     @staticmethod
     def getNotAssinedTransactions():
+        print("getting traansaction")
         pool = Pool()
         transactions = pool.get()
         

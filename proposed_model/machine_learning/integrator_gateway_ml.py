@@ -6,7 +6,8 @@ import os
 
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
-from blockchain import Blockchain
+from smart_contract_3 import SC3
+from smart_contract_4 import SC4
 from fd_model import FdModel
 from fd_client import FdClient
 from integrator_model import IntegratorModel
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     treshould = 0.02
     print('waitting for a valid blockchain data...')
     while(True):
-        block = Blockchain.getNotAssinedBlock(sub_device)
+        block = SC3.getNotAssinedBlock(sub_device)
         if block is not None:
             fdModel = FdModel(sub_device,block)
             fdModel.preprocessing(treshould)
