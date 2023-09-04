@@ -6,13 +6,13 @@ from blockchain import Blockchain
 class SC2:
     @staticmethod
     def getBlockchain(node, transactions):
-        blockchain = Blockchain(node, 'b1_');
+        blockchain = Blockchain(node);
         
     @staticmethod
     def minerNotAssinedTransaction(node, transactions):
         print("getting transactions")
         # transactions = Pool.getNotAssinedTransactions()      
-        blockchain = Blockchain(node, 'b1_')
+        blockchain = Blockchain(node)
         before = len(blockchain.chain)
         print("size before = ",before)
         blockchain.createBlock(transactions)

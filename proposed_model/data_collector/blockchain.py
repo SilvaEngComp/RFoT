@@ -19,12 +19,13 @@ from node import Node
 import re
 from pool import Pool
 from cipher import Cipher
+from hostTrainer import HostTrainer
 
 class Blockchain:
-    def __init__(self, node, blockchainType):
+    def __init__(self, node):
         self.node = node
-        self.blockchainType = blockchainType
-        self.fileName = str(blockchainType+str(self.node)+'.json')
+        self.blockchainType = "data_blockchain"
+        self.fileName = str(self.blockchainType+str(self.node)+'.json')
         self.fileNameNotCript = str('blockchain_notCript_'+str(self.node)+'.json')
         self.chain = []
         self.nodes = set()
@@ -45,19 +46,19 @@ class Blockchain:
         chain = []
         for block in self.chain:
             chain.append(Block.toJson(block))
+            
         return {
         "chain": chain,
         }
         
         
     @classmethod
-    def fromJson(self, data):
+    def fromJson(self,data):
         try:
             if isinstance(data, list):
                 chain = []
                 for jsonBlock in data:
                     chain.append(Block.fromJson(jsonBlock))
-                self.chain = chain  
                 return chain
         except:
             if isinstance(data, Blockchain(node)):
@@ -65,34 +66,71 @@ class Blockchain:
             print('That is not a dict object. Try it again!')
 
     def registerEncripted(self, prefix="../data_collector/"):
-        fileName = str(prefix + self.fileName) 
+        self.fileName = str(prefix +self.blockchainType+str(self.node)+'.json')
         fileNameNotCript = str(prefix +self.fileNameNotCript)
-        with open(fileNameNotCript,'rb') as blockchainEncFile:     
-            data = blockchainEncFile.read()
-        encrypted = self.cipher.encrypt(data)
-        with open(fileName,'wb') as f:              
-            f.write(encrypted)
+        try:
+            dataBytes = json.dumps(self.toJson()).encode("utf-8")
+            encrypted = self.cipher.encrypt(dataBytes)
+            try:
+                with open(self.fileName,'wb') as f:       
+                    f.write(encrypted)
+                print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
+            except:
+                print("Erro ao criptografar blockchain: ", self.chain)
+        except:
+            print("Erro ao converter chain para bytes ", self.fileName)
 
     def register(self, prefix="../data_collector/"):
         fileNameNotCript = str(prefix +self.fileNameNotCript)
         with open(fileNameNotCript,'w') as blockchainFile:            
+            jsonData = self.toJson()
             print('registring new chain in {} with {} blocks '.format(self.fileName, len(self.chain)))
-            json.dump(self.toJson(), blockchainFile)
+            if jsonData  is not None:
+                json.dump(self.toJson(), blockchainFile)
 
 
 
-    def createBlock(self, pool, typeBlock="data"):
-        previousBlock = self.getPreviousBlock()
+    def createBlock(self, data, typeBlock="data"):
         
+        if typeBlock == "data":     
+            self.blockchainType="data_blockchain"   
+            return self.createDataBlock(data)
+        else:
+            self.blockchainType="consumer_blockchain"
+            return self.createConsumerBlock(data)
+
+
+    def createDataBlock(self, pool):
+        previousBlock = self.getPreviousBlock()
         if previousBlock is None:
-            block = Block(pool, self.node,typeBlock)
+            block = Block(pool,self.blockchainType)
         else:
             proof = self.proofOfWork(previousBlock.proof)
             previousHash = self.hash(previousBlock)
-            block = Block(pool,self.node,typeBlock,(previousBlock.index+1),proof,previousHash)
+            block = Block(pool,self.blockchainType,(previousBlock.index+1),proof,previousHash)
+
         self.chain.append(block)
         if(self.isChainValid(self.chain)):
-            self.register()
+            # self.register()
+            self.registerEncripted()
+        else:
+            self.chain = []
+        
+        return block
+
+    def createConsumerBlock(self, pool):
+        previousBlock = self.getPreviousBlock()
+        
+        if previousBlock is None:
+            return False
+        else:
+            proof = self.proofOfWork(previousBlock.proof)
+            previousHash = self.hash(previousBlock)
+            hostTrainer = HostTrainer(self.node,block)
+            block = Block(pool,self.blockchainType,(previousBlock.index+1),proof,previousHash,hostTrainer)
+        self.chain.append(block)
+        if(self.isChainValid(self.chain)):
+            # self.register()
             self.registerEncripted()
         else:
             self.chain = []
@@ -117,26 +155,22 @@ class Blockchain:
             previous_proof = int(previous_proof)
         if isinstance(new_proof,str):
             new_proof = int(new_proof)
-        
-            
-        print("starting solving challenge...")
         while True:
             hashOperation = self.getHashOperation(previous_proof, new_proof)
             if self.checkPuzzle(hashOperation) is True:
                 break
             else:
                 new_proof +=1
-        print("challenge solved...")
         return new_proof                            
 
     
     def checkPuzzle(self,hash_test):
         if hash_test[0:4]=='0000':
             return True
-            return False
+        return False
     
     def getHashOperation(self,previous_proof, new_proof):
-        return hashlib.sha256(str(new_proof**2-previous_proof**2).encode()).hexdigest()
+        return hashlib.sha256(str(new_proof**2-previous_proof**2).encode("utf-8")).hexdigest()
         
         
     
@@ -144,7 +178,7 @@ class Blockchain:
         try:
             if isinstance(value, Block):
                 value = str(value)
-                encoded = json.dumps(value).encode()
+                encoded = json.dumps(value).encode("utf-8")
                 return hashlib.sha256(encoded).hexdigest()
         except:
             print('It can not get the hash of not Block: ',type(value))
@@ -157,6 +191,7 @@ class Blockchain:
         while blockIndex < len(chain):
             block = chain[blockIndex]
             previousBlockHash = self.hash(previousBlock)
+            
             if block.previousHash != previousBlockHash:
                 return False
             previousProof = previousBlock.proof
@@ -180,7 +215,6 @@ class Blockchain:
             if os.path.exists(fileName) is False:
                 return []
             
-            
             try:
                 with open(fileName, 'rb') as blockchainFile:
                     if os.path.getsize(fileName) > 0:
@@ -188,9 +222,10 @@ class Blockchain:
                         data = blockchainFile.read()
                         decripted = cipher.decrypt(data)
                         dataJson = json.loads(decripted)
-                        return Blockchain.fromJson(dataJson['chain'])
+                        dataJson= Blockchain.fromJson(dataJson['chain'])
+                        return dataJson
             except:
-                print('not found local blockchain file: ',node)
+                print('not found local blockchain file: ',fileName)
                 return []
     
       
@@ -204,7 +239,7 @@ class Blockchain:
         return fileNames
                     
               
-    def solveBizzantineProblem(self,):
+    def solveBizzantineProblem(self):
         try:            
             nodes = self.getBlockchainFileNames()
             longest_chain = None
@@ -225,6 +260,7 @@ class Blockchain:
             return longest_chain
         except:
             print('Something wrong happen in replaceChain...')
+            return None
             
     
             

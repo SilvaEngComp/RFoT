@@ -1,8 +1,9 @@
 .pyc
 *.pyc
-*b1_h*.json
-*b2_h*.json
+*data_blockchainh*.json
+*consumer_blockchain_*.json
 *blockchain_notCript_*.json
+*lastBlockReaded_*.json
 *no_blockchain*.json
 devices_running.json
 nodes.json
