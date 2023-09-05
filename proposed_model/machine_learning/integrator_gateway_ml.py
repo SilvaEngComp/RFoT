@@ -144,8 +144,6 @@ if __name__ == '__main__':
     print('waitting for a valid blockchain data...')
     while(True):
         block = SC3.getNotAssinedBlock(sub_device)
-        print('h2.146 - block: ',block)
-        print("is a block? ", isinstance(block, Block))
         if block is not None:
             fdModel = FdModel(sub_device,block)
             fdModel.preprocessing(treshould)
@@ -156,6 +154,8 @@ if __name__ == '__main__':
                 sleep(2)
                 onSubscribe()   
                 break 
+            else:
+                sleep(5)
         else:
             sleep(5)
 

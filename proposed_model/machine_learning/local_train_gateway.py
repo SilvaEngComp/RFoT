@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
 from blockchain import Blockchain
+from smart_contract_3 import SC3
 from fd_model import FdModel
 import numpy as np
 from time import sleep
@@ -59,14 +60,14 @@ def on_message(mqttc, obj, msg):
     
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
-    block = Blockchain.getNotAssinedBlock(sub_device)
+    block = SC3.getNotAssinedBlock(sub_device)
     TimeRegister.addTime()
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.1)
         TimeRegister.addTime()
-        Blockchain.setAssinedBlockModel(sub_device,"localModel",fdModel.toJson())
+        # Blockchain.setAssinedBlockModel(sub_device,"localModel",fdModel.toJson())
         TimeRegister.addTime()
         sleep(5)
         onPublish(fdModel)

@@ -57,6 +57,7 @@ class FdModel:
     
     def preprocessing(self, trashoulder=0.2):
         datasetRows = self.getStatistics(trashoulder)
+        
         if(datasetRows is None):
             return None
         dataset = self.generateDataset(datasetRows)
@@ -81,27 +82,32 @@ class FdModel:
         return filtredTransactions
     
     def dataPartition(self,transactions):
+      
         transactionValues2 = []
         filtredTransactions = self.filter_by_sensor(transactions)
-        for p in range(0,len(filtredTransactions),10):
-            j = p+10
+        for p in range(0,len(filtredTransactions),5):
+            j = p+5
             transactionValues1= [float(temp['data']) for temp in filtredTransactions[p:j]]
             transactionValues2.append(transactionValues1)
 
         return transactionValues2
             
-   
+    def setClass(self,standardVariationValue,meanValue,temperatures):
+       cont=0
+       for temp in temperatures:
+           variationEvaluated = abs(meanValue-temp)
+           if(variationEvaluated > standardVariationValue):
+               cont+=1
+       return 1 if(cont > 0) else 0
     
     def getDatasetRows(self,transactionValues):
         i = 0;
         datasetRows = []
         for t in transactionValues:
             meanValue = st.mean(t)
-            variationEvaluated = abs(meanValue-t)
             standardVariationValue = np.std(t)
-            validatedClass = 1 if(variationEvaluated > standardVariationValue) else 0
-            varianceValue = math.sqrt(st.pvariance(t))
-            
+            validatedClass = self.setClass(standardVariationValue,meanValue,t)
+            varianceValue = math.sqrt(np.std(t))
             datasetRows.append(t + [meanValue,varianceValue,standardVariationValue,validatedClass])
             i+=1
         
@@ -142,6 +148,7 @@ class FdModel:
             X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.5, random_state=42, 
                                                     stratify=None, shuffle=False)
             smlp_local = SimpleMLP()
+            
             local_model = smlp_local.build(X_train.shape[1])
             
             local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
