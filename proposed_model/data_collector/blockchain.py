@@ -90,14 +90,14 @@ class Blockchain:
 
 
 
-    def createBlock(self, data, typeBlock="data"):
+    def createBlock(self, data, typeBlock="data",dataBlock=None):
         
         if typeBlock == "data":     
             self.blockchainType="data_blockchain"   
             return self.createDataBlock(data)
         else:
             self.blockchainType="consumer_blockchain"
-            return self.createConsumerBlock(data)
+            return self.createConsumerBlock(data,dataBlock)
 
 
     def createDataBlock(self, pool):
@@ -118,16 +118,21 @@ class Blockchain:
         
         return block
 
-    def createConsumerBlock(self, pool):
-        previousBlock = self.getPreviousBlock()
+    def createConsumerBlock(self, pool,dataBlock):
+        if dataBlock is None:
+            print('Some bad happens...data block is None')
+            return None
         
+        previousBlock = self.getPreviousBlock()
+        index = dataBlock.index
+        dataHash = self.hash(dataBlock)
+        hostTrainer = HostTrainer(self.node,index,dataHash)
         if previousBlock is None:
-            return False
+             block = Block(pool,self.blockchainType,None,None,None,None,hostTrainer)
         else:
             proof = self.proofOfWork(previousBlock.proof)
-            previousHash = self.hash(previousBlock)
-            hostTrainer = HostTrainer(self.node,block)
-            block = Block(pool,self.blockchainType,(previousBlock.index+1),proof,previousHash,hostTrainer)
+            previousHash = self.hash(previousBlock)  
+            block = Block(pool,self.blockchainType,(previousBlock.index+1),proof,previousHash,None,hostTrainer)
         self.chain.append(block)
         if(self.isChainValid(self.chain)):
             # self.register()
@@ -155,6 +160,7 @@ class Blockchain:
             previous_proof = int(previous_proof)
         if isinstance(new_proof,str):
             new_proof = int(new_proof)
+            
         while True:
             hashOperation = self.getHashOperation(previous_proof, new_proof)
             if self.checkPuzzle(hashOperation) is True:
@@ -191,8 +197,8 @@ class Blockchain:
         while blockIndex < len(chain):
             block = chain[blockIndex]
             previousBlockHash = self.hash(previousBlock)
-            
             if block.previousHash != previousBlockHash:
+                print('hashs diferents')
                 return False
             previousProof = previousBlock.proof
             proof = block.proof
@@ -258,6 +264,7 @@ class Blockchain:
                 longest_chain = []
             print('The current biggest chain is {} with {} blocks'.format(nameNode, len(longest_chain)))
             return longest_chain
+            
         except:
             print('Something wrong happen in replaceChain...')
             return None

@@ -1,16 +1,18 @@
 """
-    This is a Smart contract wich miner a block in Consumer Blockchain
+    This is a Smart contract wich gets a block from in Data Blockchain
 """
 from blockchain import Blockchain
 
 class SC4:
     @staticmethod
-    def setAssinedBlockModel(node, typeBlock, model):   
-        transactions = [Transaction(node, node, node, model)]      
-        blockchain = Blockchain(node, 'B3_')
-        try:
-            blockchain.createBlock(transactions, typeBlock)
+    def setAssinedBlockModel(node,blockType, transactions):
+        blockchain = Blockchain(node)
+        before = len(blockchain.chain)
+        print("SC4 - size before = ",before)
+        blockchain.createBlock(transactions,blockType)
+        after = len(blockchain.chain)
+        print("SC4 - size after = ",after)
+        if(after>before):
             return True
-        except:
-            print("Sorry! the model could not be saved in the blockchain")
-            return False
+        else:
+            return False 

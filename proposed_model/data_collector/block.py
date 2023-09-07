@@ -4,14 +4,14 @@ import json
 from transaction import Transaction
 from hostTrainer import HostTrainer
 class Block:
-    def __init__(self, transactions=[],typeBlock="data_blockchain", index=1, proof=1, previousHash='0', timestamp = None, hostTrainer=None):
-        self.transactions = transactions
-        self.index = index
-        self.proof = proof
-        self.previousHash = previousHash
+    def __init__(self, transactions=None,typeBlock="data_blockchain", index=None, proof=None, previousHash=None, timestamp = None, hostTrainer=None):
+        self.transactions = [] if(transactions is None) else transactions
+        self.index = 1 if(index is None) else index
+        self.proof =  1 if(proof is None) else proof
+        self.previousHash = '0' if(previousHash is None) else previousHash
         self.timestamp = self.configTimestamp(timestamp)
         self.hostTrainer = hostTrainer
-        self.typeBlock = typeBlock
+        self.typeBlock = "data_blockchain" if(typeBlock is None) else typeBlock
         
     def configTimestamp(self, timestamp):
         if timestamp is None:
@@ -64,13 +64,15 @@ class Block:
             'transactions': transactions
             }
         else:
+            hostTrainer = self.hostTrainer.toJson()
+            print('68 - hostTrainar from json: ',hostTrainer)
             jsonData = {
             'index': self.index,
             'timestamp': self.timestamp,
             'proof':self.proof,
             'typeBlock':self.typeBlock,
             'previousHash': self.previousHash, 
-            'hostTrainer': self.hostTrainer.toJson(),
+            'hostTrainer': hostTrainer,
             'transactions': transactions
             }
         
@@ -87,9 +89,9 @@ class Block:
                 block = Block(pool,jsonBlock['typeBlock'], jsonBlock['index'],jsonBlock['proof'],
                           jsonBlock['previousHash'], jsonBlock['timestamp'] )
             else:    
-                     
-                block = Block(pool,HostTrainer.fromJson(jsonBlock['hostTrainer']),jsonBlock['typeBlock'], jsonBlock['index'],jsonBlock['proof'],
-                          jsonBlock['previousHash'], jsonBlock['timestamp'] )
+                hostTrainer = HostTrainer.fromJson(jsonBlock['hostTrainer']) 
+                block = Block(pool,jsonBlock['typeBlock'], jsonBlock['index'],jsonBlock['proof'],
+                          jsonBlock['previousHash'], jsonBlock['timestamp'],hostTrainer )
             return block
         
         return jsonBlock

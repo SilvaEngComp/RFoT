@@ -6,6 +6,7 @@ from block import Block
 import random
 from cipher import Cipher
 import json
+import os
 class SC3:
     @staticmethod
     def getNotAssinedBlock(node)->Block:

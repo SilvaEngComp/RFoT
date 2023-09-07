@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
 from blockchain import Blockchain
+from smart_contract_2 import SC2
 from smart_contract_3 import SC3
 from fd_model import FdModel
 import numpy as np
@@ -67,7 +68,7 @@ def on_message(mqttc, obj, msg):
         fdModel.setModel(model)
         fdModel.preprocessing(0.1)
         TimeRegister.addTime()
-        # Blockchain.setAssinedBlockModel(sub_device,"localModel",fdModel.toJson())
+        SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
         TimeRegister.addTime()
         sleep(5)
         onPublish(fdModel)
