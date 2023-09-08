@@ -7,7 +7,6 @@ import os
 sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
 from smart_contract_3 import SC3
-from smart_contract_4 import SC4
 from fd_model import FdModel
 from fd_client import FdClient
 from block import Block

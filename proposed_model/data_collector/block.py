@@ -47,12 +47,15 @@ class Block:
             })
     
     def toJson(self):
-        transactions = []
-        for transaction in self.transactions:
-            if isinstance(transaction, Transaction):
-                transactions.append(transaction.toJson())
-            else:
-                transactions.append(transaction)
+        if isinstance(self.transactions, list):
+            transactions = []
+            for transaction in self.transactions:
+                if isinstance(transaction, Transaction):
+                    transactions.append(transaction.toJson())
+                else:
+                    transactions.append(transaction)
+        else:
+            transactions = [Transaction(self.hostTrainer.hostTrainer,None, None,self.transactions).toJson()]
         
         if(self.typeBlock=='data_blockchain' or self.hostTrainer is None):
             jsonData = {
@@ -65,7 +68,6 @@ class Block:
             }
         else:
             hostTrainer = self.hostTrainer.toJson()
-            print('68 - hostTrainar from json: ',hostTrainer)
             jsonData = {
             'index': self.index,
             'timestamp': self.timestamp,

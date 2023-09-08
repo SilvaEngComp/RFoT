@@ -33,11 +33,11 @@ class TestModel:
         self.fileName = 'global_train_results.csv'
         self.dataset = None
         self.fig1 = plt.figure()
-        #self.fig1.set_size_inches(10.5,8.5)
+        self.fig1.set_size_inches(10.5,8.5)
 
         self.a1 = self.fig1.add_subplot(513)
-        #self.a2 = self.fig1.add_subplot(515)
-        #self.a3 = self.fig1.add_subplot(511)
+        self.a2 = self.fig1.add_subplot(515)
+        self.a3 = self.fig1.add_subplot(511)
     def setGlobalModel(self, fdModel):
         self.evolution = 0
         self._globalModel = fdModel
@@ -69,8 +69,8 @@ class TestModel:
             print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
             self.saveDataset()
             animation.FuncAnimation(self.fig1, self.graphicGenarete1(Y_test,Y_pred), interval=1000)
-            #animation.FuncAnimation(self.fig1, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
-            #animation.FuncAnimation(self.fig1, self.graphicGenarete3(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig1, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
+            animation.FuncAnimation(self.fig1, self.graphicGenarete3(Y_test,Y_pred), interval=1000)
             plt.show(block=False)
             plt.pause(3)
             ##plt.close()

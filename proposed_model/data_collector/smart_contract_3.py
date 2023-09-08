@@ -33,7 +33,7 @@ class SC3:
             try:
                 with open(fileName,'wb') as f:       
                     f.write(encrypted)
-                print('registring lastBlock to {} with index {} '.format(node,block['index']))
+                print('registring lastBlock to {} with index {} '.format(node,block.index))
             except:
                 print("Erro ao criptografar lastBlock: ", block)
         except:

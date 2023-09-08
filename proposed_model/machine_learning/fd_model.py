@@ -47,7 +47,18 @@ class FdModel:
         return {self.name: self.data}
     
     def __str__(self):
-        return str(self.name)
+         return str({
+            "name":self.name,
+            "model":self._model.to_json() if(self._model is not None) else '',
+            "cardinality": str(self.getCardinality())if(self._model is not None) else '',
+        })
+    
+    def __repr__(self):
+         return str({
+            "name":self.name,
+            "model":self._model.to_json() if(self._model is not None) else '',
+            "cardinality": str(self.getCardinality())if(self._model is not None) else '',
+        })
     
     def toJson(self):
         return {
@@ -183,8 +194,10 @@ class FdModel:
         self._learningRate = learningRate
     def setModel(self, model):
         if isinstance(model, str):
+            print('model_from_json')
             self._model = model_from_json(model)
         else:
+            print('model_from_dict')
             self._model = model
     def getModel(self):
         return self._model

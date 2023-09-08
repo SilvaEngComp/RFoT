@@ -122,7 +122,6 @@ class Blockchain:
         if dataBlock is None:
             print('Some bad happens...data block is None')
             return None
-        
         previousBlock = self.getPreviousBlock()
         index = dataBlock.index
         dataHash = self.hash(dataBlock)
@@ -133,9 +132,10 @@ class Blockchain:
             proof = self.proofOfWork(previousBlock.proof)
             previousHash = self.hash(previousBlock)  
             block = Block(pool,self.blockchainType,(previousBlock.index+1),proof,previousHash,None,hostTrainer)
+        print('135 - transactions: ',block.transactions)
         self.chain.append(block)
         if(self.isChainValid(self.chain)):
-            # self.register()
+            self.register()
             self.registerEncripted()
         else:
             self.chain = []

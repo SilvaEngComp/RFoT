@@ -16,7 +16,7 @@ class SC2:
         before = len(blockchain.chain)
         print("size before = ",before)
         dataBlock = SC2.getLasDataBlock(node)
-        # print('16 - dataBlock: ',dataBlock)
+        
         blockchain.createBlock(transactions,blockType,dataBlock)
         after = len(blockchain.chain)
         print("size after = ",after)

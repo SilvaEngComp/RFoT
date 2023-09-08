@@ -58,16 +58,19 @@ def on_message(mqttc, obj, msg):
     msgJson = json.loads(msg.payload)
     global_host_name = msgJson['fdHost']
     model = msgJson['globalModel']["model"]
-    
+    print('61 - model', model)
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
     block = SC3.getNotAssinedBlock(sub_device)
+    # print('65 -data transactions length', len(block.transactions))
     TimeRegister.addTime()
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.1)
+        # print('70 - fdModel: ',fdModel.toJson())
         TimeRegister.addTime()
+        
         SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
         TimeRegister.addTime()
         sleep(5)
