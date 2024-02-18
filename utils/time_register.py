@@ -11,7 +11,7 @@ class TimeRegister:
     lastTime = datetime.now()
     
     @staticmethod
-    def addTime():
+    def addTime(fileName):
         print("times = ",TimeRegister.times)
         if len(TimeRegister.times) ==0:
             TimeRegister.restartTime()
@@ -22,7 +22,7 @@ class TimeRegister:
             TimeRegister.times.append(total)
             print('mounting dataset time')
             TimeRegister.dataset = pd.DataFrame([TimeRegister.times], columns = TimeRegister.cols)
-            TimeRegister.register('prof_7.csv')
+            TimeRegister.register(fileName)
 
     def restartTime():
         TimeRegister.lastTime = datetime.now()
