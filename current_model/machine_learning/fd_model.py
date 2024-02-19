@@ -8,10 +8,10 @@ from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
-import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
-from block import Block
-from transaction import Transaction
+#import sys
+#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
+from current_model.data_collector.block import Block
+from current_model.data_collector.transaction import Transaction
 from collections import namedtuple
 from keras.models import model_from_json
 import os
@@ -25,7 +25,8 @@ class FdModel:
             for i in range(50):
                 transactions.append(transaction)
             
-            self.data = transactions              
+            self.data = transactions 
+            print(data)             
             
         else:
             self.data = data 
@@ -57,9 +58,11 @@ class FdModel:
     
     def preprocessing(self, trashoulder=0.2):
         datasetRows = self.getStatistics(trashoulder)
+        
         if(datasetRows is None):
             return None
         dataset = self.generateDataset(datasetRows)
+        
         self.saveDataset(dataset)
         self._model =self.train(dataset)
     
@@ -83,8 +86,8 @@ class FdModel:
     def dataPartition(self,transactions):
         transactionValues2 = []
         filtredTransactions = self.filter_by_sensor(transactions)
-        for p in range(0,len(filtredTransactions),10):
-            j = p+10
+        for p in range(0,len(filtredTransactions),5):
+            j = p+5
             transactionValues1= [float(temp['data']) for temp in filtredTransactions[p:j]]
             transactionValues2.append(transactionValues1)
 
@@ -136,12 +139,17 @@ class FdModel:
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
+        print(dataset)
+        print(dataset.shape[0]>1)
         if(dataset.shape[0]>1):
+            
             X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.5, random_state=42, 
                                                     stratify=None, shuffle=False)
+            print(X_train)
             smlp_local = SimpleMLP()
+            print(smlp_local)
             local_model = smlp_local.build(X_train.shape[1])
-            
+            print(local_model)
             local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
                                 metrics=self.getMetrics())
             local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)

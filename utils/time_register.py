@@ -12,7 +12,7 @@ class TimeRegister:
     
     @staticmethod
     def addTime(fileName):
-        print("times = ",TimeRegister.times)
+       # print("times = ",TimeRegister.times)
         if len(TimeRegister.times) ==0:
             TimeRegister.restartTime()
         time  = TimeRegister.getTimeDiff()
@@ -20,7 +20,7 @@ class TimeRegister:
         if len(TimeRegister.times) >=4:
             total = sum(TimeRegister.times)
             TimeRegister.times.append(total)
-            print('mounting dataset time')
+          #  print('mounting dataset time')
             TimeRegister.dataset = pd.DataFrame([TimeRegister.times], columns = TimeRegister.cols)
             TimeRegister.register(fileName)
 
@@ -34,7 +34,7 @@ class TimeRegister:
         
     def register(fileName):        
         exists = os.path.exists(fileName)
-        print('starting registring time file')
+       # print('starting registring time file')
         try:
             with open(fileName,'a') as datasetFile:
                 writer = csv.writer(datasetFile)
@@ -42,7 +42,7 @@ class TimeRegister:
                     writer.writerow(TimeRegister.dataset.columns)
                 for i in np.arange(int(TimeRegister.dataset.shape[0])):
                     writer.writerow(TimeRegister.dataset.iloc[i,])
-            print('finishing registring time file')
+          # print('finishing registring time file')
             TimeRegister.times=[]
         except:
             print('Falha ao registrar tempo')  

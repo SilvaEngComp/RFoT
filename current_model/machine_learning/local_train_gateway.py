@@ -4,15 +4,15 @@ import argparse
 
 import os
 import datetime
-import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
+#import sys
+#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
-from no_blockchain import NoBlockchain
+from current_model.data_collector.no_blockchain import NoBlockchain
 from fd_model import FdModel
 import numpy as np
 from time import sleep
 import time
-from time_register import TimeRegister
+from utils.time_register import TimeRegister
 
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
@@ -59,8 +59,9 @@ def on_message(mqttc, obj, msg):
     
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
+    TimeRegister.addTime('consensu_4zeros.csv')
     block = NoBlockchain.getNotAssinedBlock()
-    TimeRegister.addTime()
+    TimeRegister.addTime('consensu_4zeros.csv')
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)

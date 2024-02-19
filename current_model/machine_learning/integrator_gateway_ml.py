@@ -1,20 +1,20 @@
 import paho.mqtt.client as mqtt
 import json
 import argparse
-import sys
+#import sys
 import os
 from time import sleep
 import time
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
+#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
 
-from no_blockchain import NoBlockchain
+from current_model.data_collector.no_blockchain import NoBlockchain
 from fd_model import FdModel
 from fd_client import FdClient
 from integrator_model import IntegratorModel
 
 from time import sleep
 import datetime
-
+from utils.time_register import TimeRegister
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
@@ -73,7 +73,10 @@ def on_message(mqttc, obj, msg):
         cardinality = msgJson['fdModel']['cardinality']
         model = msgJson['fdModel']["model"]
         local_host_name = msgJson['fdHost']
+        print(local_host_name)
+        print(model)
         fdModel = FdModel(local_host_name)
+        print(fdModel)
         fdModel.setModel(model)
         fdModel.setCardinality(cardinality)
         fdClient = FdClient(local_host_name, fdModel)
@@ -153,7 +156,10 @@ if __name__ == '__main__':
     isWaiting = True
     print('waitting for a valid blockchain data...')
     while(True):
+        TimeRegister.addTime('consensu_4zeros.csv')
         block = NoBlockchain.getNotAssinedBlock()
+        TimeRegister.addTime('consensu_4zeros.csv')
+        
         if block is not None:
             fdModel = FdModel(sub_device,block)
             fdModel.preprocessing(treshould)
