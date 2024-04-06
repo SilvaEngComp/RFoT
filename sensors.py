@@ -9,40 +9,52 @@
 # The name of sensors functions should be exactly the same as in config.json
 import random
 import pandas as pd
-
+from cipher import Cipher
+import json
 
 
 def getByDataset(pos, sensorName):
-	try:
-		dataset  = pd.read_csv('intel_lab.csv', usecols=[sensorName], delimiter=",")
-		return dataset[sensorName].iloc[pos]
-	except:
-		return 'error to try read csv'
-		
+    try:
+        cipher = Cipher()
+        dataset = pd.read_csv('intel_lab.csv', usecols=[
+                              sensorName], delimiter=",")
+        value = dataset[sensorName].iloc[pos]
+        dataBytes = json.dumps(value).encode("utf-8")
+        return cipher.encrypt(dataBytes)
+    except:
+        return 'error to try read csv'
+
+
 def lightSensor(pos):
-	return getByDataset(pos, 'light')    
-    
+    return getByDataset(pos, 'light')
+
+
 def voltageSensor(pos):
     return getByDataset(pos, 'voltage')
+
 
 def humiditySensor(pos):
     return getByDataset(pos, 'humidity')
 
+
 def temperatureSensor(pos):
     return getByDataset(pos, 'temperature')
 
+
 def soilmoistureSensor(pos):
-    return random.randint(0,1023)
+    return random.randint(0, 1023)
+
 
 def solarradiationSensor(pos):
     return random.randint(300, 3000)
 
-def ledActuator(s = None):
-    if s==None:
+
+def ledActuator(s=None):
+    if s == None:
         return bool(random.randint(0, 1))
     else:
         if s:
-           rint("1")
+            rint("1")
         else:
-           rint("0")
+            rint("0")
         return s
