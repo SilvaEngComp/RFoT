@@ -24,7 +24,6 @@ class SC1:
 
     def dataTreating(self, msg):
         msgJson = json.loads(msg.payload)
-        print(msgJson)
         if 'data' in msgJson:
             if self.validTemp(msgJson['data']) is True:
                 transaction = Transaction(
@@ -34,9 +33,10 @@ class SC1:
 
     def validTemp(self, temp):
         cipher = Cipher()
-        print(temp)
+        temp = temp.replace("b'", "'")
+        temp = str.encode(temp)
         decriptedTemp = cipher.decrypt(temp)
-        dataJson = json.loads(decripted)
+        dataJson = json.loads(decriptedTemp)
         print(f'decriptedTemp = {dataJson}')
         if float(dataJson) > 16 and float(dataJson) < 40:
             return True

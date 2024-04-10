@@ -18,8 +18,8 @@ def getByDataset(pos, sensorName):
         cipher = Cipher()
         dataset = pd.read_csv('intel_lab.csv', usecols=[
                               sensorName], delimiter=",")
-        value = dataset[sensorName].iloc[pos]
-        dataBytes = json.dumps(value).encode("utf-8")
+        value = str(dataset[sensorName].iloc[pos])
+        dataBytes = str.encode(value)
         return cipher.encrypt(dataBytes)
     except:
         return 'error to try read csv'

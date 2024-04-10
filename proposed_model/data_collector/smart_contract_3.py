@@ -7,33 +7,36 @@ import random
 from cipher import Cipher
 import json
 import os
+
+
 class SC3:
     @staticmethod
-    def getNotAssinedBlock(node)->Block:
-        b1 = Blockchain(node);
-        b2 = Blockchain(node);
+    def getNotAssinedBlock(node) -> Block:
+        b1 = Blockchain(node)
+        b2 = Blockchain(node)
         chain = b1.solveBizzantineProblem()
         try:
-            if(len(chain)>0):
+            if (len(chain) > 0):
                 lastPosition = len(chain)-1
-                block = Block.fromJson(chain[random.randint(0,lastPosition)]);
+                block = Block.fromJson(chain[random.randint(0, lastPosition)])
                 SC3.registerEncripted(node, block)
-                return block
+                return Block.fromJsonDecrypt(block.toJson())
             return None
         except:
             return None
-    
+
     @staticmethod
-    def registerEncripted(node,block, prefix="../data_collector/"):
+    def registerEncripted(node, block, prefix="../data_collector/"):
         fileName = str("lastBlockReaded_"+str(node)+'.json')
         cipher = Cipher()
         try:
             dataBytes = json.dumps(block.toJson()).encode("utf-8")
             encrypted = cipher.encrypt(dataBytes)
             try:
-                with open(fileName,'wb') as f:       
+                with open(fileName, 'wb') as f:
                     f.write(encrypted)
-                print('registring lastBlock to {} with index {} '.format(node,block.index))
+                print('registring lastBlock to {} with index {} '.format(
+                    node, block.index))
             except:
                 print("Erro ao criptografar lastBlock: ", block)
         except:
