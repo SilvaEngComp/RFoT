@@ -4,15 +4,17 @@ import argparse
 
 import os
 import datetime
-#import sys
-#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/current_model/data_collector')
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
 
-from current_model.data_collector.no_blockchain import NoBlockchain
+from blockchain import Blockchain
+from smart_contract_2 import SC2
+from smart_contract_3 import SC3
 from fd_model import FdModel
 import numpy as np
 from time import sleep
 import time
-from utils.time_register import TimeRegister
+from time_register import TimeRegister
 
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
@@ -56,16 +58,20 @@ def on_message(mqttc, obj, msg):
     msgJson = json.loads(msg.payload)
     global_host_name = msgJson['fdHost']
     model = msgJson['globalModel']["model"]
-    
+    print('61 - model', model)
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
-    TimeRegister.addTime('consensu_4zeros.csv')
-    block = NoBlockchain.getNotAssinedBlock()
-    TimeRegister.addTime('consensu_4zeros.csv')
+    block = SC3.getNotAssinedBlock(sub_device)
+    # print('65 -data transactions length', len(block.transactions))
+    TimeRegister.addTime()
     if(block is not None):
         fdModel = FdModel(sub_device,block)
         fdModel.setModel(model)
         fdModel.preprocessing(0.1)
+        # print('70 - fdModel: ',fdModel.toJson())
+        TimeRegister.addTime()
+        
+        SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
         TimeRegister.addTime()
         sleep(5)
         onPublish(fdModel)
@@ -109,27 +115,6 @@ def on_subscribe(client: mqtt, topic):
 		print('subscribing error')
 
 
-def deviceTraining():
-    devices = set()
-    flag = 0
-    try:
-        with open('devices_training.json') as devicesFile:
-            data = json.load(devicesFile)
-            devices = set(data['devices'])
-            if(args.name in data['devices']):
-                flag = -1
-            devices.add(args.name)
-            registerDevice(devices)
-    except:
-        devices.add(args.name)
-        registerDevice(devices)
-    
-    return devices
-    
-def registerDevice(devices):
-    with open('devices_running.json','w+') as devicesFile:
-        devices = {"devices": list(devices)}
-        json.dump(devices, devicesFile)
 
 def onSubscribe():
     with open('../../config.json') as f:

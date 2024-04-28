@@ -1,8 +1,7 @@
-import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
+#import sys
+#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
 import paho.mqtt.client as mqtt
 import json
-import tatu
 import argparse
 from iotcoin import Iotcoin
 from transaction import Transaction
@@ -112,17 +111,18 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'sc01'
     blocktopic = 'dev/sc28'
+    
     iotcoin = Iotcoin(args.name, args.blockWidth)
-    
-    with open('../../config.json') as f:
-        data = json.load(f)
-    
-    #deviceRunning()
+    if(iotcoin is not None):
+        with open('../../config.json') as f:
+            data = json.load(f)
         
-    
-    sub_client = connect_mqtt(data, sub_broker, sub_device)
-    sub_client = on_subscribe(sub_client, topic)
-    sub_client.loop_forever()
+        #deviceRunning()
+            
+        
+        sub_client = connect_mqtt(data, sub_broker, sub_device)
+        sub_client = on_subscribe(sub_client, topic)
+        sub_client.loop_forever()
 
 	
 		

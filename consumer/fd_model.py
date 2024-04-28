@@ -8,10 +8,10 @@ from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
-#import sys
-#sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
-from current_model.data_collector.block import Block
-from current_model.data_collector.transaction import Transaction
+import sys
+sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
+from block import Block
+from transaction import Transaction
 from collections import namedtuple
 from keras.models import model_from_json
 import os
@@ -25,11 +25,10 @@ class FdModel:
             for i in range(50):
                 transactions.append(transaction)
             
-            self.data = transactions 
-            print(data)             
+            self.data = Block(transactions)                
             
         else:
-            self.data = data 
+            self.data = data
         self.fileName = 'dataset.csv'
         self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)        
         self._learningRate = 0.01 
@@ -48,7 +47,18 @@ class FdModel:
         return {self.name: self.data}
     
     def __str__(self):
-        return str(self.name)
+         return str({
+            "name":self.name,
+            "model":self._model.to_json() if(self._model is not None) else '',
+            "cardinality": str(self.getCardinality())if(self._model is not None) else '',
+        })
+    
+    def __repr__(self):
+         return str({
+            "name":self.name,
+            "model":self._model.to_json() if(self._model is not None) else '',
+            "cardinality": str(self.getCardinality())if(self._model is not None) else '',
+        })
     
     def toJson(self):
         return {
@@ -62,14 +72,13 @@ class FdModel:
         if(datasetRows is None):
             return None
         dataset = self.generateDataset(datasetRows)
-        
         self.saveDataset(dataset)
         self._model =self.train(dataset)
     
     def getStatistics(self,trashoulder=0.2):
         datasetRows = []
         try:
-            transactionValues = self.dataPartition(self.data)
+            transactionValues = self.dataPartition(self.data.transactions)
             datasetRows = self.getDatasetRows(transactionValues)
             return np.array(datasetRows)
         except:
@@ -84,6 +93,7 @@ class FdModel:
         return filtredTransactions
     
     def dataPartition(self,transactions):
+      
         transactionValues2 = []
         filtredTransactions = self.filter_by_sensor(transactions)
         for p in range(0,len(filtredTransactions),5):
@@ -93,16 +103,22 @@ class FdModel:
 
         return transactionValues2
             
-   
+    def setClass(self,standardVariationValue,meanValue,temperatures):
+       cont=0
+       for temp in temperatures:
+           variationEvaluated = abs(meanValue-temp)
+           if(variationEvaluated > standardVariationValue):
+               cont+=1
+       return 1 if(cont > 0) else 0
     
-    def getDatasetRows(self,transactionValues, trashoulder=0.2):
+    def getDatasetRows(self,transactionValues):
         i = 0;
         datasetRows = []
         for t in transactionValues:
-            standardVariationValue = np.std(t)
-            validatedClass = 1 if(standardVariationValue > trashoulder) else 0
-            varianceValue = math.sqrt(st.pvariance(t))
             meanValue = st.mean(t)
+            standardVariationValue = np.std(t)
+            validatedClass = self.setClass(standardVariationValue,meanValue,t)
+            varianceValue = math.sqrt(np.std(t))
             datasetRows.append(t + [meanValue,varianceValue,standardVariationValue,validatedClass])
             i+=1
         
@@ -139,17 +155,13 @@ class FdModel:
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
-        print(dataset)
-        print(dataset.shape[0]>1)
         if(dataset.shape[0]>1):
-            
             X_train,X_test,y_train,y_test = train_test_split(dataset, label, test_size=0.5, random_state=42, 
                                                     stratify=None, shuffle=False)
-            print(X_train)
             smlp_local = SimpleMLP()
-            print(smlp_local)
+            
             local_model = smlp_local.build(X_train.shape[1])
-            print(local_model)
+            
             local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
                                 metrics=self.getMetrics())
             local_model.fit(X_train,y_train, epochs=self.getEpochs(), verbose=0)
@@ -182,8 +194,10 @@ class FdModel:
         self._learningRate = learningRate
     def setModel(self, model):
         if isinstance(model, str):
+            print('model_from_json')
             self._model = model_from_json(model)
         else:
+            print('model_from_dict')
             self._model = model
     def getModel(self):
         return self._model

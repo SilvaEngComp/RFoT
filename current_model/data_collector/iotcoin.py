@@ -9,6 +9,7 @@ from pool import Pool
 
 class Iotcoin:
     def __init__(self, node, blockWidth=20):
+        
         self._node = node
         self._blockWidth = self.checkBlockWidth(blockWidth)
         self._transactions = []
@@ -36,6 +37,8 @@ class Iotcoin:
                 blockWidth=20
         elif isinstance(blockWidth, str):
             blockWidth = int(blockWidth)
+        if blockWidth<10:
+            raise Exception('The minimum size is 10 samples')
         return blockWidth
     def restart(self):
         self._transactions = []        
