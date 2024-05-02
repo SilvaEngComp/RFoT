@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
-import src.tatu
+import tatu
 import argparse
 
 from time import sleep
