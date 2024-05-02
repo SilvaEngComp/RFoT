@@ -1,3 +1,0 @@
-current_model
-proposed_model
-utils

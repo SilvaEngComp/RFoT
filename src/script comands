@@ -1,0 +1,13 @@
+subscribe in sensor topic: mosquitto_sub -h 10.0.0.6 -t '#'
+
+init blockchain gateway: sudo python3 gateway_bc.py --name h1 --size 50
+
+init integrator node: sudo python3 integrator_gateway_ml.py --name h2 --clients 2
+init local_train node: sudo python3 local_train_gateway.py --name h3 
+init local_train node: sudo python3 local_train_gateway.py --name h6
+init validation node: sudo python3 graphic_gateway.py --name h7
+
+instalando setuptools:
+sudo python3 setup.py install --user
+executando setuptools
+sudo python3 setup.py develop
