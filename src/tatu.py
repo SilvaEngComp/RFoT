@@ -1,5 +1,5 @@
 import paho.mqtt.client as pub
-import src.sensors
+import sensors
 import json
 import multiprocessing
 import os
@@ -229,4 +229,3 @@ def main(data, msg):
 		proc = sensorProcess(idP, deviceName, sensorName, met, topic, topicError, pub_client, collectTime, publishTime)
 		procs.append(proc)
 		proc.start()
-

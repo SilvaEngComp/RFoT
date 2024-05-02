@@ -2,7 +2,6 @@
 # sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
 import paho.mqtt.client as mqtt
 import json
-import src.tatu
 import argparse
 
 from time import sleep
