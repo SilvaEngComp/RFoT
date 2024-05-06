@@ -107,33 +107,24 @@ class FdModel:
 
         return transactionValues2
 
-    def setClass(self, standardVariationValue, meanValue, temperatures):
+    def setClass(self, temperatures):
         cont = 0
-        for temp in temperatures:
-            variationEvaluated = abs(meanValue-temp)
-            if (variationEvaluated > standardVariationValue):
-                cont += 1
-        return 1 if (cont > 0) else 0
+        variationEvaluated = max(temperatures)-min(temperatures)
+        return 1 if (variationEvaluated >=1) else 0
 
     def getDatasetRows(self, transactionValues):
-        i = 0
         datasetRows = []
-        for t in transactionValues:
-            meanValue = st.mean(t)
-            standardVariationValue = np.std(t)
-            validatedClass = self.setClass(
-                standardVariationValue, meanValue, t)
-            varianceValue = math.sqrt(np.std(t))
+        for temperatures in transactionValues:
+            validatedClass = self.setClass(temperatures)
             datasetRows.append(
-                t + [meanValue, varianceValue, standardVariationValue, validatedClass])
-            i += 1
+                temperatures + [validatedClass])
 
         return np.array(datasetRows)
 
     def generateDataset(self, datasetRows):
         cols = ['{}_{}'.format('data', i+1)
-                for i in range((datasetRows.shape[1]-4))]
-        cols += ['mean', 'variance', 'standardVariation', 'label']
+                for i in range((datasetRows.shape[1]-1))]
+        cols += ['label']
         dataset = pd.DataFrame(datasetRows, columns=cols)
         return dataset
 

@@ -19,7 +19,7 @@ import datetime
 import time
 # import sys
 # sys.path.insert(
-#     0, '/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
+#     0, '/home/mininet/mininet_blockchain_ml/proposed_model/proposed_model')
 
 
 class Blockchain:
@@ -44,7 +44,7 @@ class Blockchain:
             "chain": self.chain,
         })
 
-    def toJson(self):
+    def toJson(self)->dict:
         chain = []
         for block in self.chain:
             chain.append(Block.toJson(block))
@@ -66,7 +66,7 @@ class Blockchain:
                 return data
             print('That is not a dict object. Try it again!')
 
-    def registerEncripted(self, prefix="../data_collector/"):
+    def registerEncripted(self, prefix="../proposed_model/"):
         self.fileName = str(self.blockchainType +
                             str(self.node)+'.json')
         # fileNameNotCript = str(prefix + self.fileNameNotCript)
@@ -84,7 +84,7 @@ class Blockchain:
         except:
             print("Erro ao converter chain para bytes ", self.fileName)
 
-    def register(self, prefix="../data_collector/"):
+    def register(self, prefix="../proposed_model/"):
         # fileNameNotCript = str(prefix + self.fileNameNotCript)
         fileNameNotCript = self.fileNameNotCript
         with open(fileNameNotCript, 'w') as blockchainFile:
@@ -207,13 +207,14 @@ class Blockchain:
             blockIndex += 1
         return True
 
-    def getLocalBLockchainFile(self, node=None, prefix='../data_collector/'):
+    def getLocalBLockchainFile(self, node=None, prefix='../proposed_model/'):
         if node is not None:
             x = re.search("^"+self.blockchainType+".*json$", node)
             if (x is False):
                 fileName = str(prefix + self.blockchainType+node+'.json')
             else:
                 fileName = str(prefix + node)
+            
             if os.path.exists(fileName) is False:
                 return []
 
@@ -230,8 +231,9 @@ class Blockchain:
                 print('not found local blockchain file: ', fileName)
                 return []
 
-    def getBlockchainFileNames(self, prefix='../data_collector/'):
+    def getBlockchainFileNames(self, prefix='../proposed_model'):
         fileNames = []
+        print(prefix)
         for file in os.listdir(prefix):
             if file.endswith(".json"):
                 x = re.search("^"+self.blockchainType+".*json$", file)
@@ -247,7 +249,9 @@ class Blockchain:
             nameNode = None
             if (nodes):
                 for node in nodes:
+                    print(node)
                     chain = self.getLocalBLockchainFile(node)
+                    print(chain)
                     length = len(chain)
                     isValide = self.isChainValid(chain)
                     if length > max_length and isValide:

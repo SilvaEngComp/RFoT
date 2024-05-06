@@ -6,7 +6,7 @@ import argparse
 
 from time import sleep
 from smart_contract_1 import SC1
-
+from src.utils.time_register import TimeRegister
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
 parser.add_argument('--size', action = 'store', dest = 'blockWidth', required = False)
@@ -48,9 +48,11 @@ def on_disconnect(mqttc, obj, msg):
     
 	
 def on_message(mqttc, obj, msg):
+    TimeRegister.addTime("data received from sensor")
     isCompleted = sc1.dataTreating(msg)	
     # print("isCompleted: ",isCompleted)
     if isCompleted is True:
+        TimeRegister.addTime("transaction registed")
         sc1.restart() 
 
 			
@@ -103,7 +105,7 @@ def registerDevice(devices):
 
 #devices = deviceRunning()
 if __name__ == '__main__':
-    
+    TimeRegister.fileName = "RFoT_collector_challenge_4"
     data = None
     separator = '-------'
     sub_client = None

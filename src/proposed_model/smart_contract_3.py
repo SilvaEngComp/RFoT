@@ -13,7 +13,6 @@ class SC3:
     @staticmethod
     def getNotAssinedBlock(node) -> Block:
         b1 = Blockchain(node)
-        b2 = Blockchain(node)
         chain = b1.solveBizzantineProblem()
         try:
             if (len(chain) > 0):
@@ -41,3 +40,10 @@ class SC3:
                 print("Erro ao criptografar lastBlock: ", block)
         except:
             print("Erro ao converter lastBlock para bytes ", fileName)
+
+    @staticmethod
+    def getBCD(node) -> Blockchain:
+        b1 = Blockchain(node)
+        b1.chain= b1.solveBizzantineProblem()
+        return b1
+       

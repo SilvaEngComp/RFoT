@@ -49,7 +49,7 @@ class Block:
             'transactions': self.transactions
         })
 
-    def toJson(self):
+    def toJson(self)->dict:
         if isinstance(self.transactions, list):
             transactions = []
             for transaction in self.transactions:

@@ -108,7 +108,7 @@ def getLocalHostName():
 
 def onPublish():
     if fdModel.hasValidModel():
-        with open('../../config.json') as f:
+        with open('../config.json') as f:
             data = json.load(f)
         responseModel = {"code": "POST", "method": "POST", "fdHost": 'integrator',
                          "globalModel": integragorModel.getGlobalModel()}
@@ -124,9 +124,10 @@ def onPublish():
 
 
 def onSubscribe():
-    with open('../../config.json') as f:
+    with open('../config.json') as f:
         data = json.load(f)
-
+    print(data)
+    print(data, sub_broker, sub_device)
     sub_client = connect_mqtt(data, sub_broker, sub_device)
     sub_client = on_subscribe(sub_client, topic)
     sub_client.loop_forever()
@@ -175,7 +176,8 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.29'
     pub_device = 'sc02'
     pub_topic = 'dev/g04'
-    prefix = '../data_collector'
+    prefix = '../proposed_model'
     treshould = 0.02
+    fdModel = FdModel(sub_device, None)
 
     startProcessing()

@@ -3,20 +3,20 @@ import fileinput
 from operator import itemgetter
 
 class to_object(object):
-	def __init__(self, j):
-		self.__dict__ = json.loads(j)
+    def __init__(self, j):
+        self.__dict__ = json.loads(j)
 			
 
 def return_hosts():
-	f=open('data_hosts.json','r')
-	st=[]
-	st=f.readlines()
-	f.close()
-	lines = len(st)
-	hosts=[]
-	for i in range(0,(lines)):
-		hosts.append(to_object(st[i]))
-	return hosts
+    f=open('data_hosts.json','r')
+    st=[]
+    st=f.readlines()
+    f.close()
+    lines = len(st)
+    hosts=[]
+    for i in range(0,(lines)):
+        hosts.append(to_object(st[i]))
+    return hosts
 
 def return_association():
 	f=open('association_hosts.json','r')

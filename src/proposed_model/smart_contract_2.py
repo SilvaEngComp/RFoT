@@ -1,10 +1,11 @@
 """
     This is a Smart contract wich gets a block from in Data Blockchain
 """
-from blockchain import Blockchain
+from .blockchain import Blockchain
 from src.suport_layer.block import Block
 import random
 from src.suport_layer.cipher import Cipher
+from src.utils.time_register import TimeRegister
 import json
 import os
 class SC2:
@@ -21,6 +22,7 @@ class SC2:
         after = len(blockchain.chain)
         print("size after = ",after)
         if(after>before):
+            TimeRegister.addTime("data received from sensor")
             return True
         else:
             return False 

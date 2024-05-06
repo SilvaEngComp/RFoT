@@ -7,32 +7,37 @@ import os
 class TimeRegister:
     times = []
     dataset=[]
-    cols = ['data_read','ML_trained','ML_assigned','ML_published','total']
+    cols = ['Evento',"duração"]
     lastTime = datetime.now()
+    fileName = "register_time"
     
     @staticmethod
-    def addTime(fileName):
+    def addTime(message):
        # print("times = ",TimeRegister.times)
         if len(TimeRegister.times) ==0:
             TimeRegister.restartTime()
-        time  = TimeRegister.getTimeDiff()
-        TimeRegister.times.append(time)
-        if len(TimeRegister.times) >=4:
-            total = sum(TimeRegister.times)
-            TimeRegister.times.append(total)
-          #  print('mounting dataset time')
-            TimeRegister.dataset = pd.DataFrame([TimeRegister.times], columns = TimeRegister.cols)
-            TimeRegister.register(fileName)
+        duration  = TimeRegister.getTimeDiff()
+        TimeRegister.times.append([message,duration])
+        TimeRegister.dataset = pd.DataFrame([[message,duration]], columns = TimeRegister.cols)
+        TimeRegister.register()
+        
 
+    @staticmethod
     def restartTime():
         TimeRegister.lastTime = datetime.now()
+        
+    @staticmethod
     def getTimeDiff():
         timeNow = datetime.now()
         result = timeNow-TimeRegister.lastTime
         TimeRegister.restartTime()
         return result.total_seconds()
-        
-    def register(fileName):        
+    
+    @staticmethod   
+    def register():    
+        fileName = TimeRegister.fileName
+        if ".csv" not in fileName:
+            fileName = fileName+".csv"  
         exists = os.path.exists(fileName)
        # print('starting registring time file')
         try:

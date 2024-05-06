@@ -14,7 +14,7 @@ class Iotcoin:
         self._blockWidth = self.checkBlockWidth(blockWidth)
         self._transactions = []
     
-    def mineBlock(self, transaction):
+    def transactionProcess(self, transaction):
         self._transactions.append(transaction)
         print("{}/{}".format(len(self._transactions),self._blockWidth))
        

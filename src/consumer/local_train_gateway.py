@@ -19,11 +19,14 @@ from fd_model import FdModel
 import numpy as np
 from time import sleep
 import time
-from src.suport_layer.time_register import TimeRegister
+from src.utils.time_register import TimeRegister
 
 #Params to run file
 parser = argparse.ArgumentParser(description = 'Params machine learning hosts')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
+parser.add_argument('--solution', action='store',
+                    dest='solution', required=True)
+
 args = parser.parse_args()
 
 
@@ -113,7 +116,7 @@ def onPublish(fdModel, isStarting=False):
         responseModel = {"fdHost":sub_device,"fdModel":fdModel.toJson()}	
         resp = json.dumps(responseModel)
     if resp is not None:
-        with open('../../config.json') as f:
+        with open('../config.json') as f:
             data = json.load(f)
         pub_client = connect_mqtt(data, pub_broker, pub_device)
         pub_client = on_subscribe(pub_client, pub_topic)
@@ -137,7 +140,7 @@ def on_subscribe(client: mqtt, topic):
 
 
 def onSubscribe():
-    with open('../../config.json') as f:
+    with open('../config.json') as f:
         data = json.load(f)
     
     sub_client = connect_mqtt(data, sub_broker, sub_device)
@@ -156,7 +159,6 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'g03'
     pub_topic = 'dev/g03'
-    prefix = '../data_collector'
     os.system('clear')
     isWaiting=True
     fdModel = None

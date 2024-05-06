@@ -15,7 +15,6 @@ if __name__ == '__main__':
     
     net = Mininet(link=TCLink)
     #criar switches, hosts e topologia
-    
     create_topo.create(net)
     # Configurar e iniciar comunicacao externa
     rootnode = ni.connectToInternet( net )

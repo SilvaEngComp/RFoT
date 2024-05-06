@@ -6,6 +6,7 @@ from iotcoin import Iotcoin
 from src.suport_layer.transaction import Transaction
 from time import sleep
 from src.suport_layer.cipher import Cipher
+from src.utils.time_register import TimeRegister
 
 parser = argparse.ArgumentParser(description='NoBlockchain node params')
 parser.add_argument('--name', action='store', dest='name', required=True)
@@ -53,16 +54,20 @@ def on_disconnect(mqttc, obj, msg):
 
 
 def on_message(mqttc, obj, msg):
+    TimeRegister.addTime("data received from sensor")
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
         data = validTemp(msgJson['data'])
+        
+        
         if data[0] is True:
             msgJson['data'] = data[1]
-            print('decriptedTemp = ', msgJson['data'])
+            TimeRegister.addTime("data validated = "+str(msgJson['data']))
             transaction = Transaction(
                 msgJson['header']['device'], msgJson['header']['sensor'], args.name, msgJson['data'])
-            isCompleted = iotcoin.mineBlock(transaction)
+            isCompleted = iotcoin.transactionProcess(transaction)
             if isCompleted is True:
+                TimeRegister.addTime("transaction registed")
                 iotcoin.restart()
 
 
@@ -116,7 +121,7 @@ def registerDevice(devices):
 
 # devices = deviceRunning()
 if __name__ == '__main__':
-
+    TimeRegister.fileName = "commom_IoT_collector"
     data = None
     separator = '-------'
     sub_client = None

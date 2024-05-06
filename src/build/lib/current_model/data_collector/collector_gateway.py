@@ -53,7 +53,7 @@ def on_message(mqttc, obj, msg):
     if 'data' in msgJson:
         if validTemp(msgJson['data']) is True:
             transaction= Transaction(msgJson['header']['device'],msgJson['header']['sensor'],args.name, msgJson['data'])
-            isCompleted = iotcoin.mineBlock(transaction)	
+            isCompleted = iotcoin.transactionProcess(transaction)	
             if isCompleted is True:
                 iotcoin.restart() 
 
