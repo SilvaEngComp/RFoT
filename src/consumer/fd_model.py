@@ -98,9 +98,10 @@ class FdModel:
     def dataPartition(self, transactions):
 
         transactionValues2 = []
+        size=10
         filtredTransactions = self.filter_by_sensor(transactions)
-        for p in range(0, len(filtredTransactions), 5):
-            j = p+5
+        for p in range(0, len(filtredTransactions), size):
+            j = p+size
             transactionValues1 = [float(temp['data'])
                                   for temp in filtredTransactions[p:j]]
             transactionValues2.append(transactionValues1)
@@ -148,6 +149,7 @@ class FdModel:
     def training(self, dataset):
         self.generateCardinality(dataset)
         label = dataset.label
+        dataset = dataset.drop(columns=['delta'])
         dataset = dataset.drop(columns=['label'])
         local_model = None
         try:

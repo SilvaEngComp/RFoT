@@ -24,8 +24,8 @@ if st.sidebar.button("Blockchain Data"):
     st.header("# Data Blockchain")
     st.text("This is the data collected and registred in BCD (Data Blockchain)")
     blockchain = SC3.getBCD("h2")
-    st.write("# Is instance of Blockchain",isinstance(blockchain, Blockchain))
-    st.write(blockchain.toJson())
+    st.write("# There are ",str(len(blockchain.chain))+" blocks")
+    st.write(blockchain.toJsonDecrypted())
 if st.sidebar.button("Consumer Dataset"):
     st.header("Temperature from Intel Lab Dataset")
     df = pd.read_csv('dataset.csv', delimiter=",")

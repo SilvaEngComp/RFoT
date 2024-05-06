@@ -125,6 +125,7 @@ class TestModel:
         print('...... readding {} ......'.format(fileName))
         dataset = pd.read_csv(fileName, delimiter=",")
         label = dataset.label
+        dataset = dataset.drop(columns=['delta'])
         dataset = dataset.drop(columns=['label'])
         local_model = None
         if(dataset.shape[0]>1):
