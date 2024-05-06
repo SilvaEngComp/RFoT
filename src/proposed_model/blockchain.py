@@ -233,7 +233,6 @@ class Blockchain:
 
     def getBlockchainFileNames(self, prefix='../proposed_model'):
         fileNames = []
-        print(prefix)
         for file in os.listdir(prefix):
             if file.endswith(".json"):
                 x = re.search("^"+self.blockchainType+".*json$", file)
@@ -249,9 +248,7 @@ class Blockchain:
             nameNode = None
             if (nodes):
                 for node in nodes:
-                    print(node)
                     chain = self.getLocalBLockchainFile(node)
-                    print(chain)
                     length = len(chain)
                     isValide = self.isChainValid(chain)
                     if length > max_length and isValide:

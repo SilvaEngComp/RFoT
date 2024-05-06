@@ -10,7 +10,7 @@ and call for SC2 to miner a block for a transaction
 
 from corruptedBlockchain import CorruptedBlockchain
 from pool import Pool
-from smart_contract_2 import SC2
+from .smart_contract_2 import SC2
 from src.suport_layer.transaction import Transaction
 import json
 from src.suport_layer.cipher import Cipher

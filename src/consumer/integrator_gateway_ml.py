@@ -24,7 +24,6 @@ parser.add_argument('--clients', action='store', dest='clients', required=True)
 parser.add_argument('--solution', action='store',
                     dest='solution', required=True)
 args = parser.parse_args()
-
 # You don't need to change this file. Just change sensors.py and config.json
 
 
@@ -99,7 +98,7 @@ def add_client(client):
         return
     integratorModel.clients.append(client)
     if (len(integratorModel.clients) == 2):
-        publish()
+        publish(None)
 
 
 def getLocalHostName():
@@ -107,11 +106,15 @@ def getLocalHostName():
 
 
 def onPublish():
+    if fdModel is None:
+        print("Nothing published...")
+        return
     if fdModel.hasValidModel():
         with open('../config.json') as f:
             data = json.load(f)
         responseModel = {"code": "POST", "method": "POST", "fdHost": 'integrator',
                          "globalModel": integragorModel.getGlobalModel()}
+        os.system('clear')
         resp = json.dumps(responseModel)
         pub_client = connect_mqtt(data, pub_broker, pub_device)
         pub_client = on_subscribe(pub_client, pub_topic)
@@ -126,8 +129,6 @@ def onPublish():
 def onSubscribe():
     with open('../config.json') as f:
         data = json.load(f)
-    print(data)
-    print(data, sub_broker, sub_device)
     sub_client = connect_mqtt(data, sub_broker, sub_device)
     sub_client = on_subscribe(sub_client, topic)
     sub_client.loop_forever()
@@ -142,24 +143,6 @@ def getdataBlock():
     return block
 
 
-def startProcessing():
-    print('waitting for a valid blockchain data...')
-    while (True):
-        block = getdataBlock()
-        if block is not None:
-            fdModel = FdModel(sub_device, block)
-            fdModel.preprocessing(treshould)
-            if fdModel.hasValidModel():
-                integragorModel = IntegratorModel(fdModel, args.clients)
-                os.system('clear')
-                onPublish()
-                sleep(2)
-                onSubscribe()
-                break
-            else:
-                sleep(5)
-        else:
-            sleep(5)
 
 
 if __name__ == '__main__':
@@ -176,8 +159,23 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.29'
     pub_device = 'sc02'
     pub_topic = 'dev/g04'
-    prefix = '../proposed_model'
-    treshould = 0.02
-    fdModel = FdModel(sub_device, None)
-
-    startProcessing()
+    print('waitting for a valid blockchain data...')
+    while (True):
+        os.system('clear')
+        block = getdataBlock()
+        
+        if block is not None:
+            fdModel = FdModel(sub_device, block)
+            fdModel.preprocessing()
+            if fdModel.hasValidModel():
+                print(fdModel._model)
+                integragorModel = IntegratorModel(fdModel, args.clients)
+                # os.system('clear')
+                onPublish()
+                sleep(2)
+                onSubscribe()
+                break
+            else:
+                sleep(5)
+        else:
+            sleep(5)

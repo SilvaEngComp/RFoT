@@ -5,7 +5,7 @@ import json
 import argparse
 
 from time import sleep
-from smart_contract_1 import SC1
+from src.proposed_model.smart_contract_1 import SC1
 from src.utils.time_register import TimeRegister
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)

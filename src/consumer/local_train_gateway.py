@@ -76,7 +76,7 @@ def startProcessing():
         block = getdataBlock()
         if block is not None:
             fdModel = FdModel(sub_device, block)
-            fdModel.preprocessing(treshould)
+            fdModel.preprocessing()
             if fdModel.hasValidModel():
                 return fdModel
             else:
@@ -85,7 +85,7 @@ def startProcessing():
             sleep(5)
 	
 def on_message(mqttc, obj, msg):
-    os.system('clear')
+    # os.system('clear')
     msgJson = json.loads(msg.payload)
     global_host_name = msgJson['fdHost']
     model = msgJson['globalModel']["model"]
@@ -95,7 +95,8 @@ def on_message(mqttc, obj, msg):
     startProcessing()
     if args.solution == 2:
         SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
-    TimeRegister.addTime()
+        TimeRegister.addTime("Block Consumer minered on BCR")
+    TimeRegister.addTime("training and product registration finished")
     sleep(5)
     onPublish(fdModel)
     TimeRegister.addTime()
@@ -159,9 +160,9 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'g03'
     pub_topic = 'dev/g03'
-    os.system('clear')
+    # os.system('clear')
     isWaiting=True
-    fdModel = None
+    fdModel = FdModel(sub_device, None)
     onSubscribe()
 
 	

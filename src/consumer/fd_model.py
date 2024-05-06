@@ -13,9 +13,6 @@ from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
-# import sys
-# sys.path.insert(
-#     0, '/home/mininet/mininet_blockchain_ml/consumer')
 
 
 class FdModel:
@@ -33,15 +30,15 @@ class FdModel:
         else:
             self.data = data
         self.fileName = 'dataset.csv'
-        self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-        self._learningRate = 0.01
+        self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+        self._learningRate = 0.1
         self._metrics = ['accuracy']
         self._epochs = 1
         self._commsRound = 100
-        self._momentum = 100
+        self._momentum = 0.9
         self._optimizer = SGD(self._learningRate,
                               decay=self._learningRate / self._commsRound,
-                              momentum=0.9
+                              momentum=self._momentum
                               )
         self._model = None
         self._cardinality = np.array([])
@@ -71,10 +68,11 @@ class FdModel:
 
     def preprocessing(self, trashoulder=0.2):
         datasetRows = self.getStatistics(trashoulder)
-
+        
         if (datasetRows is None):
             return None
         dataset = self.generateDataset(datasetRows)
+        
         self.saveDataset(dataset)
         self._model = self.train(dataset)
 
@@ -149,18 +147,21 @@ class FdModel:
         label = dataset.label
         dataset = dataset.drop(columns=['label'])
         local_model = None
-        if (dataset.shape[0] > 1):
-            X_train, X_test, y_train, y_test = train_test_split(dataset, label, test_size=0.5, random_state=42,
-                                                                stratify=None, shuffle=False)
-            smlp_local = SimpleMLP()
+        try:
+            if (dataset.shape[0] > 1):
+                X_train, X_test, y_train, y_test = train_test_split(dataset, label, test_size=0.5, random_state=42,
+                                                                    stratify=None, shuffle=False)
+                
+                smlp_local = SimpleMLP()
 
-            local_model = smlp_local.build(X_train.shape[1])
-
-            local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
-                                metrics=self.getMetrics())
-            local_model.fit(X_train, y_train,
-                            epochs=self.getEpochs(), verbose=0)
-        return local_model
+                local_model = smlp_local.build(X_train.shape[1])
+                local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
+                                    metrics=self.getMetrics())
+                local_model.fit(X_train, y_train,
+                                epochs=self.getEpochs(), verbose=0)
+            return local_model
+        except:
+            print("Treinamento deu erro")
 
     def hasValidModel(self):
         if self._model is None:

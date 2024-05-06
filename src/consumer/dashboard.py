@@ -31,7 +31,18 @@ if st.sidebar.button("Consumer Dataset"):
     st.header("Temperature from Intel Lab Dataset")
     df = pd.read_csv('dataset.csv', delimiter=",")
     st.dataframe(df)
-st.sidebar.button("Consumer training")
+if st.sidebar.button("Comparing Time operation"):
+    col1,col2 = st.columns(2)
+    with col1:
+        st.header("Current IoT time proccess")
+        st.text("Collect and store time registration monitored by running simulation")
+        df = pd.read_csv('../current_model/current_model.csv', delimiter=",")
+        st.dataframe(df.astype(str))
+    with col2:
+        st.header("RFoT time proccess")
+        st.text("Collect and store time registration monitored by running simulation")
+        df = pd.read_csv('../proposed_model/RFoT_collector_challenge_4.csv', delimiter=",")
+        st.dataframe(df.astype(str))
 
 
 
