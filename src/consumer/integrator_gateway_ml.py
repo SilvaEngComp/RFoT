@@ -170,7 +170,7 @@ if __name__ == '__main__':
             if fdModel.hasValidModel():
                 print(fdModel._model)
                 integragorModel = IntegratorModel(fdModel, args.clients)
-                # os.system('clear')
+                os.system('clear')
                 onPublish()
                 sleep(2)
                 onSubscribe()

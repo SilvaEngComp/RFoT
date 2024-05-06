@@ -42,6 +42,7 @@ class FdModel:
                               )
         self._model = None
         self._cardinality = np.array([])
+        self.trashoulder=0.2
 
     def getAsDict(self):
         return {self.name: self.data}
@@ -67,16 +68,17 @@ class FdModel:
         }
 
     def preprocessing(self, trashoulder=0.2):
-        datasetRows = self.getStatistics(trashoulder)
+        self.trashoulder = trashoulder
+        datasetRows = self.getStatistics()
         
         if (datasetRows is None):
             return None
         dataset = self.generateDataset(datasetRows)
         
         self.saveDataset(dataset)
-        self._model = self.train(dataset)
+        self._model = self.training(dataset)
 
-    def getStatistics(self, trashoulder=0.2):
+    def getStatistics(self):
         datasetRows = []
         try:
             transactionValues = self.dataPartition(self.data.transactions)
@@ -105,24 +107,25 @@ class FdModel:
 
         return transactionValues2
 
-    def setClass(self, temperatures):
+    def getLabel(self, temperatures):
         cont = 0
         variationEvaluated = max(temperatures)-min(temperatures)
-        return 1 if (variationEvaluated >=1) else 0
+        label = 1 if (variationEvaluated >=self.trashoulder) else 0
+        return [variationEvaluated,label]
 
     def getDatasetRows(self, transactionValues):
         datasetRows = []
         for temperatures in transactionValues:
-            validatedClass = self.setClass(temperatures)
+            validatedClass = self.getLabel(temperatures)
             datasetRows.append(
-                temperatures + [validatedClass])
+                temperatures + validatedClass)
 
         return np.array(datasetRows)
 
     def generateDataset(self, datasetRows):
         cols = ['{}_{}'.format('data', i+1)
-                for i in range((datasetRows.shape[1]-1))]
-        cols += ['label']
+                for i in range((datasetRows.shape[1]-2))]
+        cols += ['delta','label']
         dataset = pd.DataFrame(datasetRows, columns=cols)
         return dataset
 
@@ -142,7 +145,7 @@ class FdModel:
         dataset2 = tf.data.Dataset.from_tensor_slices((dataset.values, label))
         return dataset2.shuffle(len(label)).batch(bs)
 
-    def train(self, dataset):
+    def training(self, dataset):
         self.generateCardinality(dataset)
         label = dataset.label
         dataset = dataset.drop(columns=['label'])

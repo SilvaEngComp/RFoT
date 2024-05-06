@@ -85,21 +85,20 @@ def startProcessing():
             sleep(5)
 	
 def on_message(mqttc, obj, msg):
-    # os.system('clear')
+    
     msgJson = json.loads(msg.payload)
     global_host_name = msgJson['fdHost']
     model = msgJson['globalModel']["model"]
-    print('61 - model', model)
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
-    startProcessing()
+    fdModel = startProcessing()
     if args.solution == 2:
         SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
         TimeRegister.addTime("Block Consumer minered on BCR")
     TimeRegister.addTime("training and product registration finished")
     sleep(5)
     onPublish(fdModel)
-    TimeRegister.addTime()
+    TimeRegister.addTime("local model published")
 # define the countdown func.
 def countdown(t=5):    
     while t:
@@ -111,22 +110,25 @@ def countdown(t=5):
     onPublish(fdModel)
 
 def onPublish(fdModel, isStarting=False):
+    if fdModel is None:
+        os.system('clear')
+        print("Nothing published...")
+        return
     sleep(np.random.randint(5))
     resp = None
-    if fdModel is not None:
-        responseModel = {"fdHost":sub_device,"fdModel":fdModel.toJson()}	
-        resp = json.dumps(responseModel)
-    if resp is not None:
-        with open('../config.json') as f:
-            data = json.load(f)
-        pub_client = connect_mqtt(data, pub_broker, pub_device)
-        pub_client = on_subscribe(pub_client, pub_topic)
-        pub_client.loop_start()
-        
-        pub_client.publish(pub_topic, resp,0)
-        pub_client.loop_stop()
-        print('\n \n Model {} published in: {} on topic: {} at {}' .format(fdModel, pub_broker,pub_topic, datetime.datetime.now()))
-        countdown()
+    os.system("clear")
+    responseModel = {"fdHost":sub_device,"fdModel":fdModel.toJson()}	
+    resp = json.dumps(responseModel)
+    with open('../config.json') as f:
+        data = json.load(f)
+    pub_client = connect_mqtt(data, pub_broker, pub_device)
+    pub_client = on_subscribe(pub_client, pub_topic)
+    pub_client.loop_start()
+    
+    pub_client.publish(pub_topic, resp,0)
+    pub_client.loop_stop()
+    print('\n \n Model {} published in: {} on topic: {} at {}' .format(fdModel, pub_broker,pub_topic, datetime.datetime.now()))
+    countdown()
         
 def on_subscribe(client: mqtt, topic): 
 	print('subscribing in topic: ', topic) 
@@ -160,9 +162,9 @@ if __name__ == '__main__':
     pub_broker = '10.0.0.28'
     pub_device = 'g03'
     pub_topic = 'dev/g03'
-    # os.system('clear')
+    os.system('clear')
     isWaiting=True
-    fdModel = FdModel(sub_device, None)
+    fdModel = None
     onSubscribe()
 
 	

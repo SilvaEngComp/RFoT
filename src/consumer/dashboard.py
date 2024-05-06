@@ -12,8 +12,7 @@ st.header("RFoT Dashboard")
 
 if st.sidebar.button("Intel Lab Dataset "):
     st.header("Temperature from Intel Lab Dataset")
-    df = pd.read_csv('../intel_lab.csv', usecols=[
-                              "temperature"], delimiter=",")
+    df = pd.read_csv('../intel_lab.csv', delimiter=",")
     st.dataframe(df)
 if st.sidebar.button("Current IoT Data"):
     st.header("# Registred Data")
