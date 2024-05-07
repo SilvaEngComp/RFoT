@@ -1,12 +1,47 @@
-{"deviceName": "sc01", "mqttPort": 1883, "publish": 10000, "collect": 10000, 
-"topicPrefix": "dev/", "topicErr": "/ERR", "mqttBroker": "10.0.0.28", "mqttPassword": "", 
-"sensors": [
-{"type": "float", "name": "lightSensor"}, 
-{"type": "float", "name": "voltageSensor"}, 
-{"type": "integer", "name": "blockchainSensor"}, 
-{"type": "float", "name": "humiditySensor"}, 
-{"type": "float", "name": "temperatureSensor"}, 
-{"type": "integer", "name": "soilmoistureSensor"}, 
-{"type": "integer", "name": "solarradiationSensor"}, 
-{"type": "boolean", "name": "ledActuator"}], 
-"topicRes": "/RES", "mqttUsername": "", "topicReq": "/REQ"}
+{
+    "deviceName": "sc01",
+    "mqttPort": 1883,
+    "publish": 1,
+    "collect": 1,
+    "topicPrefix": "dev/",
+    "topicErr": "/ERR",
+    "mqttBroker": "10.0.0.28",
+    "mqttPassword": "",
+    "sensors": [
+        {
+            "type": "float",
+            "name": "lightSensor"
+        },
+        {
+            "type": "float",
+            "name": "voltageSensor"
+        },
+        {
+            "type": "integer",
+            "name": "blockchainSensor"
+        },
+        {
+            "type": "float",
+            "name": "humiditySensor"
+        },
+        {
+            "type": "float",
+            "name": "temperatureSensor"
+        },
+        {
+            "type": "integer",
+            "name": "soilmoistureSensor"
+        },
+        {
+            "type": "integer",
+            "name": "solarradiationSensor"
+        },
+        {
+            "type": "boolean",
+            "name": "ledActuator"
+        }
+    ],
+    "topicRes": "/RES",
+    "mqttUsername": "",
+    "topicReq": "/REQ"
+}

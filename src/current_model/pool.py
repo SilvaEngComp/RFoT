@@ -88,6 +88,7 @@ class Pool:
 
     def get(self, prefix=''):
         fileName = str(prefix + self.fileName)
+        print(fileName)
         print(os.path.exists(fileName))
         if os.path.exists(fileName) is False:
             return []

@@ -1,3 +1,5 @@
-import sensors
+from sensors import Sensor
 
-print(sensors.getByDataset(0, "temperature"))
+sensor = Sensor("temperatureSensor")
+for i in range(10):
+   print(sensor.getByDataset())

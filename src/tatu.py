@@ -1,5 +1,5 @@
 import paho.mqtt.client as pub
-import sensors
+from sensors import Sensor
 import json
 import multiprocessing
 import os
@@ -62,14 +62,12 @@ class actuatorProcess (multiprocessing.Process):
 def buildFlowAnwserDevice(deviceName, sensorName, topic, topicError, pub_client, collectTime, publishTime):
 	value = ""
 	t = 0
-	cont = 0
-	
 	try:
-		methodFLOW = getattr(sensors, sensorName)
+		sensor = Sensor(sensorName)
 		listValues = []
 		
 		while True:
-			listValues.append(str(methodFLOW(cont)))
+			listValues.append(str(sensor.getByDataset()))
 			t = t + collectTime + 1000
 			#Request: {"method":"FLOW", "sensor":"sensorName", "time":{"collect":collectTime,"publish":publishTime}}
 			responseModel={"code":"post","post":topic,"method":"flow","header":{"sensor":sensorName,"device":deviceName,"time":{"collect":collectTime, "publish": publishTime}}, "data":listValues[0]}
@@ -77,7 +75,6 @@ def buildFlowAnwserDevice(deviceName, sensorName, topic, topicError, pub_client,
 			print('post topic: ',topic)
 			pub_client.publish(topic, response)
 			t = 0
-			cont+=1
 			listValues = []
 			sleep(int(publishTime/1000))
 	except:

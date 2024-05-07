@@ -55,6 +55,8 @@ class TestModel:
             bce = tf.keras.losses.BinaryCrossentropy(from_logits=True)
             Y_pred = model.predict(X_test, batch_size=100)
             Y_test = np.array(Y_test).reshape(len(Y_test),1)
+            self.savePredictionDataset(X_test,Y_test,Y_pred)
+            
             loss = bce(Y_test, Y_pred).numpy()
             #accuracy_score: In multilabel classification, the function returns the 
             # subset accuracy. If the entire set of predicted labels for a sample 
@@ -67,7 +69,7 @@ class TestModel:
             evolution = self.getEvolution(loss)
             self._results.append([self._comm_round, acc,zol, loss, evolution])
             print('comm_round: {} | global_acc: {:.3%}   | global_zol: {} \n | global_loss: {} | evolution: {:.3%} '.format(self._comm_round, acc,zol,loss, evolution))
-            self.saveDataset()
+            self.saveMetricsDataset()
             animation.FuncAnimation(self.fig1, self.graphicGenarete1(Y_test,Y_pred), interval=1000)
             animation.FuncAnimation(self.fig1, self.graphicGenarete2(Y_test,Y_pred), interval=1000)
             animation.FuncAnimation(self.fig1, self.graphicGenarete3(Y_test,Y_pred), interval=1000)
@@ -149,7 +151,7 @@ class TestModel:
             self._globalModel.getModel().save('/saved_model')
         return evolution
 
-    def saveDataset(self):
+    def saveMetricsDataset(self):
         cols = ['comm_round','global_acc','global_zol','global_loss', 'evolution']
         self.dataset = pd.DataFrame(self._results, columns = cols)
         with open(self.fileName,'w') as datasetFile:
@@ -157,3 +159,14 @@ class TestModel:
             writer.writerow(self.dataset.columns)
             for i in np.arange(int(self.dataset.shape[0])):
                 writer.writerow(self.dataset.iloc[i,])
+    
+    def savePredictionDataset(self,X_test,Y_test,Y_pred):
+        cols = ['True','Predicted']
+        result = np.column_stack((Y_test,Y_pred))
+        print(result.shape)
+        dataset = pd.DataFrame(result, columns = cols)
+        with open("prediction.csv",'w+') as datasetFile:
+            writer = csv.writer(datasetFile)
+            writer.writerow(dataset.columns)
+            for i in np.arange(int(dataset.shape[0])):
+                writer.writerow(dataset.iloc[i,])

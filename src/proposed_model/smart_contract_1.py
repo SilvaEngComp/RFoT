@@ -32,19 +32,22 @@ class SC1:
         return False
 
     def validTemp(self, temp):
+        decryptedTemp = self.dataDecrypt(temp)
+        if float(decryptedTemp) > 16 and float(decryptedTemp) < 40:
+            return True
+        return False
+
+    def dataDecrypt(self, temp):
         cipher = Cipher()
         temp = temp.replace("b'", "'")
         temp = str.encode(temp)
         decriptedTemp = cipher.decrypt(temp)
-        dataJson = json.loads(decriptedTemp)
-        if float(dataJson) > 16 and float(dataJson) < 40:
-            return True
-        return False
-
+        return json.loads(decriptedTemp)
+        
     def mineBlock(self, transaction):
         self._transactions.append(transaction)
         print("{}/{} - {}".format(len(self._transactions),
-              self._blockWidth, transaction.data))
+              self._blockWidth, self.dataDecrypt(transaction.data)))
 
         if len(self._transactions) >= self._blockWidth:
             print("A new Block was minner? = ", SC2.minerNotAssinedTransaction(

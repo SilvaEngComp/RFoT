@@ -145,8 +145,8 @@ def initFlow(net):
 	g=utils_hosts.return_hosts_per_type('gateway')
 	ass=utils_hosts.return_association()
 	#10seg
-	col=10000
-	pub=10000
+	col=10
+	pub=10
 	#ind=0
 	valid_gatways = []
 	for i in range(0,len(g)):

@@ -44,10 +44,20 @@ class Blockchain:
             "chain": self.chain,
         })
 
-    def toJson(self)->dict:
+    def toJson(self):
         chain = []
         for block in self.chain:
             chain.append(Block.toJson(block))
+
+        return {
+            "chain": chain,
+        }
+
+    def toJsonDecrypted(self) -> dict():
+        chain = []
+        for block in self.chain:
+            chain.append(Block.fromJsonDecrypt(Block.toJson(block)).toJson())
+
 
         return {
             "chain": chain,

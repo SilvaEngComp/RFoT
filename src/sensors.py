@@ -13,49 +13,40 @@ from src.suport_layer.cipher import Cipher
 import json
 
 
+class Sensor:
+    position=0
+    listSensors = ['temperature','light','voltage','humidity']
+    def __init__(self, sensorName):
+        self.sensorName = self._getSensor(sensorName)
+        print(self.sensorName)
+    
+    def _getPosition(self):
+        oldPosition = Sensor.position
+        Sensor.position +=1
+        return oldPosition
+    def _getSensor(self,sensorName):
+        gen = (x for x in Sensor.listSensors if x in sensorName)
+        return next(gen)
+            
+        
+    def getByDataset(self):
+        try:
+            currentPosition = self._getPosition()
+            cipher = Cipher()
+            dataset = pd.read_csv('intel_lab.csv', usecols=[
+                                self.sensorName], delimiter=",")
+            value = str(dataset[self.sensorName].iloc[currentPosition])
+            dataBytes = str.encode(value)
+            return cipher.encrypt(dataBytes)
+        except:
+            return 'error to try read csv sensorName='+self.sensorName
 
-def getByDataset(pos, sensorName):
-    try:
-        cipher = Cipher()
-        dataset = pd.read_csv('intel_lab.csv', usecols=[
-                              sensorName], delimiter=",")
-        value = str(dataset[sensorName].iloc[pos])
-        dataBytes = str.encode(value)
-        return cipher.encrypt(dataBytes)
-    except:
-        return 'error to try read csv'
-
-
-def lightSensor(pos):
-    return getByDataset(pos, 'light')
-
-
-def voltageSensor(pos):
-    return getByDataset(pos, 'voltage')
-
-
-def humiditySensor(pos):
-    return getByDataset(pos, 'humidity')
-
-
-def temperatureSensor(pos):
-    return getByDataset(pos, 'temperature')
-
-
-def soilmoistureSensor(pos):
-    return random.randint(0, 1023)
-
-
-def solarradiationSensor(pos):
-    return random.randint(300, 3000)
-
-
-def ledActuator(s=None):
-    if s == None:
-        return bool(random.randint(0, 1))
-    else:
-        if s:
-            rint("1")
+    def ledActuator(s=None):
+        if s == None:
+            return bool(random.randint(0, 1))
         else:
-            rint("0")
-        return s
+            if s:
+                rint("1")
+            else:
+                rint("0")
+            return s
