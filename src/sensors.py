@@ -20,9 +20,11 @@ class Sensor:
         self.sensorName = self._getSensor(sensorName)
         print(self.sensorName)
     
-    def _getPosition(self):
+    def _getPosition(self,datasetSize):
         oldPosition = Sensor.position
         Sensor.position +=1
+        if Sensor.position>=datasetSize:
+                Sensor.position=0
         return oldPosition
     def _getSensor(self,sensorName):
         gen = (x for x in Sensor.listSensors if x in sensorName)
@@ -31,10 +33,12 @@ class Sensor:
         
     def getByDataset(self):
         try:
-            currentPosition = self._getPosition()
+            
             cipher = Cipher()
             dataset = pd.read_csv('intel_lab.csv', usecols=[
                                 self.sensorName], delimiter=",")
+            currentPosition = self._getPosition(len(dataset))
+            
             value = str(dataset[self.sensorName].iloc[currentPosition])
             dataBytes = str.encode(value)
             return cipher.encrypt(dataBytes)

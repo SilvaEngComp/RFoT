@@ -46,13 +46,33 @@ if st.sidebar.button("Comparing Time operation"):
     with col1:
         st.header("Current IoT time proccess")
         st.text("Collect and store time registration monitored by running simulation")
-        df = pd.read_csv('../current_model/current_model.csv', delimiter=",")
-        st.dataframe(df.astype(str))
+        df = pd.read_csv('../current_model/commom_IoT_collector.csv', delimiter=",")
+        if df is not None:
+            st.dataframe(df.astype(str))
+        
+        st.header("RFoT time proccess  challenge 5")
+        st.text("Collect and store time registration monitored by running simulation")
+        df = pd.read_csv('../proposed_model/RFoT_collector_challenge_5.csv', delimiter=",")
+        if df is not None:
+            st.dataframe(df.astype(str))
+        
+        st.header("RFoT time proccess  challenge 7")
+        st.text("Collect and store time registration monitored by running simulation")
+        df = pd.read_csv('../proposed_model/RFoT_collector_challenge_7.csv', delimiter=",")
+        if df is not None:
+            st.dataframe(df.astype(str))
     with col2:
-        st.header("RFoT time proccess")
+        st.header("RFoT time proccess challenge 4")
         st.text("Collect and store time registration monitored by running simulation")
         df = pd.read_csv('../proposed_model/RFoT_collector_challenge_4.csv', delimiter=",")
-        st.dataframe(df.astype(str))
+        if df is not None:
+            st.dataframe(df.astype(str))
+        
+        st.header("RFoT time proccess challenge 6")
+        st.text("Collect and store time registration monitored by running simulation")
+        df = pd.read_csv('../proposed_model/RFoT_collector_challenge_6.csv', delimiter=",")
+        if df is not None:
+            st.dataframe(df.astype(str))
 
 if st.sidebar.button("Training results"):
     st.header("Current IoT time proccess")

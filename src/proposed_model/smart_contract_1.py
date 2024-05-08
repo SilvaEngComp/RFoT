@@ -14,7 +14,7 @@ from .smart_contract_2 import SC2
 from src.suport_layer.transaction import Transaction
 import json
 from src.suport_layer.cipher import Cipher
-
+from src.utils.time_register import TimeRegister
 
 class SC1:
     def __init__(self, node, blockWidth=20):
@@ -53,6 +53,9 @@ class SC1:
             print("A new Block was minner? = ", SC2.minerNotAssinedTransaction(
                 self._node, self._transactions))
             return True
+        elif len(self._transactions)==1:
+            TimeRegister.addTime("Starting collection")
+            
         return False
 
     def checkBlockWidth(self, blockWidth):

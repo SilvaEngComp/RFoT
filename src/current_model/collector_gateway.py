@@ -54,7 +54,6 @@ def on_disconnect(mqttc, obj, msg):
 
 
 def on_message(mqttc, obj, msg):
-    TimeRegister.addTime("data received from sensor")
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
         data = validTemp(msgJson['data'])
@@ -62,7 +61,6 @@ def on_message(mqttc, obj, msg):
         
         if data[0] is True:
             msgJson['data'] = data[1]
-            TimeRegister.addTime("data validated = "+str(msgJson['data']))
             transaction = Transaction(
                 msgJson['header']['device'], msgJson['header']['sensor'], args.name, msgJson['data'])
             isCompleted = iotcoin.transactionProcess(transaction)

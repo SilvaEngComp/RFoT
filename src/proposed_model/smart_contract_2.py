@@ -11,18 +11,17 @@ import os
 class SC2:
     @staticmethod
     def minerNotAssinedTransaction(node, transactions,blockType="data"):
-        print("getting transactions")
+        TimeRegister.addTime("Transaction completed - initing mining")
         # transactions = Pool.getNotAssinedTransactions()      
         blockchain = Blockchain(node)
         before = len(blockchain.chain)
-        print("size before = ",before)
-        dataBlock = SC2.getLasDataBlock(node)
+        # dataBlock = SC2.getLasDataBlock(node)
         
-        blockchain.createBlock(transactions,blockType,dataBlock)
+        blockchain.createBlock(transactions,blockType)
         after = len(blockchain.chain)
         print("size after = ",after)
         if(after>before):
-            TimeRegister.addTime("data received from sensor")
+            TimeRegister.addTime("Block minered")
             return True
         else:
             return False 

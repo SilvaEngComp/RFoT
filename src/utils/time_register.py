@@ -7,7 +7,8 @@ import os
 class TimeRegister:
     times = []
     dataset=[]
-    cols = ['Evento',"duração"]
+    cols = ['Event Description',"Event Time","Event Duration"]
+    eventTime = datetime.now()
     lastTime = datetime.now()
     fileName = "register_time"
     
@@ -18,19 +19,19 @@ class TimeRegister:
             TimeRegister.restartTime()
         duration  = TimeRegister.getTimeDiff()
         TimeRegister.times.append([message,duration])
-        TimeRegister.dataset = pd.DataFrame([[message,duration]], columns = TimeRegister.cols)
+        TimeRegister.dataset = pd.DataFrame([[message,TimeRegister.eventTime,str(duration)+"s"]], columns = TimeRegister.cols)
         TimeRegister.register()
+        TimeRegister.restartTime()
         
 
     @staticmethod
     def restartTime():
-        TimeRegister.lastTime = datetime.now()
+        TimeRegister.lastTime = TimeRegister.eventTime
         
     @staticmethod
     def getTimeDiff():
-        timeNow = datetime.now()
-        result = timeNow-TimeRegister.lastTime
-        TimeRegister.restartTime()
+        TimeRegister.eventTime = datetime.now()
+        result = TimeRegister.eventTime-TimeRegister.lastTime
         return result.total_seconds()
     
     @staticmethod   
