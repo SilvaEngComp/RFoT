@@ -25,7 +25,7 @@ class SC3:
             return None
 
     @staticmethod
-    def registerEncripted(node, block, prefix="../data_collector/"):
+    def registerEncripted(node, block, prefix=""):
         fileName = str("lastBlockReaded_"+str(node)+'.json')
         cipher = Cipher()
         try:

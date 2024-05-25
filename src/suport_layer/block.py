@@ -117,7 +117,6 @@ class Block:
                 block = Block(pool, jsonBlock['typeBlock'], jsonBlock['index'], jsonBlock['proof'],
                               jsonBlock['previousHash'], jsonBlock['timestamp'], hostTrainer)
 
-            print(f'é um bloco? {isinstance(block, Block)}')
             return block
 
         return jsonBlock

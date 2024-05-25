@@ -1,5 +1,6 @@
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, dash_table
 import dash_bootstrap_components as dbc
+from dash.dependencies import Output, Input, State
 from src.proposed_model.smart_contract_3 import SC3
 import json
 from src.proposed_model.blockchain import Blockchain
@@ -7,8 +8,8 @@ import pandas as pd
 from src.current_model.pool import Pool
 import matplotlib.animation as animation
 from time import sleep
-
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+import pages
+from dash_app import app
 
 SIDEBAR_STYLE = {
     'position':'fixed',
@@ -32,12 +33,13 @@ sidebar = html.Div(
     html.Hr(),
     dbc.Nav(
         [
-            dbc.NavLink("Intel Lab Dataset "),
-            dbc.NavLink("Current IoT Data"),
-            dbc.NavLink("Blockchain Data"),
-            dbc.NavLink("Consumer Dataset"),
-            dbc.NavLink("Comparing Time operation"),
-            dbc.NavLink("Training results"),
+            dbc.NavLink("home", href="/", active="exact"),
+            dbc.NavLink("Intel Lab Dataset", href="/intel_lab", active="exact"),
+            dbc.NavLink("Current IoT Data", href="/current_iot", active="exact"),
+            dbc.NavLink("Blockchain Data", href="/blockhain", active="exact"),
+            dbc.NavLink("Consumer Dataset", href="/consumer_dataset", active="exact"),
+            dbc.NavLink("Comparing Time operation", href="/time_comparing", active="exact"),
+            dbc.NavLink("Training results", href="/training_results", active="exact"),
             
         ],
         vertical=True,
@@ -50,4 +52,15 @@ sidebar = html.Div(
 content = html.Div(id='page-content', style=CONTENT_STYLE)
 app.layout = html.Div([dcc.Location(id='url'), sidebar,content])
 
-app.run_server(port=8888, debug=True)
+@app.callback(Output("page-content", "children"),[Input("url", "pathname")])
+def render_page_content(pathname):
+   
+    if pathname == "/":
+        return pages.dash_home.layout
+    if pathname == "/intel_lab":
+        return pages.dash_intel_lab.layout
+    if pathname == "/blockhain":
+        return pages.dash_blockchain.layout
+
+if __name__=="__main__":
+    app.run_server(debug=True)

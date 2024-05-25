@@ -23,15 +23,22 @@ import time
 
 
 class Blockchain:
-    def __init__(self, node):
+    def __init__(self, node=None):
         self.node = node
         self.blockchainType = "data_blockchain"
-        self.fileName = str(self.blockchainType+str(self.node)+'.json')
-        self.fileNameNotCript = str(
-            'blockchain_notCript_'+str(self.node)+'.json')
         self.chain = []
         self.nodes = set()
         self.cipher = Cipher()
+    
+    
+    @property
+    def fileName():
+        return str(self.blockchainType+str(self.node)+'.json')
+    
+    @property
+    def fileNameNotCript():
+       return str(
+            'blockchain_notCript_'+str(self.node)+'.json')
 
     def __str__(self):
 
@@ -55,8 +62,9 @@ class Blockchain:
 
     def toJsonDecrypted(self) -> dict():
         chain = []
-        for block in self.chain:
-            chain.append(Block.fromJsonDecrypt(Block.toJson(block)).toJson())
+        if self.chain is not None:
+            for block in self.chain:
+                chain.append(Block.fromJsonDecrypt(Block.toJson(block)).toJson())
 
 
         return {
