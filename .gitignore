@@ -3,6 +3,8 @@
 *data_blockchainh*.json
 *consumer_blockchainh*.json
 *blockchain_notCript_*.json
+*noBlockchain*.json
+*physic-manager*.json
 *lastBlockReaded_*.json
 *no_blockchain*.json
 devices_running.json

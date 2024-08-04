@@ -119,10 +119,12 @@ class Blockchain:
             block = Block(pool, self.blockchainType)
         else:
             proof = self.proofOfWork(previousBlock.proof)
+            
             previousHash = self.hash(previousBlock)
+            
             block = Block(pool, self.blockchainType,
                           (previousBlock.index+1), proof, previousHash)
-
+        print(block)
         self.chain.append(block)
         if (self.isChainValid(self.chain)):
             # self.register()
@@ -159,13 +161,11 @@ class Blockchain:
         return block
 
     def getPreviousBlock(self):
-        chain = self.solveBizzantineProblem()
-        if chain is None:
-            return None
-        elif len(chain) > 0:
-            self.chain = chain
-            return self.chain[-1]
-        return None
+        return  self.solveBizzantineProblem()
+        
+ 
+        
+    
 
     def proofOfWork(self, previous_proof, new_proof=1):
         if isinstance(previous_proof, str):
@@ -182,7 +182,7 @@ class Blockchain:
         return new_proof
 
     def checkPuzzle(self, hash_test):
-        if hash_test[0:7] == '0000000':
+        if hash_test[0:4] == '0000':
             return True
         return False
 
@@ -269,7 +269,11 @@ class Blockchain:
                 longest_chain = []
             print('The current biggest chain is {} with {} blocks'.format(
                 nameNode, len(longest_chain)))
-            return longest_chain
+            if longest_chain is None:
+                return []
+            elif len(chain) > 0:
+                self.chain = chain
+                return self.chain[-1]
 
         except:
             print('Something wrong happen in replaceChain...')
