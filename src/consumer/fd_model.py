@@ -13,22 +13,22 @@ from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
-
+import random
 
 class FdModel:
-    def __init__(self, name, data=None):
+    def __init__(self, name, dataBlock=None):
         self.name = name
-        if data is None:
-            self.data = []
-            transaction = Transaction("c05", "temperatureSensor", "h28", "26")
+        if dataBlock is None:
+            self.dataBlock= []
+            transaction = Transaction("c05", "temperatureSensor", "h28", {"temperature":26,"humidity":10})
             transactions = []
-            for i in range(50):
+            for i in range(20):
                 transactions.append(transaction)
 
-            self.data = Block(transactions)
+            self.dataBlock= Block(transactions)
 
         else:
-            self.data = data
+            self.dataBlock= dataBlock
         self.fileName = 'dataset.csv'
         self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=False)
         self._learningRate = 0.1
@@ -45,7 +45,7 @@ class FdModel:
         self.trashoulder=0.2
 
     def getAsDict(self):
-        return {self.name: self.data}
+        return {self.name: self.dataBlock}
 
     def __str__(self):
         return str({
@@ -69,66 +69,66 @@ class FdModel:
 
     def preprocessing(self, trashoulder=0.2):
         self.trashoulder = trashoulder
-        datasetRows = self.getStatistics()
-        
-        if (datasetRows is None):
-            return None
-        dataset = self.generateDataset(datasetRows)
-        
+        dataset = self.getStatistics()
         self.saveDataset(dataset)
         self._model = self.training(dataset)
 
     def getStatistics(self):
-        datasetRows = []
-        try:
-            transactionValues = self.dataPartition(self.data.transactions)
-            datasetRows = self.getDatasetRows(transactionValues)
-            return np.array(datasetRows)
-        except:
-            print('The transmited data across is not a Block')
-            return None
+        decryptedTransactions = []
+        for block in self.dataBlock:
+            decryptedTransactions.append(Transaction.fromJsonDecrypt(block))
+        return self.targetDefinition(decryptedTransactions)
+        
+    
+    def fixingData(self,data):
+        return float(data)
+        # part1 = data.split('.')
+        # if(len(part1[0])>2):
+        #     integerPart = part1[0][:2]
+        #     floatPart =  part1[0][2:]
+        #     realNumber = float(str(integerPart+'.'+floatPart))
+        # else:
+        #     realNumber = float(data)
+        # return realNumber
 
-    def filter_by_sensor(self, transactions, sensor='temperatureSensor'):
-        filtredTransactions = []
+    def arrayToDataFrame(self, transactions):
+        filtradTransactions = []
         for transaction in transactions:
-            if (transaction['sensor'] == sensor):
-                filtredTransactions.append(transaction)
-        return filtredTransactions
-
-    def dataPartition(self, transactions):
-
-        transactionValues2 = []
-        size=10
-        filtredTransactions = self.filter_by_sensor(transactions)
-        for p in range(0, len(filtredTransactions), size):
-            j = p+size
-            transactionValues1 = [float(temp['data'])
-                                  for temp in filtredTransactions[p:j]]
-            transactionValues2.append(transactionValues1)
-
-        return transactionValues2
-
-    def getLabel(self, temperatures):
-        cont = 0
-        variationEvaluated = max(temperatures)-min(temperatures)
-        label = 1 if (variationEvaluated >=self.trashoulder) else 0
-        return [variationEvaluated,label]
-
-    def getDatasetRows(self, transactionValues):
-        datasetRows = []
-        for temperatures in transactionValues:
-            validatedClass = self.getLabel(temperatures)
-            datasetRows.append(
-                temperatures + validatedClass)
-
-        return np.array(datasetRows)
-
-    def generateDataset(self, datasetRows):
-        cols = ['{}_{}'.format('data', i+1)
-                for i in range((datasetRows.shape[1]-2))]
-        cols += ['delta','label']
-        dataset = pd.DataFrame(datasetRows, columns=cols)
+            temperature =random.randint(0, 6) + self.fixingData(transaction["data"]["temperature"])
+            humidity = random.randint(0, 6) + self.fixingData(transaction["data"]["humidity"])
+            filtradTransactions.append([temperature,humidity])
+        
+        cols=["temperature","humidity"]
+        dataset = pd.DataFrame(filtradTransactions, columns=cols)
         return dataset
+    def  removingOutliers(self, transactions):
+        dataset = self.arrayToDataFrame(transactions)
+        dataset["temperature"].astype(np.float64)
+        dataset["humidity"].astype(np.float64)
+        outliers = dataset[dataset['temperature'] > -40]
+        df = outliers[outliers['temperature'] < 40 ]
+        return df
+    def targetDefinition(self, transactions):
+        df = self.removingOutliers(transactions)
+        
+        tev = self.getIDT(df)
+        target=[]
+        for value in tev:
+            if value >=24 and value <= 26:
+                target.append(1)
+            else:
+                target.append(0)
+        df["IDT"]=tev
+        df["target"]=target
+        
+        return df
+
+    def getIDT(self, df):
+        return df.temperature.values - (0.55-0.0055*df.humidity.values)*(df.temperature.values-14.5)
+
+    def getTEv(self, df):
+        v=10
+        return 37-((37-df.temperature.values)/0.68-(0.0014*df.humidity.values) + (1/(1.76*v**(0.75)))) - (0.29*df.temperature.values*(1 - df.humidity.values/100))
 
     def saveDataset(self, dataset):
         exists = os.path.exists(self.fileName)
@@ -141,22 +141,24 @@ class FdModel:
                 writer.writerow(dataset.iloc[i,])
 
     def batch_data(self, dataset, bs=32):
-        label = dataset.label
-        dataset = dataset.drop(columns=['label'])
-        dataset2 = tf.data.Dataset.from_tensor_slices((dataset.values, label))
-        return dataset2.shuffle(len(label)).batch(bs)
+        target = dataset.target
+        dataset = dataset.drop(columns=['target'])
+        dataset2 = tf.data.Dataset.from_tensor_slices((dataset.values, target))
+        return dataset2.shuffle(len(target)).batch(bs)
 
     def training(self, dataset):
+        print(dataset)
         self.generateCardinality(dataset)
-        label = dataset.label
-        dataset = dataset.drop(columns=['delta'])
-        dataset = dataset.drop(columns=['label'])
+        target = dataset.target
+        dataset = dataset.drop(columns=['IDT'])
+        dataset = dataset.drop(columns=['target'])
+        
         local_model = None
         try:
             if (dataset.shape[0] > 1):
-                X_train, X_test, y_train, y_test = train_test_split(dataset, label, test_size=0.5, random_state=42,
+                X_train, X_test, y_train, y_test = train_test_split(dataset, target, test_size=0.5, random_state=42,
                                                                     stratify=None, shuffle=False)
-                
+                print(X_train)
                 smlp_local = SimpleMLP()
 
                 local_model = smlp_local.build(X_train.shape[1])

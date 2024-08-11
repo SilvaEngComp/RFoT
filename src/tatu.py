@@ -67,7 +67,7 @@ def buildFlowAnwserDevice(deviceName, sensorName, topic, topicError, pub_client,
 		listValues = []
 		
 		while True:
-			listValues.append(str(sensor.getByDataset()))
+			listValues.append(str(sensor.getdataBySensorNode()))
 			t = t + collectTime + 1000
 			#Request: {"method":"FLOW", "sensor":"sensorName", "time":{"collect":collectTime,"publish":publishTime}}
 			responseModel={"code":"post","post":topic,"method":"flow","header":{"sensor":sensorName,"device":deviceName,"time":{"collect":collectTime, "publish": publishTime}}, "data":listValues[0]}

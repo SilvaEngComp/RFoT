@@ -25,10 +25,9 @@ class SC1:
     def dataTreating(self, msg):
         msgJson = json.loads(msg.payload)
         if 'data' in msgJson:
-            if self.validTemp(msgJson['data']) is True:
-                transaction = Transaction(
-                    msgJson['header']['device'], msgJson['header']['sensor'], self._node, msgJson['data'])
-                return self.mineBlock(transaction)
+            transaction = Transaction(
+                msgJson['header']['device'], msgJson['header']['sensor'], self._node, msgJson['data'])
+            return self.mineBlock(transaction)
         return False
 
     def validTemp(self, temp):

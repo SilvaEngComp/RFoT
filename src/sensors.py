@@ -20,17 +20,6 @@ class Sensor:
         self.sensorName = self._getSensor(sensorName)
         print(self.sensorName)
     
-    def _getPosition(self,datasetSize):
-        oldPosition = Sensor.position
-        Sensor.position +=1
-        if Sensor.position>=datasetSize:
-                Sensor.position=0
-        return oldPosition
-    def _getSensor(self,sensorName):
-        gen = (x for x in Sensor.listSensors if x in sensorName)
-        return next(gen)
-            
-        
     def getByDataset(self):
         try:
             
@@ -44,7 +33,33 @@ class Sensor:
             return cipher.encrypt(dataBytes)
         except:
             return 'error to try read csv sensorName='+self.sensorName
+        
+    def getdataBySensorNode(self):
+        try:
+            
+            cipher = Cipher()
+            dataset = pd.read_csv('intel_lab.csv', usecols=['temperature','humidity'], delimiter=",")
+            currentPosition = self._getPosition(len(dataset))
+            
+            temperature = str(dataset['temperature'].iloc[currentPosition])
+            humidity = str(dataset['humidity'].iloc[currentPosition])
+            sensorNode = {'temperature':temperature,'humidity':humidity}
+            dataBytes = json.dumps(sensorNode).encode("utf-8")
+            return cipher.encrypt(dataBytes)
+        except:
+            return 'error to try read csv sensorName='+self.sensorName
 
+    def _getPosition(self,datasetSize):
+        oldPosition = Sensor.position
+        Sensor.position +=10
+        if Sensor.position>=datasetSize:
+                Sensor.position=2000
+        return oldPosition
+    def _getSensor(self,sensorName):
+        gen = (x for x in Sensor.listSensors if x in sensorName)
+        return next(gen)
+            
+        
     def ledActuator(s=None):
         if s == None:
             return bool(random.randint(0, 1))

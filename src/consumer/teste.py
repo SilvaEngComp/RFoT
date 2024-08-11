@@ -1,31 +1,38 @@
-
-# import os
-# import datetime
-import sys
-sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/proposed_model/data_collector')
-
-from blockchain import Blockchain
-# from block import Block
-# from fd_model import FdModel
-# import numpy as np
-# from time import sleep
-# import time
-
-
-# node = 'h1'
-# block = Blockchain.getNotAssinedBlock(node)
-# fdModel = FdModel(node,block)
-# fdModel.preprocessing(0.002)
-# if fdModel.getModel() is not None:
-#     Blockchain.setAssinedBlockModel(node,"localModel",fdModel.toJson())
-from cipher import Cipher
+import os
+import argparse
 import json
+import paho.mqtt.client as mqtt
+from src.proposed_model.smart_contract_3 import SC3
+from src.current_model.no_blockchain import NoBlockchain
+from fd_model import FdModel
+from fd_client import FdClient
+from src.suport_layer.block import Block
+from integrator_model import IntegratorModel
+from time import sleep
+import datetime
+import sys
+solution = '1'
+sub_device="h_teste"
 
-fileName = '../data_collector/blockchain_h3.json'
-with open(fileName, 'rb') as blockchainFile:
-    cipher = Cipher()
-    data = blockchainFile.read()
-    decripted = cipher.decrypt(data)
-    dataJson = json.loads(decripted)
-    chain =  Blockchain.fromJson(dataJson['chain'])
-    print(chain)
+def getdataBlock():
+    block = None
+    if solution == '1':
+        block = NoBlockchain.getNotAssinedBlock()
+    else:
+        block = SC3.getNotAssinedBlock(sub_device)
+    return block
+
+while (True):
+    block = getdataBlock()
+    if block is not None:
+        fdModel = FdModel(sub_device, block)
+        fdModel.preprocessing()
+        if fdModel.hasValidModel():
+            integragorModel = IntegratorModel(fdModel, args.clients)
+            print(f'treinamento completo')
+            print(integragorModel)
+            break
+        else:
+            sleep(5)
+    else:
+        sleep(5)

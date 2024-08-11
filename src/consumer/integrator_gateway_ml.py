@@ -136,7 +136,7 @@ def onSubscribe():
 
 def getdataBlock():
     block = None
-    if args.solution == 1:
+    if args.solution == '1':
         block = NoBlockchain.getNotAssinedBlock()
     else:
         block = SC3.getNotAssinedBlock(sub_device)
@@ -161,14 +161,12 @@ if __name__ == '__main__':
     pub_topic = 'dev/g04'
     print('waitting for a valid blockchain data...')
     while (True):
-        os.system('clear')
+        # os.system('clear')
         block = getdataBlock()
-        
         if block is not None:
             fdModel = FdModel(sub_device, block)
             fdModel.preprocessing()
             if fdModel.hasValidModel():
-                print(fdModel._model)
                 integragorModel = IntegratorModel(fdModel, args.clients)
                 os.system('clear')
                 onPublish()

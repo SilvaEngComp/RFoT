@@ -63,7 +63,7 @@ def on_disconnect(mqttc, obj, msg):
 
 def getdataBlock():
     block = None
-    if args.solution == 1:
+    if args.solution == '1':
         block = NoBlockchain.getNotAssinedBlock()
     else:
         block = SC3.getNotAssinedBlock(sub_device)
@@ -92,7 +92,7 @@ def on_message(mqttc, obj, msg):
     
     print('receiving a new global model by {} at {}'.format(global_host_name, datetime.datetime.now()))
     fdModel = startProcessing()
-    if args.solution == 2:
+    if args.solution == '2':
         SC2.minerNotAssinedTransaction(sub_device,fdModel.toJson(),"data_consumer")
         TimeRegister.addTime("Block Consumer minered on BCR")
     TimeRegister.addTime("training and product registration finished")

@@ -51,15 +51,15 @@ class TestModel:
     
     def test_model(self,X_test, Y_test,  model):
             self._comm_round += 1
-            #BinaryCrossentropy: Computes the crossentropy loss between the labels and predictions.
+            #BinaryCrossentropy: Computes the crossentropy loss between the targets and predictions.
             bce = tf.keras.losses.BinaryCrossentropy(from_logits=True)
             Y_pred = model.predict(X_test, batch_size=100)
             Y_test = np.array(Y_test).reshape(len(Y_test),1)
             self.savePredictionDataset(X_test,Y_test,Y_pred)
             
             loss = bce(Y_test, Y_pred).numpy()
-            #accuracy_score: In multilabel classification, the function returns the 
-            # subset accuracy. If the entire set of predicted labels for a sample 
+            #accuracy_score: In multitarget classification, the function returns the 
+            # subset accuracy. If the entire set of predicted targets for a sample 
             # strictly match with the true set of labels, then the subset accuracy 
             # is 1.0; otherwise it is 0.0.
             acc = accuracy_score(tf.argmax(Y_pred, axis=1), tf.argmax(Y_test, axis=1))
@@ -126,13 +126,13 @@ class TestModel:
         fileName = 'dataset.csv'
         print('...... readding {} ......'.format(fileName))
         dataset = pd.read_csv(fileName, delimiter=",")
-        label = dataset.label
-        dataset = dataset.drop(columns=['delta'])
-        dataset = dataset.drop(columns=['label'])
+        target = dataset.target
+        dataset = dataset.drop(columns=['IDT'])
+        dataset = dataset.drop(columns=['target'])
         local_model = None
         if(dataset.shape[0]>1):
-            return train_test_split(dataset, label, test_size=1/3, random_state=10, 
-                                                    stratify=label, shuffle=True)
+            return train_test_split(dataset, target, test_size=1/3, random_state=10, 
+                                                    stratify=target, shuffle=True)
         return None, None, None, None          
 
 

@@ -56,29 +56,22 @@ def on_disconnect(mqttc, obj, msg):
 def on_message(mqttc, obj, msg):
     msgJson = json.loads(msg.payload)
     if 'data' in msgJson:
-        data = validTemp(msgJson['data'])
-        
-        
-        if data[0] is True:
-            msgJson['data'] = data[1]
-            transaction = Transaction(
-                msgJson['header']['device'], msgJson['header']['sensor'], args.name, msgJson['data'])
-            isCompleted = iotcoin.transactionProcess(transaction)
-            if isCompleted is True:
-                TimeRegister.addTime("transaction registed")
-                iotcoin.restart()
+        data = decryptData(msgJson['data'])
+        transaction = Transaction(
+            msgJson['header']['device'], msgJson['header']['sensor'], args.name, msgJson['data'])
+        isCompleted = iotcoin.transactionProcess(transaction)
+        if isCompleted is True:
+            TimeRegister.addTime("transaction registed")
+            iotcoin.restart()
 
 
-def validTemp(temp):
+def decryptData(temp):
     cipher = Cipher()
     temp = temp.replace("b'", "'")
     temp = str.encode(temp)
     decriptedTemp = cipher.decrypt(temp)
     dataJson = json.loads(decriptedTemp)
-
-    if float(dataJson) > 16 and float(dataJson) < 40:
-        return [True, dataJson]
-    return [False, dataJson]
+    return dataJson
 
 
 def on_subscribe(client: mqtt, topic):

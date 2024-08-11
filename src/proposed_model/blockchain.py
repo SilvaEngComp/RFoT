@@ -79,8 +79,6 @@ class Blockchain:
     def registerEncripted(self, prefix="../proposed_model/"):
         self.fileName = str(self.blockchainType +
                             str(self.node)+'.json')
-        # fileNameNotCript = str(prefix + self.fileNameNotCript)
-        fileNameNotCript =  self.fileNameNotCript
         try:
             dataBytes = json.dumps(self.toJson()).encode("utf-8")
             encrypted = self.cipher.encrypt(dataBytes)
@@ -97,12 +95,13 @@ class Blockchain:
     def register(self, prefix="../proposed_model/"):
         # fileNameNotCript = str(prefix + self.fileNameNotCript)
         fileNameNotCript = self.fileNameNotCript
+        print(fileNameNotCript)
         with open(fileNameNotCript, 'w') as blockchainFile:
-            jsonData = self.toJson()
-            print('registring new chain in {} with {} blocks '.format(
+            jsonData = self.toJsonDecrypted()
+            print('registring new no encrypted chain in {} with {} blocks '.format(
                 self.fileName, len(self.chain)))
             if jsonData is not None:
-                json.dump(self.toJson(), blockchainFile)
+                json.dump(jsonData, blockchainFile)
 
     def createBlock(self, data, typeBlock="data", dataBlock=None):
 
@@ -124,10 +123,9 @@ class Blockchain:
             
             block = Block(pool, self.blockchainType,
                           (previousBlock.index+1), proof, previousHash)
-        print(block)
         self.chain.append(block)
         if (self.isChainValid(self.chain)):
-            # self.register()
+            self.register()
             self.registerEncripted()
         else:
             self.chain = []
@@ -150,7 +148,6 @@ class Blockchain:
             previousHash = self.hash(previousBlock)
             block = Block(pool, self.blockchainType, (previousBlock.index+1),
                           proof, previousHash, None, hostTrainer)
-        print('135 - transactions: ', block.transactions)
         self.chain.append(block)
         if (self.isChainValid(self.chain)):
             self.register()
