@@ -51,9 +51,9 @@ class Sensor:
 
     def _getPosition(self,datasetSize):
         oldPosition = Sensor.position
-        Sensor.position +=10
+        Sensor.position +=1
         if Sensor.position>=datasetSize:
-                Sensor.position=2000
+                Sensor.position=0
         return oldPosition
     def _getSensor(self,sensorName):
         gen = (x for x in Sensor.listSensors if x in sensorName)

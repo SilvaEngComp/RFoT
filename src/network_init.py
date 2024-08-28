@@ -157,3 +157,8 @@ def initFlow(net):
 			print("mosquitto_pub -t '"+topic+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
 			net.get(ass[j].name_gateway).cmd("mosquitto_pub -t '"+topic+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
 			time.sleep(0.5)
+def executeCenare1(net):
+    print('execution scenare 1')
+    net.get('h3').cmdPrint("cd current_model/ ")
+    net.get('h3').cmdPrint("sudo python3 collector_gateway.py --name h1 --size 20")
+			
