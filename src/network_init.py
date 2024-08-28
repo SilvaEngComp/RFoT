@@ -63,7 +63,12 @@ def fixNetworkManager( root, intf ):
 	   intf: interface name"""
 	cfile = '/etc/network/interfaces'
 	line = '\niface %s inet manual\n' % intf
-	config = open( cfile ).read()
+	config=''
+	try:
+		config = open( cfile ).read()
+	except:
+		cfile = '/etc/netplan'
+		config = open( cfile ).read()
 	if line not in config:
 		print ('*** Adding', line.strip(), 'to', cfile)
 		with open( cfile, 'a' ) as f:
