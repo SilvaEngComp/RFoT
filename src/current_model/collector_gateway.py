@@ -134,4 +134,4 @@ if __name__ == '__main__':
 
         sub_client = connect_mqtt(data, sub_broker, sub_device)
         sub_client = on_subscribe(sub_client, topic)
-        # sub_client.loop_forever()
+        sub_client.loop_forever()
