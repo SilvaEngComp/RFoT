@@ -160,5 +160,5 @@ def initFlow(net):
 def executeCenare1(net):
     print('execution scenare 1')
     net.get('h3').cmdPrint("cd current_model/ "+' &')
-    net.get('h3').cmdPrint("sudo python3 collector_gateway.py --name h1 --size 20"+' &')
+    net.get('h3').cmdPrint("sudo python3 collector_gateway.py --name h1 --size 20")
 			
