@@ -31,8 +31,9 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
         mqttPort = data["mqttPort"]
         mqttUsername = data["mqttUsername"]
         mqttPassword = data["mqttPassword"]
-        print(mqtt)
+        
         sub_client = mqtt.Client(deviceName + "_block", protocol=mqtt.MQTTv31)
+        print(sub_client)
         sub_client.username_pw_set(mqttUsername, mqttPassword)
         sub_client.on_connect = on_connect
         sub_client.connect(mqttBroker, int(mqttPort), 60)
