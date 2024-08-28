@@ -35,7 +35,9 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
         sub_client = mqtt.Client(deviceName + "_block", protocol=mqtt.MQTTv31)
         print(sub_client)
         sub_client.username_pw_set(mqttUsername, mqttPassword)
+        print("38")
         sub_client.on_connect = on_connect
+        print(f'40 {mqttBroker} - port {mqttPort}')
         sub_client.connect(mqttBroker, int(mqttPort), 60)
         return sub_client
     except:
