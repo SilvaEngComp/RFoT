@@ -39,6 +39,7 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
         sub_client.on_connect = on_connect
         print(f'40 {mqttBroker} - port {mqttPort}')
         sub_client.connect(mqttBroker, int(mqttPort), 60)
+        print(sub_client)
         return sub_client
     except:
         print("Broker unreachable on " + mqttBroker + " URL!")
