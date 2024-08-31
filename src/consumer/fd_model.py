@@ -105,20 +105,27 @@ class FdModel:
         dataset = self.arrayToDataFrame(transactions)
         dataset["temperature"].astype(np.float64)
         dataset["humidity"].astype(np.float64)
-        outliers = dataset[dataset['temperature'] > -40]
-        df = outliers[outliers['temperature'] < 40 ]
+        #calcular 1° quartil
+        Q1 = np.nanpercentile(dataset["temperature"],25,interpolation="midpoint")
+        #calcular 3° quartil
+        Q3 = np.nanpercentile(dataset["temperature"],75,interpolation="midpoint")
+        #intervalo do quartil
+        IQR = Q3-Q1
+        df = dataset[dataset["temperature"] <= Q3 + IQR*12]
+        df = df[df["temperature"] >= Q3 - IQR*12]
+
         return df
     def targetDefinition(self, transactions):
         df = self.removingOutliers(transactions)
         
-        tev = self.getIDT(df)
+        idt = self.getIDT(df)
         target=[]
-        for value in tev:
-            if value >=24 and value <= 26:
+        for value in idt:
+            if  value<= 26:
                 target.append(1)
             else:
                 target.append(0)
-        df["IDT"]=tev
+        df["IDT"]=idt
         df["target"]=target
         
         return df
@@ -147,10 +154,9 @@ class FdModel:
         return dataset2.shuffle(len(target)).batch(bs)
 
     def training(self, dataset):
-        print(dataset)
         self.generateCardinality(dataset)
         target = dataset.target
-        dataset = dataset.drop(columns=['IDT'])
+        # dataset = dataset.drop(columns=['IDT'])
         dataset = dataset.drop(columns=['target'])
         
         local_model = None
@@ -158,7 +164,6 @@ class FdModel:
             if (dataset.shape[0] > 1):
                 X_train, X_test, y_train, y_test = train_test_split(dataset, target, test_size=0.5, random_state=42,
                                                                     stratify=None, shuffle=False)
-                print(X_train)
                 smlp_local = SimpleMLP()
 
                 local_model = smlp_local.build(X_train.shape[1])
@@ -211,7 +216,8 @@ class FdModel:
             self._model = model_from_json(model)
         else:
             print('model_from_dict')
-            self._model = model
+            self._model = model_from_json(model['model'])
+            self._cardinality = model['cardinality']
 
     def getModel(self):
         return self._model

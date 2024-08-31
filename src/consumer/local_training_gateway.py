@@ -127,7 +127,7 @@ def onPublish(fdModel, isStarting=False):
     
     pub_client.publish(pub_topic, resp,0)
     pub_client.loop_stop()
-    print('\n \n Model {} published in: {} on topic: {} at {}' .format(fdModel, pub_broker,pub_topic, datetime.datetime.now()))
+    # print('\n \n Model {} published in: {} on topic: {} at {}' .format(fdModel, pub_broker,pub_topic, datetime.datetime.now()))
     countdown()
         
 def on_subscribe(client: mqtt, topic): 

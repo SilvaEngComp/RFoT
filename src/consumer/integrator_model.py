@@ -8,15 +8,16 @@ from time import sleep
 from sklearn.metrics import zero_one_loss
 import csv
 import matplotlib.pyplot as plt
-
+import os
+import json
 class IntegratorModel:
-    def __init__(self, fdModel, qtd_clients = 1):
+    def __init__(self, fdModel=None, qtd_clients = 1, isStarting=None):
         if isinstance(qtd_clients, str):
             qtd_clients = int(qtd_clients)
             
         self._clients = set()
         self._qtd_clients = qtd_clients
-        self._globalModel = fdModel
+        self._globalModel = self.start(fdModel,isStarting)
         self._comm_round = 0
         self._results = []
         self.fileName = 'global_train_results.csv'
@@ -106,7 +107,36 @@ class IntegratorModel:
         
         #update global model 
         self._globalModel.getModel().set_weights(average_weights)
-
-        self.resetClients()  
+        self.resetClients() 
+        self.register() 
+    def register(self):
+        fileName = "global_model.json"
+        with open(fileName, "w") as file:
+            try:
+                print('registring new global model version')
+                print(self.getGlobalModel())
+                json.dump(self.getGlobalModel(), file)
+            except:
+                print('erro in global model registration')
         
+    def start(self,fdModel,isStarting):
+        if isStarting is None:
+            return fdModel
+        fileName = "global_model.json"
+        print(fileName)
+        if os.path.exists(fileName) is False:
+            print(f'not found local pool file: {fileName} ')
+            return fdModel
+        try:
+            print('try')
+            with open(fileName) as file:
+                if os.path.getsize(fileName) > 0:
+                    
+                    data = json.load(file)
+                    fdModel.setModel(data)
+                    return fdModel
+                else:
+                    return fdModel
+        except:
+            print('erro in global model registration')
     

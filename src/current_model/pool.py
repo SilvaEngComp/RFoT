@@ -74,9 +74,9 @@ class Pool:
         self.pool.append(transactions)
         self.register()
 
-    def register(self, prefix=''):
+    def register(self, prefix='../current_model/'):
         fileName = str(prefix + self.fileName)
-        with open(self.fileName, "w") as file:
+        with open(fileName, "w") as file:
             try:
                 print('registring new transaction pool | nº: {} '.format(
                     len(self.pool)))
@@ -101,9 +101,9 @@ class Pool:
 
     def get(self, prefix='../current_model/'):
         fileName = str(prefix + self.fileName)
-        
+        pasta = os.listdir(prefix)
         if os.path.exists(fileName) is False:
-            print(f'not found local pool file: {fileName} ')
+            print(f'107 - not found local pool file: {fileName} ')
             return []
         try:
             with open(fileName) as file:
@@ -113,7 +113,7 @@ class Pool:
                 else:
                     return []
         except:
-            print(f'not found local pool file: {fileName} ')
+            print(f'118 - not found local pool file: {fileName} ')
             return []
         
     def getSelectedPositions(self, prefix='../current_model/'):

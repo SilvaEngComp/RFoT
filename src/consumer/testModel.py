@@ -127,7 +127,7 @@ class TestModel:
         print('...... readding {} ......'.format(fileName))
         dataset = pd.read_csv(fileName, delimiter=",")
         target = dataset.target
-        dataset = dataset.drop(columns=['IDT'])
+        # dataset = dataset.drop(columns=['IDT'])
         dataset = dataset.drop(columns=['target'])
         local_model = None
         if(dataset.shape[0]>1):

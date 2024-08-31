@@ -33,13 +33,9 @@ def connect_mqtt(data, mqttBroker, deviceName) -> mqtt:
         mqttPassword = data["mqttPassword"]
         
         sub_client = mqtt.Client(deviceName + "_block", protocol=mqtt.MQTTv31)
-        print(sub_client)
         sub_client.username_pw_set(mqttUsername, mqttPassword)
-        print("38")
         sub_client.on_connect = on_connect
-        print(f'40 {mqttBroker} - port {mqttPort}')
         sub_client.connect(mqttBroker, int(mqttPort), 60)
-        print(sub_client)
         return sub_client
     except:
         print("Broker unreachable on " + mqttBroker + " URL!")
@@ -135,8 +131,6 @@ if __name__ == '__main__':
             data = json.load(f)
 
         # deviceRunning()
-        print(data)
         sub_client = connect_mqtt(data, sub_broker, sub_device)
         sub_client = on_subscribe(sub_client, topic)
-        print(sub_client)
         sub_client.loop_forever()

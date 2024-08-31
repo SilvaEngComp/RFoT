@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ni.initSensors(net)
     #Iniciar fluxo de comunicacao
     ni.initFlow(net)
-    # ni.executeCenare1(net)
+    #ni.executeCenare1(net)
     CLI( net )
     
     # Shut down NAT

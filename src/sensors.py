@@ -14,7 +14,7 @@ import json
 
 
 class Sensor:
-    position=0
+    position=900
     listSensors = ['temperature','light','voltage','humidity']
     def __init__(self, sensorName):
         self.sensorName = self._getSensor(sensorName)
@@ -32,7 +32,7 @@ class Sensor:
             dataBytes = str.encode(value)
             return cipher.encrypt(dataBytes)
         except:
-            return 'error to try read csv sensorName='+self.sensorName
+            return None
         
     def getdataBySensorNode(self):
         try:
@@ -53,7 +53,7 @@ class Sensor:
         oldPosition = Sensor.position
         Sensor.position +=1
         if Sensor.position>=datasetSize:
-                Sensor.position=0
+                Sensor.position=None
         return oldPosition
     def _getSensor(self,sensorName):
         gen = (x for x in Sensor.listSensors if x in sensorName)
