@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import csv
 import math
-from simple_MLP import SimpleMLP
+from simple_MLP import SimpleMLP,SimpleMLP2
 from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
@@ -164,7 +164,7 @@ class FdModel:
             if (dataset.shape[0] > 1):
                 X_train, X_test, y_train, y_test = train_test_split(dataset, target, test_size=0.5, random_state=42,
                                                                     stratify=None, shuffle=False)
-                smlp_local = SimpleMLP()
+                smlp_local = SimpleMLP2()
 
                 local_model = smlp_local.build(X_train.shape[1])
                 local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
