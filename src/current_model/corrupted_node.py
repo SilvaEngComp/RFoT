@@ -1,14 +1,12 @@
-# import sys
-# sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
+import sys
 import paho.mqtt.client as mqtt
 import json
-import src.tatu
 import argparse
 from iotcoin import Iotcoin
 from src.suport_layer.transaction import Transaction
-from pool import Pool
 from time import sleep
-import numpy as np
+from src.suport_layer.cipher import Cipher
+from src.utils.time_register import TimeRegister
 
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)
@@ -93,7 +91,7 @@ if __name__ == '__main__':
     blocktopic = 'dev/sc28'
     iotcoin = Iotcoin(args.name, args.time)
     timeToCorrupt=5;
-    with open('../../config.json') as f:
+    with open('../config.json') as f:
         data = json.load(f)
     
     #deviceRunning()

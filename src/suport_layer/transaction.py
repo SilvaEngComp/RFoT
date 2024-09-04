@@ -37,7 +37,7 @@ class Transaction:
             'sender': self.sender,
             'sensor': self.sensor,
             'receiver': self.receiver,
-            'data': str(self.data),
+            'data': self.data,
         }
 
     @classmethod
@@ -49,16 +49,23 @@ class Transaction:
     @classmethod
     def fromJsonDecrypt(self, data):
         cipher = Cipher()
-        if isinstance(data, dict):
-            temp = data['data'].replace("b'", "'")
+        try:
+            
+            if isinstance(data, dict):
+                temp = data['data'].replace("b'", "'")
+                temp = str.encode(temp)
+                decriptedTemp = cipher.decrypt(temp)
+                
+                dataJson = json.loads(decriptedTemp)
+                dataJson = json.dumps(dataJson)
+                return Transaction(data['sender'], data['sensor'], data['receiver'], dataJson)
+            
+            temp = data.data.replace("b'", "'")
+            
             temp = str.encode(temp)
             decriptedTemp = cipher.decrypt(temp)
             dataJson = json.loads(decriptedTemp)
-            return Transaction(data['sender'], data['sensor'], data['receiver'], dataJson)
-
-        temp = data.data.replace("b'", "'")
-        temp = str.encode(temp)
-        decriptedTemp = cipher.decrypt(temp)
-        dataJson = json.loads(decriptedTemp)
-        data.data = dataJson
-        return data
+            data.data = dataJson
+            return data
+        except Exception as e:
+            print(e)

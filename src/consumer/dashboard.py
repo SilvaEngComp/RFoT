@@ -37,6 +37,14 @@ if st.sidebar.button("Blockchain Data"):
     blockchain = SC3.getBCD("h2")
     st.write("# There are ",str(len(blockchain.chain))+" blocks")
     st.write(blockchain.toJsonDecrypted())
+
+if st.sidebar.button("No Blockchain Data"):
+    st.header("# Data Blockchain")
+    st.text("This is the data collected and registred in BCD (Data Blockchain)")
+    pool = Pool()
+    chain = pool.getDecrypted()
+    st.write("# There are ",str(len(chain))+" blocks")
+    st.write(chain)
 if st.sidebar.button("Consumer Dataset"):
     st.header("Temperature from Intel Lab Dataset")
     df = pd.read_csv('dataset.csv', delimiter=",")
@@ -80,7 +88,7 @@ if st.sidebar.button("Training results"):
     df = pd.read_csv('prediction.csv', delimiter=",")
     edit_df = st.data_editor(df,key="df_editor", on_change=def_on_change, args=[df])
     
-    st.line_chart(df)
+    st.line_chart(df,color=['blue','red'])
             
     while True:
         sleep(5)

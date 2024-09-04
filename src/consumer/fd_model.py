@@ -81,21 +81,23 @@ class FdModel:
         
     
     def fixingData(self,data):
-        return float(data)
-        # part1 = data.split('.')
-        # if(len(part1[0])>2):
-        #     integerPart = part1[0][:2]
-        #     floatPart =  part1[0][2:]
-        #     realNumber = float(str(integerPart+'.'+floatPart))
-        # else:
-        #     realNumber = float(data)
-        # return realNumber
+        part1 = data.split('.')
+        print(part1)
+        if(len(part1[0])>2):
+            integerPart = part1[0][:2]
+            floatPart =  part1[0][2:]
+            realNumber = float(str(integerPart+'.'+floatPart))
+        else:
+            realNumber = float(data)
+        return realNumber
 
     def arrayToDataFrame(self, transactions):
         filtradTransactions = []
         for transaction in transactions:
-            temperature =random.randint(0, 6) + self.fixingData(transaction["data"]["temperature"])
-            humidity = random.randint(0, 6) + self.fixingData(transaction["data"]["humidity"])
+            print(isinstance(transaction,dict))
+            print(transaction["data"])
+            temperature = self.fixingData(transaction["data"]["temperature"])
+            humidity = self.fixingData(transaction["data"]["humidity"])
             filtradTransactions.append([temperature,humidity])
         
         cols=["temperature","humidity"]
@@ -167,13 +169,13 @@ class FdModel:
                 smlp_local = SimpleMLP2()
 
                 local_model = smlp_local.build(X_train.shape[1])
-                local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
-                                    metrics=self.getMetrics())
-                local_model.fit(X_train, y_train,
-                                epochs=self.getEpochs(), verbose=0)
+                # local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
+                #                     metrics=self.getMetrics())
+                local_model.fit(X_train, y_train)
             return local_model
-        except:
+        except Exception as e:
             print("Treinamento deu erro")
+            print(str(e))
 
     def hasValidModel(self):
         if self._model is None:
