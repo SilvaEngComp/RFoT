@@ -45,13 +45,14 @@ class Pool:
                         temperature = str(random.randint(1, 1000))
                         humidity = str(random.randint(1, 1000))
                         
-                        sensorNode = str({"temperature":temperature,"humidity":humidity})
+                        sensorNode = {"temperature":temperature,"humidity":humidity}
                         # print(sensorNode)
                         dataBytes = json.dumps(sensorNode).encode("utf-8")
                         # print(dataBytes)
                         encrypted= cipher.encrypt(dataBytes)
                         # print(encrypted)
-                        newItem = Transaction(item["sender"],item["sensor"], item["receiver"],encrypted)
+                        newItem = Transaction(item["sender"],item["sensor"], item["receiver"],encrypted.decode())
+                        print(newItem)
                         corrupted.append(newItem)
                 allCorrupted_transactions.append(corrupted)
             pool.chain = allCorrupted_transactions

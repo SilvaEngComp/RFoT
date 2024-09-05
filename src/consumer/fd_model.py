@@ -82,8 +82,7 @@ class FdModel:
     
     def fixingData(self,data):
         part1 = data.split('.')
-        print(part1)
-        if(len(part1[0])>2):
+        if(len(part1[0])>2 and len(part1)>1):
             integerPart = part1[0][:2]
             floatPart =  part1[0][2:]
             realNumber = float(str(integerPart+'.'+floatPart))
@@ -94,8 +93,8 @@ class FdModel:
     def arrayToDataFrame(self, transactions):
         filtradTransactions = []
         for transaction in transactions:
-            print(isinstance(transaction,dict))
-            print(transaction["data"])
+            if(isinstance(transaction.data,str)):
+                transaction.data = json.loads(transaction.data)
             temperature = self.fixingData(transaction["data"]["temperature"])
             humidity = self.fixingData(transaction["data"]["humidity"])
             filtradTransactions.append([temperature,humidity])
@@ -166,11 +165,11 @@ class FdModel:
             if (dataset.shape[0] > 1):
                 X_train, X_test, y_train, y_test = train_test_split(dataset, target, test_size=0.5, random_state=42,
                                                                     stratify=None, shuffle=False)
-                smlp_local = SimpleMLP2()
+                smlp_local = SimpleMLP()
 
                 local_model = smlp_local.build(X_train.shape[1])
-                # local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
-                #                     metrics=self.getMetrics())
+                local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
+                                    metrics=self.getMetrics())
                 local_model.fit(X_train, y_train)
             return local_model
         except Exception as e:
