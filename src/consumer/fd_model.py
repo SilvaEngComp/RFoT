@@ -85,7 +85,7 @@ class FdModel:
         if(len(part1[0])>2 and len(part1)>1):
             integerPart = part1[0][:2]
             floatPart =  part1[0][2:]
-            realNumber = float(str(integerPart+'.'+floatPart))
+            realNumber = float(str(integerPart+'.'+floatPart))+20.0
         else:
             realNumber = float(data)
         return realNumber
@@ -112,8 +112,8 @@ class FdModel:
         Q3 = np.nanpercentile(dataset["temperature"],75,interpolation="midpoint")
         #intervalo do quartil
         IQR = Q3-Q1
-        df = dataset[dataset["temperature"] <= Q3 + IQR*12]
-        df = df[df["temperature"] >= Q3 - IQR*12]
+        df = dataset[dataset["temperature"] <= Q3 + IQR*3.5]
+        df = df[df["temperature"] >= Q3 - IQR*3.5]
 
         return df
     def targetDefinition(self, transactions):
@@ -140,7 +140,8 @@ class FdModel:
 
     def saveDataset(self, dataset):
         exists = os.path.exists(self.fileName)
-
+        print(f'143 - {dataset.columns}')
+        print(f'144 exists = {exists}')
         with open(self.fileName, 'a') as datasetFile:
             writer = csv.writer(datasetFile)
             if exists is False:

@@ -24,6 +24,8 @@ class IntegratorModel:
         self.dataset = None
         
     def getGlobalModel(self):
+        if self._globalModel.getModel() is None:
+            return None
         return self._globalModel.toJson()
         
     def getResults(self):
@@ -114,7 +116,6 @@ class IntegratorModel:
         with open(fileName, "w") as file:
             try:
                 print('registring new global model version')
-                print(self.getGlobalModel())
                 json.dump(self.getGlobalModel(), file)
             except:
                 print('erro in global model registration')
@@ -123,7 +124,6 @@ class IntegratorModel:
         if isStarting is None:
             return fdModel
         fileName = "global_model.json"
-        print(fileName)
         if os.path.exists(fileName) is False:
             print(f'not found local pool file: {fileName} ')
             return fdModel
@@ -131,7 +131,6 @@ class IntegratorModel:
             print('try')
             with open(fileName) as file:
                 if os.path.getsize(fileName) > 0:
-                    
                     data = json.load(file)
                     fdModel.setModel(data)
                     return fdModel
