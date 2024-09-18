@@ -15,14 +15,36 @@ class SC3:
         b1 = Blockchain(node)
         chain = b1.solveBizzantineProblem()
         try:
-            if (len(chain) > 0):
-                lastPosition = len(chain)-1
-                block = Block.fromJson(chain[random.randint(0, lastPosition)])
-                SC3.registerEncripted(node, block)
-                return Block.fromJsonDecrypt(block.toJson())
-            return None
+            selctedPosition = SC3.getSelectedPositions()
+            transactionsSize = len(chain)-1
+            if transactionsSize > 0 and len(selctedPosition)<transactionsSize:
+                while True:
+                    randomProsition = random.randint(0, transactionsSize)
+                    if(randomProsition not in selctedPosition):
+                        block = Block.fromJson(chain[random.randint(0, lastPosition)])
+                        SC3.registerEncripted(node, block)
+                        return Block.fromJsonDecrypt(block.toJson())
+            else:
+                print(f'Limite de dados atingidos: {transactionsSize} pacotes coletados')
         except:
             return None
+    
+    @staticmethod
+    def getSelectedPositions(prefix='../proposed_model/'):
+        selectedPositionsFileName = 'selectedPositions.json'
+        fileName = str(prefix + selectedPositionsFileName)
+    
+        try:
+            with open(fileName, 'w+') as file:
+                if os.path.getsize(fileName) > 0:
+                    data = json.load(file)
+                    return data
+                else:
+                    return []
+        except Exception as e:
+            print(e)
+            print(f'not found local pool file: {fileName} ')
+            return []
 
     @staticmethod
     def registerEncripted(node, block, prefix="../data_collector/"):

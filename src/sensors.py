@@ -38,12 +38,13 @@ class Sensor:
         try:
             
             cipher = Cipher()
-            dataset = pd.read_csv('intel_lab.csv', usecols=['temperature','humidity'], delimiter=",")
-            currentPosition = self._getPosition(len(dataset))
+            # dataset = pd.read_csv('intel_lab.csv', usecols=['temperature','humidity'], delimiter=",")
+            # currentPosition = self._getPosition(len(dataset))
             
-            temperature = str(dataset['temperature'].iloc[currentPosition])
-            humidity = str(dataset['humidity'].iloc[currentPosition])
-            sensorNode = {'temperature':temperature,'humidity':humidity}
+            # temperature = str(dataset['temperature'].iloc[currentPosition])
+            # humidity = str(dataset['humidity'].iloc[currentPosition])
+            # #sensorNode = {'temperature':temperature,'humidity':humidity}
+            sensorNode = {'temperature':'1','humidity':'1'}
             dataBytes = json.dumps(sensorNode).encode("utf-8")
             return cipher.encrypt(dataBytes)
         except:

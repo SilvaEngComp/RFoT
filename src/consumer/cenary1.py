@@ -8,3 +8,4 @@ subprocess.call("xterm -e sudo python3 local_training_gateway.py --name h5  --so
 subprocess.call("xterm -e sudo python3 local_training_gateway.py --name h6  --solution 1 &",shell=True)
 subprocess.call("xterm -e sudo python3 local_training_gateway.py --name h7  --solution 1 &",shell=True)
 subprocess.call("xterm -e sudo python3 integrator_gateway_ml.py --name h2 --clients 5 --solution 1", shell=True)
+#15

@@ -71,10 +71,11 @@ class Blockchain:
                 for jsonBlock in data:
                     chain.append(Block.fromJson(jsonBlock))
                 return chain
-        except:
+        except Exception as e:            
             if isinstance(data, Blockchain(node)):
                 return data
             print('That is not a dict object. Try it again!')
+            print(e)
 
     def registerEncripted(self, prefix="../proposed_model/"):
         self.fileName = str(self.blockchainType +
@@ -227,6 +228,7 @@ class Blockchain:
 
             try:
                 with open(fileName, 'rb') as blockchainFile:
+                    print('hi')
                     if os.path.getsize(fileName) > 0:
                         cipher = Cipher()
                         data = blockchainFile.read()
@@ -272,6 +274,7 @@ class Blockchain:
                 self.chain = chain
                 return self.chain[-1]
 
-        except:
+        except Exception as e:
             print('Something wrong happen in replaceChain...')
+            print(e)
             return None
