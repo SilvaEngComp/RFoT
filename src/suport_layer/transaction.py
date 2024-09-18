@@ -43,7 +43,7 @@ class Transaction:
     @classmethod
     def fromJson(self, data):
         if isinstance(data, dict):
-            return Transaction(data['sender'], data['sensor'], data['receiver'], json.loads(data['data']))
+            return Transaction(data['sender'], data['sensor'], data['receiver'], data['data'])
         return data
 
     @classmethod

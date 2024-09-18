@@ -6,32 +6,27 @@ Created on Wed Sep 29 09:22:31 2021
 """
 from src.suport_layer.hostTrainer import HostTrainer
 from src.suport_layer.cipher import Cipher
-from src.proposed_model.pool import Pool
 import re
-from src.suport_layer.node import Node
-from src.suport_layer.transaction import Transaction
 from src.suport_layer.block import Block
-import ast
 import os
 import json
+from pathlib import Path
 import hashlib
-import datetime
-import time
-# import sys
-# sys.path.insert(
-#     0, '/home/mininet/mininet_blockchain_ml/proposed_model/proposed_model')
 
 
 class Blockchain:
-    def __init__(self, node):
+    def __init__(self, node="h1"):
         self.node = node
         self.blockchainType = "data_blockchain"
-        self.fileName = str(self.blockchainType+str(self.node)+'.json')
+        self.fileName = str(self.blockchainType+"_"+str(self.node)+'.json')
         self.fileNameNotCript = str(
-            'blockchain_notCript_'+str(self.node)+'.json')
-        self.chain = []
+            'blockchain_notCript_'+"_"+str(self.node)+'.json')
+        self.chain = self.initializeChain()
         self.nodes = set()
         self.cipher = Cipher()
+
+    def initializeChain(self)->list:
+        return self.solveBizzantineProblem()
 
     def __str__(self):
 
@@ -53,7 +48,7 @@ class Blockchain:
             "chain": chain,
         }
 
-    def toJsonDecrypted(self) -> dict():
+    def toJsonDecrypted(self) -> dict:
         chain = []
         for block in self.chain:
             chain.append(Block.fromJsonDecrypt(Block.toJson(block)).toJson())
@@ -72,7 +67,7 @@ class Blockchain:
                     chain.append(Block.fromJson(jsonBlock))
                 return chain
         except:
-            if isinstance(data, Blockchain(node)):
+            if isinstance(data, Blockchain):
                 return data
             print('That is not a dict object. Try it again!')
 
@@ -95,7 +90,6 @@ class Blockchain:
     def register(self, prefix="../proposed_model/"):
         # fileNameNotCript = str(prefix + self.fileNameNotCript)
         fileNameNotCript = self.fileNameNotCript
-        print(fileNameNotCript)
         with open(fileNameNotCript, 'w') as blockchainFile:
             jsonData = self.toJsonDecrypted()
             print('registring new no encrypted chain in {} with {} blocks '.format(
@@ -113,24 +107,30 @@ class Blockchain:
             return self.createConsumerBlock(data, dataBlock)
 
     def createDataBlock(self, pool):
-        previousBlock = self.getPreviousBlock()
-        if previousBlock is None:
-            block = Block(pool, self.blockchainType)
-        else:
-            proof = self.proofOfWork(previousBlock.proof)
+        try:
+            previousBlock = self.getPreviousBlock()
+            if previousBlock is None:
+                print("initial block")
+                block = Block(pool, self.blockchainType)
+            else:
+                proof = self.proofOfWork(previousBlock.proof)
+                
+                previousHash = self.hash(previousBlock)
+                
+                block = Block(pool, self.blockchainType,
+                            (previousBlock.index+1), proof, previousHash)
             
-            previousHash = self.hash(previousBlock)
-            
-            block = Block(pool, self.blockchainType,
-                          (previousBlock.index+1), proof, previousHash)
-        self.chain.append(block)
-        if (self.isChainValid(self.chain)):
-            self.register()
-            self.registerEncripted()
-        else:
-            self.chain = []
+            self.chain.append(block)
+            if (self.isChainValid(self.chain)):
+                self.register()
+                self.registerEncripted()
+            else:
+                self.chain = []
 
-        return block
+            return block
+        except Exception as e:
+            print('exception create block:')
+            print(e)
 
     def createConsumerBlock(self, pool, dataBlock):
         if dataBlock is None:
@@ -158,11 +158,11 @@ class Blockchain:
         return block
 
     def getPreviousBlock(self):
-        return  self.solveBizzantineProblem()
-        
- 
-        
-    
+        chain = self.solveBizzantineProblem()
+        if(chain is not None):
+            if len(chain)>0:
+                return chain[-1]
+        return None
 
     def proofOfWork(self, previous_proof, new_proof=1):
         if isinstance(previous_proof, str):
@@ -216,14 +216,8 @@ class Blockchain:
 
     def getLocalBLockchainFile(self, node=None, prefix='../proposed_model/'):
         if node is not None:
-            x = re.search("^"+self.blockchainType+".*json$", node)
-            if (x is False):
-                fileName = str(prefix + self.blockchainType+node+'.json')
-            else:
-                fileName = str(prefix + node)
             
-            if os.path.exists(fileName) is False:
-                return []
+            fileName = str(prefix + node)
 
             try:
                 with open(fileName, 'rb') as blockchainFile:
@@ -234,8 +228,9 @@ class Blockchain:
                         dataJson = json.loads(decripted)
                         dataJson = Blockchain.fromJson(dataJson['chain'])
                         return dataJson
-            except:
-                print('not found local blockchain file: ', fileName)
+            except Exception as e:
+                print('229 - not found local blockchain file: ', node)
+                print(e)
                 return []
 
     def getBlockchainFileNames(self, prefix='../proposed_model'):
@@ -247,7 +242,7 @@ class Blockchain:
                     fileNames.append(file)
         return fileNames
 
-    def solveBizzantineProblem(self):
+    def solveBizzantineProblem(self)->list:
         try:
             nodes = self.getBlockchainFileNames()
             longest_chain = None
@@ -257,21 +252,25 @@ class Blockchain:
                 for node in nodes:
                     chain = self.getLocalBLockchainFile(node)
                     length = len(chain)
+                    print(f'bizzantine chain len = {length}')
                     isValide = self.isChainValid(chain)
                     if length > max_length and isValide:
                         max_length = length
                         longest_chain = chain
                         nameNode = node
+                        print(f'longest chain of node {nameNode}')
             else:
                 longest_chain = []
-            print('The current biggest chain is {} with {} blocks'.format(
-                nameNode, len(longest_chain)))
+           
+            
             if longest_chain is None:
                 return []
-            elif len(chain) > 0:
-                self.chain = chain
-                return self.chain[-1]
+            else:
+                print('The current biggest chain is {} with {} blocks'.format(
+                nameNode, len(longest_chain)))
+                return longest_chain
 
-        except:
+        except Exception as e:
             print('Something wrong happen in replaceChain...')
+            print(e)
             return None
