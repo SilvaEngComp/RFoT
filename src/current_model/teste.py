@@ -19,7 +19,7 @@ for data in dataset.iterrows():
     sensorNode = {'temperature':temperature,'humidity':humidity}
     dataBytes = json.dumps(sensorNode).encode("utf-8")
     encrypted = cipher.encrypt(dataBytes)
-    responseModel={"code":"post","post":'sc01',"method":"flow","header":{"sensor":'node Temperature and Humidity',"device":'h1',"time":{"collect":10000, "publish": 10000}}, "data":encrypted}
+    responseModel={"code":"post","post":'sc01',"method":"flow","header":{"sensor":'node Temperature and Humidity',"device":'h1',"time":{"collect":10000, "publish": 10000}}, "data":encrypted.decode()}
 
     transaction = Transaction(
         responseModel['header']['device'], responseModel['header']['sensor'], 'h1', responseModel['data'])
