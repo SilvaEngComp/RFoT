@@ -62,12 +62,15 @@ def on_disconnect(mqttc, obj, msg):
 	exit()
 
 def getdataBlock():
-    block = None
-    if args.solution == '1':
-        block = NoBlockchain.getNotAssinedBlock()
-    else:
-        block = SC3.getNotAssinedBlock(sub_device)
-    return block
+    try:
+        block = None
+        if args.solution == '1':
+            block = NoBlockchain.getNotAssinedBlock()
+        else:
+            block = SC3.getNotAssinedBlock(sub_device)
+        return block
+    except Exception as e:
+        print(e)
 
 
 def startProcessing():
@@ -77,6 +80,8 @@ def startProcessing():
         if block is not None:
             fdModel = FdModel(sub_device, block)
             fdModel.preprocessing()
+            sleep(5)
+            
             if fdModel.hasValidModel():
                 return fdModel
             else:

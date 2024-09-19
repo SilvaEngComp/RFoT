@@ -34,7 +34,8 @@ if st.sidebar.button("Current IoT Data"):
 if st.sidebar.button("Blockchain Data"):
     st.header("# Data Blockchain")
     st.text("This is the data collected and registred in BCD (Data Blockchain)")
-    blockchain = SC3.getBCD("h2")
+    blockchain = SC3.getBCD("h1")
+    
     st.write("# There are ",str(len(blockchain.chain))+" blocks")
     st.write(blockchain.toJsonDecrypted())
 

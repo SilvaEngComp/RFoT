@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
 import random
-
+from time import sleep
 class FdModel:
     def __init__(self, name, dataBlock=None):
         self.name = name
@@ -75,8 +75,13 @@ class FdModel:
 
     def getStatistics(self):
         decryptedTransactions = []
-        for block in self.dataBlock:
-            decryptedTransactions.append(Transaction.fromJsonDecrypt(block))
+        if(isinstance(self.dataBlock,list)):
+            for block in self.dataBlock:
+                decryptedTransactions.append(Transaction.fromJsonDecrypt(block))
+        else:
+            for transaction in self.dataBlock.transactions:
+                decryptedTransactions.append(Transaction.fromJsonDecrypt(transaction))
+                    
         return self.targetDefinition(decryptedTransactions)
         
     

@@ -32,6 +32,7 @@ src/current_model/corrupted_node.py
 src/current_model/iotcoin.py
 src/current_model/no_blockchain.py
 src/current_model/pool.py
+src/current_model/test_corrupt_Data.py
 src/current_model/teste.py
 src/proposed_model/__init__.py
 src/proposed_model/blockchain.py
@@ -43,6 +44,8 @@ src/proposed_model/smart_contract_1.py
 src/proposed_model/smart_contract_2.py
 src/proposed_model/smart_contract_3.py
 src/proposed_model/test.py
+src/proposed_model/test_corrupt_Data.py
+src/proposed_model/teste.py
 src/suport_layer/__init__.py
 src/suport_layer/block.py
 src/suport_layer/cipher.py

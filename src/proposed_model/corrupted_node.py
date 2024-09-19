@@ -2,13 +2,10 @@
 # sys.path.insert(0,'/home/mininet/mininet_blockchain_ml/')
 import paho.mqtt.client as mqtt
 import json
-import src.tatu
 import argparse
 from iotcoin import Iotcoin
 from src.suport_layer.transaction import Transaction
-from pool import Pool
 from time import sleep
-import numpy as np
 
 parser = argparse.ArgumentParser(description = 'Blockchain node params')
 parser.add_argument('--name', action = 'store', dest = 'name', required = True)

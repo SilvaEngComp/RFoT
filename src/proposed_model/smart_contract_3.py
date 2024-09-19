@@ -10,29 +10,35 @@ import os
 
 
 class SC3:
+    selectedPositionsFileName = 'selectedPositions.json'
+    
     @staticmethod
     def getNotAssinedBlock(node) -> Block:
         b1 = Blockchain(node)
         chain = b1.solveBizzantineProblem()
+        
         try:
             selctedPosition = SC3.getSelectedPositions()
+            print(f'selctedPosition = {selctedPosition}')
             transactionsSize = len(chain)-1
             if transactionsSize > 0 and len(selctedPosition)<transactionsSize:
                 while True:
-                    randomProsition = random.randint(0, transactionsSize)
-                    if(randomProsition not in selctedPosition):
-                        block = Block.fromJson(chain[random.randint(0, lastPosition)])
-                        SC3.registerEncripted(node, block)
-                        return Block.fromJsonDecrypt(block.toJson())
+                    randomPosition = random.randint(0, transactionsSize)
+                    if(randomPosition not in selctedPosition):
+                        selctedPosition.append(randomPosition)
+                        block = Block.fromJson(chain[randomPosition])
+                        SC3.registerSelectedPosition(selctedPosition)
+                        return block
             else:
                 print(f'Limite de dados atingidos: {transactionsSize} pacotes coletados')
-        except:
+        except Exception as e:
+            print(e)
             return None
     
     @staticmethod
     def getSelectedPositions(prefix='../proposed_model/'):
-        selectedPositionsFileName = 'selectedPositions.json'
-        fileName = str(prefix + selectedPositionsFileName)
+        
+        fileName = str(prefix + SC3.selectedPositionsFileName)
     
         try:
             with open(fileName, 'w+') as file:
@@ -45,9 +51,20 @@ class SC3:
             print(e)
             print(f'not found local pool file: {fileName} ')
             return []
-
+        
     @staticmethod
-    def registerEncripted(node, block, prefix="../data_collector/"):
+    def registerSelectedPosition(selectedPosition, prefix='../proposed_model/'):
+            fileName = str(prefix + SC3.selectedPositionsFileName)
+            with open(fileName, "w") as file:
+                try:
+                    print('registring new selected position | nº: {} '.format(
+                        len(selectedPosition)))
+                    json.dump(selectedPosition, file)
+                except Exception as e:
+                    print(e)
+                    print('erro in registration')
+    @staticmethod
+    def registerEncripted(node, block, prefix="../proposed_model/"):
         fileName = str("lastBlockReaded_"+str(node)+'.json')
         cipher = Cipher()
         try:
