@@ -81,7 +81,7 @@ class SC3:
             print("Erro ao converter lastBlock para bytes ", fileName)
 
     @staticmethod
-    def getBCD(node) -> Blockchain:
+    def getBCD(node="h1") -> Blockchain:
         b1 = Blockchain(node)
         b1.chain= b1.solveBizzantineProblem()
         return b1

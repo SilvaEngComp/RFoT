@@ -1,7 +1,5 @@
 import streamlit as st
 from src.proposed_model.smart_contract_3 import SC3
-import json
-from src.proposed_model.blockchain import Blockchain
 import pandas as pd
 from src.current_model.pool import Pool
 import matplotlib.animation as animation

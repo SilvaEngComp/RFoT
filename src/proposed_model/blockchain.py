@@ -17,6 +17,7 @@ import hashlib
 class Blockchain:
     def __init__(self, node="h1"):
         self.node = node
+        self.prefix = os.path.dirname(os.path.abspath(__file__))
         self.blockchainType = "data_blockchain"
         self.fileName = str(self.blockchainType+"_"+str(self.node)+'.json')
         self.fileNameNotCript = str(
@@ -72,8 +73,8 @@ class Blockchain:
             print('That is not a dict object. Try it again!')
             print(e)
 
-    def registerEncripted(self, prefix="../proposed_model/"):
-        self.fileName = str(self.blockchainType +
+    def registerEncripted(self):
+        self.fileName = str(self.prefix +"/"+self.blockchainType +
                             str(self.node)+'.json')
         try:
             dataBytes = json.dumps(self.toJson()).encode("utf-8")
@@ -88,9 +89,8 @@ class Blockchain:
         except:
             print("Erro ao converter chain para bytes ", self.fileName)
 
-    def register(self, prefix="../proposed_model/"):
-        # fileNameNotCript = str(prefix + self.fileNameNotCript)
-        fileNameNotCript = self.fileNameNotCript
+    def register(self):
+        fileNameNotCript = str(self.prefix +"/"+self.fileNameNotCript)
         with open(fileNameNotCript, 'w') as blockchainFile:
             jsonData = self.toJsonDecrypted()
             print('registring new no encrypted chain in {} with {} blocks '.format(
@@ -215,10 +215,9 @@ class Blockchain:
             blockIndex += 1
         return True
 
-    def getLocalBLockchainFile(self, node=None, prefix='../proposed_model/'):
+    def getLocalBLockchainFile(self, node=None):
         if node is not None:
-            
-            fileName = str(prefix + node)
+            fileName = str(self.prefix +"/"  + node)
 
             try:
                 with open(fileName, 'rb') as blockchainFile:
@@ -235,9 +234,9 @@ class Blockchain:
                 print(e)
                 return []
 
-    def getBlockchainFileNames(self, prefix='../proposed_model'):
+    def getBlockchainFileNames(self):
         fileNames = []
-        for file in os.listdir(prefix):
+        for file in os.listdir(self.prefix ):
             if file.endswith(".json"):
                 x = re.search("^"+self.blockchainType+".*json$", file)
                 if (x):

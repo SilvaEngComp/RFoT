@@ -130,9 +130,9 @@ class Pool:
         print("Existem {} blocos de {} transações não assinadas".format(
             len(pool), len(pool[0])))
 
-    def get(self, translate=False,prefix='../current_model/'):
-        fileName = str(prefix + self.fileName)
-        pasta = os.listdir(prefix)
+    def get(self, translate=False):
+        prefix = os.path.dirname(os.path.abspath(__file__))
+        fileName = str(prefix +"/"+ self.fileName)
         if os.path.exists(fileName) is False:
             print(f'107 - not found local pool file: {fileName} ')
             return []
@@ -148,8 +148,9 @@ class Pool:
             print(f'118 - not found local pool file: {fileName} ')
             return []
 
-    def getDecrypted(self, prefix='../current_model/'):
-        fileName = str(prefix + self.fileName)
+    def getDecrypted(self):
+        prefix = os.path.dirname(os.path.abspath(__file__))
+        fileName = str(prefix +"/"+ self.fileName)
         if os.path.exists(fileName) is False:
             print(f'107 - not found local pool file: {fileName} ')
             return []
@@ -164,9 +165,9 @@ class Pool:
             print(f'getDecrypted: {e}')
             return []
         
-    def getSelectedPositions(self, prefix='../current_model/'):
-        fileName = str(prefix + self.selectedPositionsFileName)
-        
+    def getSelectedPositions(self):
+        prefix = os.path.dirname(os.path.abspath(__file__))
+        fileName = str(prefix +"/"+ self.selectedPositionsFileName)
         if os.path.exists(fileName) is False:
             print(f'not found local pool file: {fileName} ')
             return []
