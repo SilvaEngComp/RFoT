@@ -14,6 +14,8 @@ src/tatu.py
 src/testeSensor.py
 src/utils_hosts.py
 src/consumer/__init__.py
+src/consumer/cenary1.py
+src/consumer/cenary2.py
 src/consumer/dashboard.py
 src/consumer/fd_client.py
 src/consumer/fd_implementation.py
@@ -24,6 +26,7 @@ src/consumer/integrator_model.py
 src/consumer/local_training_gateway.py
 src/consumer/simple_MLP.py
 src/consumer/testModel.py
+src/consumer/test_corrupt_Data.py
 src/consumer/test_trainning.py
 src/consumer/teste.py
 src/current_model/__init__.py
@@ -44,7 +47,7 @@ src/proposed_model/smart_contract_1.py
 src/proposed_model/smart_contract_2.py
 src/proposed_model/smart_contract_3.py
 src/proposed_model/test.py
-src/proposed_model/test_corrupt_Data.py
+src/proposed_model/test_corrupt_blockchain.py
 src/proposed_model/teste.py
 src/suport_layer/__init__.py
 src/suport_layer/block.py

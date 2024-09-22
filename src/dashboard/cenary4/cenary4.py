@@ -2,17 +2,31 @@
 import streamlit as st
 import pandas as pd
 from time import sleep
-from src.proposed_model.smart_contract_3 import SC3
-
+from src.dashboard.cenary4.smart_contract_3 import SC3
+from src.dashboard.cenary4.corruptedBlockchain import CorruptedBlockchain
+from src.dashboard.cenary4.blockchain import Blockchain
 class Cenary4:
     @staticmethod
     def show_data_collected():
-        st.header("# Data Blockchain")
+        st.header("# Blockchain Válida")
         st.text("This is the data collected and registred in BCD (Data Blockchain)")
         blockchain = SC3.getBCD()
         
         st.write("# There are ",str(len(blockchain.chain))+" blocks")
-        st.write(blockchain.toJsonDecrypted())
+        st.write(Blockchain.toJsonDecrypted(blockchain.chain))
+
+    @staticmethod
+    def show_corrupted_data_collected():
+        
+        st.header("# Blockchain Corrompida")
+        nodes = CorruptedBlockchain.getBlockchainFileNames()
+        print(nodes)
+        if(nodes):
+            for node in nodes:
+                st.write(f'# Nome: {node}')
+                chain = CorruptedBlockchain.getLocalBLockchainFile(node)
+                st.write("### Contem ",str(len(chain['chain']))+" blocks")
+                st.write(chain['chain'])
     @staticmethod
     def dataset_training():
         df = pd.read_csv('dataset.csv', delimiter=",")

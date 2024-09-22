@@ -40,27 +40,27 @@ class Blockchain:
             "chain": self.chain,
         })
 
-    def toJson(self):
-        chain = []
-        for block in self.chain:
-            chain.append(Block.toJson(block))
-
+    @staticmethod
+    def toJson(chain):
+        newChain = []
+        for block in chain:
+            newChain.append(block.toJson())
         return {
-            "chain": chain,
-        }
-
-    def toJsonDecrypted(self) -> dict:
-        chain = []
-        for block in self.chain:
-            chain.append(Block.fromJsonDecrypt(Block.toJson(block)).toJson())
-
-
-        return {
-            "chain": chain,
+            "chain": newChain,
         }
 
     @staticmethod
-    def fromJson(data):
+    def toJsonDecrypted(chain) -> dict:
+        decriptedChain = []
+        for block in chain:
+            decriptedBlock = Block.fromJsonDecrypt(block)
+            decriptedChain.append(decriptedBlock.toJson())
+        return {
+            "chain": decriptedChain,
+        }
+
+    @classmethod
+    def fromJson(self, data):
         try:
             if isinstance(data, list):
                 chain = []
@@ -70,7 +70,6 @@ class Blockchain:
         except Exception as e:            
             print('That is not a dict object. Try it again!')
             print(e)
-            return data
 
     def registerEncripted(self):
         self.fileName = str(self.prefix +"/"+self.blockchainType +
@@ -81,15 +80,12 @@ class Blockchain:
             try:
                 with open(self.fileName, 'wb') as f:
                     f.write(encrypted)
-                    
                 print('registring new chain in {} with {} blocks '.format(
                     self.fileName, len(self.chain)))
-            except Exception as e:
-                print("Erro ao registrar blockchain: ")
-                print(e)
-        except Exception as e:
+            except:
+                print("Erro ao criptografar blockchain: ", self.chain)
+        except:
             print("Erro ao converter chain para bytes ", self.fileName)
-            print(e)
 
     def register(self):
         fileNameNotCript = str(self.prefix +"/"+self.fileNameNotCript)
@@ -223,6 +219,7 @@ class Blockchain:
 
             try:
                 with open(fileName, 'rb') as blockchainFile:
+                    print('hi')
                     if os.path.getsize(fileName) > 0:
                         cipher = Cipher()
                         data = blockchainFile.read()
@@ -275,4 +272,4 @@ class Blockchain:
         except Exception as e:
             print('Something wrong happen in replaceChain...')
             print(e)
-            return []
+            return None

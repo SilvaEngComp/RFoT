@@ -13,8 +13,10 @@ class SC2:
     def minerNotAssinedTransaction(node, transactions,blockType="data"):
         TimeRegister.addTime("Transaction completed - initing mining")
         blockchain = Blockchain(node)
-        before = len(blockchain.chain)
-        
+        before = 0
+        if blockchain.chain is not None:
+             before = len(blockchain.chain)
+
         blockchain.createBlock(transactions,blockType)
         after = len(blockchain.chain)
         print(f"size before {before} | size after = {after}")

@@ -84,8 +84,8 @@ class Block:
 
         return jsonData
 
-    @classmethod
-    def fromJson(self, jsonBlock):
+    @staticmethod
+    def fromJson(jsonBlock):
         if isinstance(jsonBlock, dict):
             pool = []
             for transaction in jsonBlock['transactions']:
@@ -102,10 +102,11 @@ class Block:
 
         return jsonBlock
 
-    @classmethod
-    def fromJsonDecrypt(self, jsonBlock):
-        if isinstance(jsonBlock, dict):
-            pool = []
+    @staticmethod
+    def fromJsonDecrypt(jsonBlock):
+        print(jsonBlock.transactions)
+        pool = []
+        if isinstance(jsonBlock, dict):            
             for transaction in jsonBlock['transactions']:
                 pool.append(Transaction.fromJsonDecrypt(transaction))
 
@@ -117,7 +118,9 @@ class Block:
                 block = Block(pool, jsonBlock['typeBlock'], jsonBlock['index'], jsonBlock['proof'],
                               jsonBlock['previousHash'], jsonBlock['timestamp'], hostTrainer)
 
-            print(f'é um bloco? {isinstance(block, Block)}')
             return block
 
+        for transaction in jsonBlock.transactions:
+                pool.append(Transaction.fromJsonDecrypt(transaction))
+        jsonBlock.transactions=pool
         return jsonBlock

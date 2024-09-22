@@ -13,7 +13,7 @@ class Msg:
 cipher = Cipher()
 dataset = pd.read_csv('../intel_lab.csv', usecols=['temperature','humidity'], delimiter=",")
 cont=0
-sub_device = "h1"
+sub_device = "h3"
 blockWidth=20
 sc1 = SC1(sub_device, blockWidth)
 for data in dataset.iterrows():
