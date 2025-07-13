@@ -37,7 +37,7 @@ class Transaction:
             'sender': self.sender,
             'sensor': self.sensor,
             'receiver': self.receiver,
-            'data': self.data,
+            'data': str(self.data),
         }
 
     @classmethod

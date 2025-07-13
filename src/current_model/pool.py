@@ -101,19 +101,20 @@ class Pool:
 
     def get(self, prefix='../current_model/'):
         fileName = str(prefix + self.fileName)
-        
-        if os.path.exists(fileName) is False:
-            print(f'not found local pool file: {fileName} ')
+        pasta = os.listdir(prefix)
+        print(f'path: {pasta}')
+        if os.path.exists(self.fileName) is False:
+            print(f'107 - not found local pool file: {fileName} ')
             return []
         try:
-            with open(fileName) as file:
-                if os.path.getsize(fileName) > 0:
+            with open(self.fileName) as file:
+                if os.path.getsize(self.fileName) > 0:
                     data = json.load(file)
                     return self.fromJson(data)
                 else:
                     return []
         except:
-            print(f'not found local pool file: {fileName} ')
+            print(f'118 - not found local pool file: {fileName} ')
             return []
         
     def getSelectedPositions(self, prefix='../current_model/'):
