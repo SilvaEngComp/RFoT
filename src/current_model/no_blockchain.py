@@ -16,5 +16,5 @@ class NoBlockchain:
 
     @staticmethod
     def getNotAssinedBlock():
-        transactions = Pool.getNotAssinedTransactions()
-        return transactions
+        transaction = Pool.getNotAssinedTransactions()
+        return transaction

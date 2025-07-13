@@ -121,7 +121,7 @@ def onPublish():
         pub_client.loop_start()
         pub_client.publish(pub_topic, resp, 2, True)
         pub_client.loop_stop()
-
+        # print(integragorModel.getGlobalModel())
         print('\n \n Model {} published in: {} on topic: {} at {}' .format(
             getLocalHostName(), pub_broker, pub_topic, datetime.datetime.now()))
 
@@ -160,6 +160,16 @@ if __name__ == '__main__':
     pub_device = 'sc02'
     pub_topic = 'dev/g04'
     print('waitting for a valid blockchain data...')
+    
+    
+    fdModel = FdModel(sub_device, None)
+    integragorModel = IntegratorModel(fdModel, args.clients,True)
+    
+    if integragorModel.getGlobalModel() is not None:
+        os.system('clear')
+        onPublish()
+        sleep(2)
+        onSubscribe()
     while (True):
         # os.system('clear')
         block = getdataBlock()

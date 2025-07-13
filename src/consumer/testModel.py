@@ -1,27 +1,6 @@
         
 
-from keras import backend as K
-from sklearn.model_selection import train_test_split
-import tensorflow as tf
-import numpy as np
-import pandas as pd
-from sklearn.metrics import accuracy_score
-from time import sleep
-from sklearn.metrics import zero_one_loss
-import csv
-import matplotlib.pyplot as plt
-import os
-import re
-import time
-from threading import Thread
-import matplotlib.animation as animation
 
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import median_absolute_error
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_squared_log_error
-from sklearn.metrics import explained_variance_score
-from sklearn.metrics import roc_curve
 ##https://matplotlib.org/stable/gallery/lines_bars_and_markers/psd_demo.html#sphx-glr-gallery-lines-bars-and-markers-psd-demo-py
 
 #import seaborn as sns
@@ -127,7 +106,7 @@ class TestModel:
         print('...... readding {} ......'.format(fileName))
         dataset = pd.read_csv(fileName, delimiter=",")
         target = dataset.target
-        dataset = dataset.drop(columns=['IDT'])
+        # dataset = dataset.drop(columns=['IDT'])
         dataset = dataset.drop(columns=['target'])
         local_model = None
         if(dataset.shape[0]>1):

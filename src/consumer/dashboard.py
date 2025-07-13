@@ -1,7 +1,5 @@
 import streamlit as st
 from src.proposed_model.smart_contract_3 import SC3
-import json
-from src.proposed_model.blockchain import Blockchain
 import pandas as pd
 from src.current_model.pool import Pool
 import matplotlib.animation as animation
@@ -34,9 +32,18 @@ if st.sidebar.button("Current IoT Data"):
 if st.sidebar.button("Blockchain Data"):
     st.header("# Data Blockchain")
     st.text("This is the data collected and registred in BCD (Data Blockchain)")
-    blockchain = SC3.getBCD("h2")
+    blockchain = SC3.getBCD("h1")
+    
     st.write("# There are ",str(len(blockchain.chain))+" blocks")
     st.write(blockchain.toJsonDecrypted())
+
+if st.sidebar.button("No Blockchain Data"):
+    st.header("# Data Blockchain")
+    st.text("This is the data collected and registred in BCD (Data Blockchain)")
+    pool = Pool()
+    chain = pool.getDecrypted()
+    st.write("# There are ",str(len(chain))+" blocks")
+    st.write(chain)
 if st.sidebar.button("Consumer Dataset"):
     st.header("Temperature from Intel Lab Dataset")
     df = pd.read_csv('dataset.csv', delimiter=",")
@@ -80,7 +87,7 @@ if st.sidebar.button("Training results"):
     df = pd.read_csv('prediction.csv', delimiter=",")
     edit_df = st.data_editor(df,key="df_editor", on_change=def_on_change, args=[df])
     
-    st.line_chart(df)
+    st.line_chart(df,color=['blue','red'])
             
     while True:
         sleep(5)

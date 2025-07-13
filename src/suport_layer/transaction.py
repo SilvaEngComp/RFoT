@@ -1,5 +1,6 @@
 
 import json
+from sys import getsizeof
 from .cipher import Cipher
 
 
@@ -33,6 +34,23 @@ class Transaction:
         })
 
     def toJson(self):
+        cabecalho= {
+            'sender': self.sender,
+            'sensor': self.sensor,
+            'receiver': self.receiver,
+        }
+        # print(f'---------------- Tansações------------')
+        # print(f'tamanho cabeçalho transação : {getsizeof(json.dumps(cabecalho))} bytes')
+            
+        data= {
+            'sender': self.sender,
+            'sensor': self.sensor,
+            'receiver': self.receiver,
+            'data': self.data,
+        }
+        # print(f'tamanho dado transação : {getsizeof(json.dumps(self.data))} bytes')
+        # print(f'tamanho transação completo : {getsizeof(json.dumps(data))} bytes')
+            
         return {
             'sender': self.sender,
             'sensor': self.sensor,
@@ -47,18 +65,27 @@ class Transaction:
         return data
 
     @classmethod
-    def fromJsonDecrypt(self, data):
+    def fromJsonDecrypt(self, transaction):
         cipher = Cipher()
-        if isinstance(data, dict):
-            temp = data['data'].replace("b'", "'")
-            temp = str.encode(temp)
-            decriptedTemp = cipher.decrypt(temp)
-            dataJson = json.loads(decriptedTemp)
-            return Transaction(data['sender'], data['sensor'], data['receiver'], dataJson)
-
-        temp = data.data.replace("b'", "'")
-        temp = str.encode(temp)
-        decriptedTemp = cipher.decrypt(temp)
-        dataJson = json.loads(decriptedTemp)
-        data.data = dataJson
-        return data
+        try:
+            if isinstance(transaction, dict):
+                if not isinstance(transaction['data'],dict):
+                    temp = transaction['data'].replace("b'", "'")
+                    temp = str.encode(temp)
+                    decriptedTemp = cipher.decrypt(temp)
+                    
+                    transactionJson = json.loads(decriptedTemp)
+                    transactionJson = json.dumps(transactionJson)
+                    return Transaction(transaction['sender'], transaction['sensor'], transaction['receiver'], transactionJson)
+                else:
+                    return transaction['data']
+            else:
+                temp = transaction.data.replace("b'", "'")
+                temp = str.encode(temp)
+                decriptedTemp = cipher.decrypt(temp)
+                
+                dataJson = json.loads(decriptedTemp)
+                transaction.data = json.dumps(dataJson)
+                return transaction
+        except Exception as e:
+            print(e)

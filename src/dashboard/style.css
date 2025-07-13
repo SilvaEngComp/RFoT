@@ -1,0 +1,71 @@
+/* style.css */
+/* General body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #F0F8FF; /* AliceBlue for a soft page background */
+}
+
+/* Header styles */
+h1 {
+    color: #483D8B; /* Dark Slate Blue for main headers */
+}
+
+h2, h3, h4 {
+    color: #8A2BE2; /* BlueViolet for subheaders */
+}
+
+/* Sidebar styling */
+.sidebar .sidebar-content {
+    background-color: #F8F8FF; /* GhostWhite for a light sidebar background */
+}
+
+/* Customize sidebar header */
+.sidebar h1 {
+    color: #00008B; /* DarkBlue for sidebar main header */
+}
+
+/* Buttons styling */
+.stButton>button {
+    border: 2px solid #8A2BE2; /* BlueViolet border for buttons */
+    color: white;
+    background-color: #00008B; /* DarkBlue background for buttons */
+    border-radius: 20px; /* Rounded corners for buttons */
+    font-size: 16px;
+    padding: 10px 24px;
+    width: 100%; /* Ensure buttons take full width of their container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    margin-top: 5px; /* Add a little space on top of each button for better spacing */
+}
+
+.stButton>button:hover {
+    background-color: #8A2BE2; /* BlueViolet background for buttons on hover */
+}
+
+/* DataFrame styling */
+.stDataFrame {
+    color: #483D8B; /* Dark Slate Blue for DataFrame text */
+}
+
+/* Customizing the color of hyperlinks */
+a {
+    color: #DC143C; /* Crimson for links */
+}
+
+/* Adjusting the overall layout padding for a cleaner look */
+.css-1d391kg {
+    padding: 1rem 1rem 1rem 1rem; /* Adjust the padding as needed */
+}
+
+/* Additional elements you might want to style */
+/* Note: Streamlit's current implementation may limit the ability to style some components directly via CSS. */
+/* For more advanced styling, consider using Streamlit components or injecting custom HTML blocks. */
+
+/* New styles for positioning the image */
+.top-right-image {
+    position: absolute; /* Keeps the image fixed during scrolling */
+    top: -130px; /* Aligns the image to the top of the viewport */
+    left:2%; /* Aligns the image to the right of the viewport */
+    z-index: 999; 
+    width: 150px; /* Example width, adjust as needed */
+    height: 60px; /* Ensures the image stays on top of other content */
+}

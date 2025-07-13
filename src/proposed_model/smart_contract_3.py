@@ -10,22 +10,61 @@ import os
 
 
 class SC3:
+    selectedPositionsFileName = 'selectedPositions.json'
+    
     @staticmethod
     def getNotAssinedBlock(node) -> Block:
         b1 = Blockchain(node)
         chain = b1.solveBizzantineProblem()
+        
         try:
-            if (len(chain) > 0):
-                lastPosition = len(chain)-1
-                block = Block.fromJson(chain[random.randint(0, lastPosition)])
-                SC3.registerEncripted(node, block)
-                return Block.fromJsonDecrypt(block.toJson())
+            selctedPosition = SC3.getSelectedPositions()
+            print(f'selctedPosition = {selctedPosition}')
+            transactionsSize = len(chain)-1
+            if transactionsSize > 0 and len(selctedPosition)<transactionsSize:
+                while True:
+                    randomPosition = random.randint(0, transactionsSize)
+                    if(randomPosition not in selctedPosition):
+                        selctedPosition.append(randomPosition)
+                        block = Block.fromJson(chain[randomPosition])
+                        SC3.registerSelectedPosition(selctedPosition)
+                        return block
+            else:
+                print(f'Limite de dados atingidos: {transactionsSize} pacotes coletados')
+        except Exception as e:
+            print(e)
             return None
-        except:
-            return None
-
+    
     @staticmethod
-    def registerEncripted(node, block, prefix="../data_collector/"):
+    def getSelectedPositions(prefix='../proposed_model/'):
+        
+        fileName = str(prefix + SC3.selectedPositionsFileName)
+    
+        try:
+            with open(fileName, 'w+') as file:
+                if os.path.getsize(fileName) > 0:
+                    data = json.load(file)
+                    return data
+                else:
+                    return []
+        except Exception as e:
+            print(e)
+            print(f'not found local pool file: {fileName} ')
+            return []
+        
+    @staticmethod
+    def registerSelectedPosition(selectedPosition, prefix='../proposed_model/'):
+            fileName = str(prefix + SC3.selectedPositionsFileName)
+            with open(fileName, "w") as file:
+                try:
+                    print('registring new selected position | nº: {} '.format(
+                        len(selectedPosition)))
+                    json.dump(selectedPosition, file)
+                except Exception as e:
+                    print(e)
+                    print('erro in registration')
+    @staticmethod
+    def registerEncripted(node, block, prefix="../proposed_model/"):
         fileName = str("lastBlockReaded_"+str(node)+'.json')
         cipher = Cipher()
         try:
@@ -42,7 +81,7 @@ class SC3:
             print("Erro ao converter lastBlock para bytes ", fileName)
 
     @staticmethod
-    def getBCD(node) -> Blockchain:
+    def getBCD(node="h1") -> Blockchain:
         b1 = Blockchain(node)
         b1.chain= b1.solveBizzantineProblem()
         return b1

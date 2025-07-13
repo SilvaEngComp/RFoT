@@ -5,188 +5,105 @@ Created on Wed Sep 29 09:22:31 2021
 @author: silva
 """
 import random
-import time
-import datetime
+from src.suport_layer.cipher import Cipher
+from src.suport_layer.hostTrainer import HostTrainer
 import hashlib
 import json
 import os
-import ast
 from src.suport_layer.block import Block
 from src.suport_layer.transaction import Transaction
 import re
-
+from src.dashboard.cenary4.blockchain import Blockchain
 
 class CorruptedBlockchain:
-    def __init__(self, node):
-        self.node = node
-        self.chain = []
-
-
-    def __str__(self):
-
-        return str({
-        "chain": self.chain,
-        })
-    def __repr__(self):
-        return str({
-        "chain": self.chain,
-        })
     
-    @staticmethod 
-    def toJson(corruptedChain):
-        chain = []
-        for block in corruptedChain:
-            chain.append(Block.toJson(block))
-        return {
-        "chain": chain,
-        }
-        
-    @classmethod
-    def fromJson(self, data):
-        try:
-            if isinstance(data, list):
-                chain = []
-                for jsonBlock in data:
-                    chain.append(Block.fromJson(jsonBlock))  
-                return chain
-        except:
-            if isinstance(data, CorruptedBlockchain(node)):
-                return data
-            print('That is not a dict object. Try it again!')
-
-    
-
-
-    def getPreviousBlock(self)->Block: 
-        chain = CorruptedBlockchain.solveBizzantineProblem()
-        if chain is None:
-            return None
-        elif len(chain)>0:            
-            self.chain = chain          
-            return self.chain[-1]
-        return None
-                                    
-
-    def proofOfWork(self, previous_proof, new_proof = 1):
-        if isinstance(previous_proof,str):
-            previous_proof = int(previous_proof)
-        if isinstance(new_proof,str):
-            new_proof = int(new_proof)
-        
-        while True:
-            hashOperation = self.getHashOperation(previous_proof, new_proof)
-            if self.checkPuzzle(hashOperation) is True:
-                break
-            else:
-                new_proof +=1
-        return new_proof                            
-
-    @staticmethod
-    def checkPuzzle(hash_test):
-        if hash_test[0:4]=='0000':
-            return True
-            return False
-    @staticmethod
-    def getHashOperation(previous_proof, new_proof):
-        return hashlib.sha256(str(new_proof**2-previous_proof**2).encode()).hexdigest()
-        
-        
-    @staticmethod
-    def hash(value):
-        try:
-            if isinstance(value, Block):
-                value = str(value)
-                encoded = json.dumps(value).encode()
-                return hashlib.sha256(encoded).hexdigest()
-        except:
-            print('It can not get the hash of not Block: ',type(value))
-            return None
-        
-    @staticmethod
-    def isChainValid(chain):
-        previousBlock = chain[0]
-        blockIndex=1
-        while blockIndex < len(chain):
-            block = chain[blockIndex]
-            previousBlockHash = CorruptedBlockchain.hash(previousBlock)
-            if block.previousHash != previousBlockHash:
-                return False
-            previousProof = previousBlock.proof
-            proof = block.proof
-            hashOperation = CorruptedBlockchain.getHashOperation(previousProof, proof)
-            if CorruptedBlockchain.checkPuzzle(hashOperation) is False:
-                return False
-            previousBlock = block
-            blockIndex += 1
-        return True
-
 
     @staticmethod      
-    def getLocalBLockchainFile(node = None, prefix='../data_collector/'):
+    def getLocalBLockchainFile(node=None):
+        prefix = os.path.dirname(os.path.abspath(__file__))
         if node is not None:
-            x = re.search("^blockchain.*json$", node)
-            if(x is False):
-                fileName = str(prefix + 'blockchain_'+node+'.json')   
-            else:
-                fileName = str(prefix + node) 
-            if os.path.exists(fileName) is False:
-                return []
+            fileName = str(prefix +"/"  + node)
+
             try:
-                with open(fileName) as blockchainFile:
+                with open(fileName, 'rb') as blockchainFile:
+                    print('hi corrupted')
                     if os.path.getsize(fileName) > 0:
-                        data = json.load(blockchainFile)['chain']
-                        return CorruptedBlockchain.fromJson(data)
-            except:
-                print('not found local blockchain file: ',node)
+                        cipher = Cipher()
+                        data = blockchainFile.read()
+                        decripted = cipher.decrypt(data)
+                        dataJson = json.loads(decripted)
+                        dataJson = Blockchain.toJsonDecrypted(dataJson['chain'])
+                        return dataJson
+            except Exception as e:
+                print('229 - not found local blockchain file: ', node)
+                print(e)
                 return []
     
     @staticmethod  
-    def getBlockchainFileNames(prefix='../data_collector/'):
+    def getBlockchainFileNames():
+        prefix = os.path.dirname(os.path.abspath(__file__))
         fileNames = []
         for file in os.listdir(prefix):
             if file.endswith(".json"):
-                x = re.search("^blockchain.*json$", file)
+                x = re.search("^data_blockchain.*json$", file)
                 if(x):
                     fileNames.append(file)
         return fileNames
     
     @staticmethod 
-    def register(corruptedBlockchain):
-        with open(corruptedBlockchain.node,"w") as blockchainFile:
-            print('corrupting {}...  '.format(corruptedBlockchain.node))
-            json.dump(CorruptedBlockchain.toJson(corruptedBlockchain.chain), blockchainFile)
+    def register(corruptedBlockchain, node):
+        try:
+            with open(node,"w") as blockchainFile:
+                print('corrupting {}...  '.format(node))
+                cipher = Cipher()
+                dataBytes = json.dumps(Blockchain.toJson(corruptedBlockchain)).encode("utf-8")
+                encrypted = cipher.encrypt(dataBytes)
+                json.dump(encrypted.decode(), blockchainFile)
+        except Exception as e:
+            print('File registring error...')
+            print(e)
             
     @staticmethod          
     def corruptBlockchain():
         try:            
             nodes = CorruptedBlockchain.getBlockchainFileNames()
-            longest_chain = None
-            max_length = 0
-            nameNode=None
-            cont=0
+            print(nodes)
             if(nodes):
                 for node in nodes:
-                    if("blockchain_h3.json" == node):
+                    if("data_blockchainh3.json" == node):
                         continue
                         
                     chain = CorruptedBlockchain.getLocalBLockchainFile(node)
-                    if(len(chain)>0):
+                    if(len(chain['chain'])>0):
+                        cipher = Cipher()
                         corruptedChain=[]
-                        for block in chain:
+                        for block in chain['chain']:
                             corruptedTransactions=[]
-                            for transaction in block['transactions']:
-                                newTransaction = Transaction(transaction.sender, transaction.sensor, transaction.receiver, random.randint(1,1000))
-                                corruptedTransactions.append(newTransaction)
+                            # print(block)
+                            for item in block['transactions']:
+                                # print(item)
+                                temperature = str(random.randint(1, 1000))
+                                humidity = str(random.randint(1, 1000))
+                                
+                                sensorNode = {"temperature":temperature,"humidity":humidity}
+                                # print(sensorNode)
+                                dataBytes = json.dumps(sensorNode).encode("utf-8")
+                                # print(dataBytes)
+                                encrypted= cipher.encrypt(dataBytes)
+                                # print(encrypted)
+                                newItem = Transaction(item["sender"],item["sensor"], item["receiver"],encrypted.decode())
+                                # print(newItem)
+                                corruptedTransactions.append(newItem)
                             
-                            
-                            corruptedBlock = Block(corruptedTransactions,block.hostTrainer,block.typeBlock, block.index,block.proof,block.previousHash, block.timestamp)
-                            corruptedChain.append(corruptedBlock)
-                        corruptedBlockchain = CorruptedBlockchain(node)
-                        corruptedBlockchain.chain = corruptedChain
-                        CorruptedBlockchain.register(corruptedBlockchain)
                         
-        except:
+                            corruptedBlock = Block(corruptedTransactions,block['typeBlock'], int(block['index']),int(block['proof']),block['previousHash'], block['timestamp'],None)
+                            corruptedChain.append(corruptedBlock)
+                        print(Blockchain.toJson(corruptedChain))
+                        CorruptedBlockchain.register(corruptedChain, node)
+                        
+        except Exception as e:
             print('Something wrong happen in replaceChain...')
+            print(e)
     
           
     

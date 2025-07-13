@@ -12,14 +12,14 @@ dataset = pd.read_csv('../intel_lab.csv', usecols=['temperature','humidity'], de
 iotcoin = Iotcoin('h1', 20)
 cont=0
 for data in dataset.iterrows():
-    if cont>30000:
+    if cont>20000:
         break
     temperature = str(data[1][0])
     humidity = str(data[1][1])
     sensorNode = {'temperature':temperature,'humidity':humidity}
     dataBytes = json.dumps(sensorNode).encode("utf-8")
     encrypted = cipher.encrypt(dataBytes)
-    responseModel={"code":"post","post":'sc01',"method":"flow","header":{"sensor":'node Temperature and Humidity',"device":'h1',"time":{"collect":10000, "publish": 10000}}, "data":encrypted}
+    responseModel={"code":"post","post":'sc01',"method":"flow","header":{"sensor":'node Temperature and Humidity',"device":'h1',"time":{"collect":10000, "publish": 10000}}, "data":encrypted.decode()}
 
     transaction = Transaction(
         responseModel['header']['device'], responseModel['header']['sensor'], 'h1', responseModel['data'])

@@ -1,0 +1,3 @@
+from src.proposed_model.corruptedBlockchain import CorruptedBlockchain
+
+CorruptedBlockchain.corruptBlockchain()

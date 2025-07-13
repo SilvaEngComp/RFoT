@@ -8,13 +8,13 @@ import numpy as np
 import pandas as pd
 import csv
 import math
-from simple_MLP import SimpleMLP
+from simple_MLP import SimpleMLP,SimpleMLP2
 from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 import json
 import tensorflow as tf
 import random
-
+from time import sleep
 class FdModel:
     def __init__(self, name, dataBlock=None):
         self.name = name
@@ -75,27 +75,33 @@ class FdModel:
 
     def getStatistics(self):
         decryptedTransactions = []
-        for block in self.dataBlock:
-            decryptedTransactions.append(Transaction.fromJsonDecrypt(block))
+        if(isinstance(self.dataBlock,list)):
+            for block in self.dataBlock:
+                decryptedTransactions.append(Transaction.fromJsonDecrypt(block))
+        else:
+            for transaction in self.dataBlock.transactions:
+                decryptedTransactions.append(Transaction.fromJsonDecrypt(transaction))
+                    
         return self.targetDefinition(decryptedTransactions)
         
     
     def fixingData(self,data):
-        return float(data)
-        # part1 = data.split('.')
-        # if(len(part1[0])>2):
-        #     integerPart = part1[0][:2]
-        #     floatPart =  part1[0][2:]
-        #     realNumber = float(str(integerPart+'.'+floatPart))
-        # else:
-        #     realNumber = float(data)
-        # return realNumber
+        part1 = data.split('.')
+        if(len(part1[0])>2 and len(part1)>1):
+            integerPart = part1[0][:2]
+            floatPart =  part1[0][2:]
+            realNumber = float(str(integerPart+'.'+floatPart))+20.0
+        else:
+            realNumber = float(data)
+        return realNumber
 
     def arrayToDataFrame(self, transactions):
         filtradTransactions = []
         for transaction in transactions:
-            temperature =random.randint(0, 6) + self.fixingData(transaction["data"]["temperature"])
-            humidity = random.randint(0, 6) + self.fixingData(transaction["data"]["humidity"])
+            if(isinstance(transaction.data,str)):
+                transaction.data = json.loads(transaction.data)
+            temperature = self.fixingData(transaction["data"]["temperature"])
+            humidity = self.fixingData(transaction["data"]["humidity"])
             filtradTransactions.append([temperature,humidity])
         
         cols=["temperature","humidity"]
@@ -105,20 +111,27 @@ class FdModel:
         dataset = self.arrayToDataFrame(transactions)
         dataset["temperature"].astype(np.float64)
         dataset["humidity"].astype(np.float64)
-        outliers = dataset[dataset['temperature'] > -40]
-        df = outliers[outliers['temperature'] < 40 ]
+        #calcular 1° quartil
+        Q1 = np.nanpercentile(dataset["temperature"],25,interpolation="midpoint")
+        #calcular 3° quartil
+        Q3 = np.nanpercentile(dataset["temperature"],75,interpolation="midpoint")
+        #intervalo do quartil
+        IQR = Q3-Q1
+        df = dataset[dataset["temperature"] <= Q3 + IQR*3.5]
+        df = df[df["temperature"] >= Q3 - IQR*3.5]
+
         return df
     def targetDefinition(self, transactions):
         df = self.removingOutliers(transactions)
         
-        tev = self.getIDT(df)
+        idt = self.getIDT(df)
         target=[]
-        for value in tev:
-            if value >=24 and value <= 26:
+        for value in idt:
+            if  value<= 26:
                 target.append(1)
             else:
                 target.append(0)
-        df["IDT"]=tev
+        df["IDT"]=idt
         df["target"]=target
         
         return df
@@ -132,7 +145,8 @@ class FdModel:
 
     def saveDataset(self, dataset):
         exists = os.path.exists(self.fileName)
-
+        print(f'143 - {dataset.columns}')
+        print(f'144 exists = {exists}')
         with open(self.fileName, 'a') as datasetFile:
             writer = csv.writer(datasetFile)
             if exists is False:
@@ -147,10 +161,9 @@ class FdModel:
         return dataset2.shuffle(len(target)).batch(bs)
 
     def training(self, dataset):
-        print(dataset)
         self.generateCardinality(dataset)
         target = dataset.target
-        dataset = dataset.drop(columns=['IDT'])
+        # dataset = dataset.drop(columns=['IDT'])
         dataset = dataset.drop(columns=['target'])
         
         local_model = None
@@ -158,17 +171,16 @@ class FdModel:
             if (dataset.shape[0] > 1):
                 X_train, X_test, y_train, y_test = train_test_split(dataset, target, test_size=0.5, random_state=42,
                                                                     stratify=None, shuffle=False)
-                print(X_train)
                 smlp_local = SimpleMLP()
 
                 local_model = smlp_local.build(X_train.shape[1])
                 local_model.compile(loss=self.getLoss(), optimizer=self.getOptimizer(),
                                     metrics=self.getMetrics())
-                local_model.fit(X_train, y_train,
-                                epochs=self.getEpochs(), verbose=0)
+                local_model.fit(X_train, y_train)
             return local_model
-        except:
+        except Exception as e:
             print("Treinamento deu erro")
+            print(str(e))
 
     def hasValidModel(self):
         if self._model is None:
@@ -211,7 +223,8 @@ class FdModel:
             self._model = model_from_json(model)
         else:
             print('model_from_dict')
-            self._model = model
+            self._model = model_from_json(model['model'])
+            self._cardinality = model['cardinality']
 
     def getModel(self):
         return self._model

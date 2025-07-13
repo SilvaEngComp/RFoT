@@ -1,6 +1,7 @@
 
 import datetime
 import json
+from sys import getsizeof
 from .transaction import Transaction
 from .hostTrainer import HostTrainer
 
@@ -62,14 +63,29 @@ class Block:
                 self.hostTrainer.hostTrainer, None, None, self.transactions).toJson()]
 
         if (self.typeBlock == 'data_blockchain' or self.hostTrainer is None):
+            
+            # jsonData1 = {
+            #     'index': self.index,
+            #     'timestamp': self.timestamp,
+            #     'proof': self.proof,
+            #     'typeBlock': self.typeBlock,
+            #     'previousHash': self.previousHash,
+              
+            # }
+            # print(f'tamanho do cabeçalho blockchain : {getsizeof(json.dumps(jsonData1))} bytes')
+           
             jsonData = {
-                'index': self.index,
-                'timestamp': self.timestamp,
-                'proof': self.proof,
-                'typeBlock': self.typeBlock,
-                'previousHash': self.previousHash,
-                'transactions': transactions
+            'index': self.index,
+            'timestamp': self.timestamp,
+            'proof': self.proof,
+            'typeBlock': self.typeBlock,
+            'previousHash': self.previousHash,
+            'transactions': transactions
             }
+            # print(f'---------------- Transactions------------\n{transactions}')
+            # print(f'---------------- Bloco dados------------')
+            # print(f'tamanho de um bloco com dados : {getsizeof(json.dumps(jsonData))} bytes')
+            
         else:
             hostTrainer = self.hostTrainer.toJson()
             jsonData = {
@@ -84,8 +100,8 @@ class Block:
 
         return jsonData
 
-    @classmethod
-    def fromJson(self, jsonBlock):
+    @staticmethod
+    def fromJson(jsonBlock):
         if isinstance(jsonBlock, dict):
             pool = []
             for transaction in jsonBlock['transactions']:
@@ -102,10 +118,10 @@ class Block:
 
         return jsonBlock
 
-    @classmethod
-    def fromJsonDecrypt(self, jsonBlock):
-        if isinstance(jsonBlock, dict):
-            pool = []
+    @staticmethod
+    def fromJsonDecrypt(jsonBlock):
+        pool = []
+        if isinstance(jsonBlock, dict):            
             for transaction in jsonBlock['transactions']:
                 pool.append(Transaction.fromJsonDecrypt(transaction))
 
@@ -117,7 +133,9 @@ class Block:
                 block = Block(pool, jsonBlock['typeBlock'], jsonBlock['index'], jsonBlock['proof'],
                               jsonBlock['previousHash'], jsonBlock['timestamp'], hostTrainer)
 
-            print(f'é um bloco? {isinstance(block, Block)}')
             return block
 
+        for transaction in jsonBlock.transactions:
+                pool.append(Transaction.fromJsonDecrypt(transaction))
+        jsonBlock.transactions=pool
         return jsonBlock
